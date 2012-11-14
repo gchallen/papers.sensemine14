@@ -3,7 +3,7 @@ TARGETS = simple.pdf
 all: $(TARGETS)
 	@echo > /dev/null
 
-simple.dat: $(DATA) processsimple.py
+simple.dat: processsimple.py $(DATA)
 	./$< $(DATA)
 
 simple.pdf: simple.dat gensimple.py

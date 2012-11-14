@@ -40,9 +40,7 @@ for line in f.readlines():
   device = logline_match.group('hashed_ID')
   charge_level = log_json['BatteryLevel']
 
-  print device, device_time, charge_level
-  continue
-
-  if not charge_level.has_key(device):
-    charge_level[device] = {}
+  if not charge_levels.has_key(device):
+    charge_levels[device] = {}
   charge_levels[device][device_time] = charge_level
+pickle.dump(charge_levels, 'simple.dat', -1)
