@@ -1,15 +1,16 @@
-TARGETS = componentgraph.pdf transitiongraph.pdf
+TARGETS = example template
 
 all: $(TARGETS)
 	@echo > /dev/null
 
-componentgraph.pdf: gencomponentgraph.py
-	./$<
+example:
+	@cd example ; make
 
-transitiongraph.pdf: gentransitiongraph.py transitiongraph.txt
-	./$< transitiongraph.txt
+template:
+	@cd template ; make
 
 clean:
-	@rm -f $(TARGETS)
+	@cd example ; make clean
+	@cd template ; make clean
 
-.PHONY: clean all
+.PHONY: clean all example template
