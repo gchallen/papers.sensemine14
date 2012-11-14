@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os,sys,gzip,re,json
+import os,sys,gzip,re,json,pickle
 from datetime import datetime
 
 """Example of the log lines we are looking for:
