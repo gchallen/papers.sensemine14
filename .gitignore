@@ -1,5 +1,7 @@
 /ABSTRACT
 /paper.pdf
+*.swp
+*.pyc
 *.aux
 *.log
 *.out
