@@ -41,6 +41,10 @@ for line in f.readlines():
   charge_level = log_json['BatteryLevel']
 
   if not charge_levels.has_key(device):
-    charge_levels[device] = {}
-  charge_levels[device][device_time] = charge_level
+    charge_levels[device] = []
+  charge_levels[device].append((device_time, charge_level))
+
+for device in charge_levels.keys():
+  charge_levels[device] = sorted(charge_levels[device], key=lambda i: i[0])
+
 pickle.dump(charge_levels, open('simple.dat', 'wb'), -1)

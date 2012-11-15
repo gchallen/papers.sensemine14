@@ -1,9 +1,24 @@
 #!/usr/bin/env python
 
-import re,sys,numpy
+import re,sys,numpy,pickle,argparse
 import matplotlib.pyplot as plt
 
-figure = plt.figure()
-ax = host_subplot(111)
+parser = argparse.ArgumentParser()
+parser.add_argument('data')
+parser.add_argument("--min_count", help="Minimum number of values required for inclusion in plot.", action='store', type=int, default=24)
+args = parser.parse_args()
 
-figure.savefig('transitiongraph.pdf')
+charge_levels = pickle.load(open(args.data, 'rb'))
+
+figure = plt.figure()
+axes = figure.add_subplot(111)
+
+for device in charge_levels.keys():
+  if len(charge_levels[device]) < args.min_count:
+    continue
+  axes.plot([i[0] for i in charge_levels[device]], [i[1] for i in charge_levels[device]])
+
+for label in axes.get_xticklabels():
+  label.set_rotation(30)
+
+figure.savefig('simple.pdf')
