@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os,sys,gzip,re,json,pickle
+import os,sys,gzip,re,json,pickle,math
 from datetime import datetime
 
 """Example of the log lines we are looking for:
@@ -21,6 +21,13 @@ if len(sys.argv) <= 1:
 f = gzip.open(sys.argv[1], 'rb')
 
 charge_levels = {}
+
+acc_levels_network = [];
+acc_levels_gps = [];
+
+for i in range(11):
+    acc_levels_network.append(0)
+    acc_levels_gps.append(0)
 
 for line in f.readlines():
   line = line.strip()
@@ -53,23 +60,35 @@ for line in f.readlines():
           continue
     
       parsed_loc = dict(u.split("=") for u in location_match.group('loc_data').split(","))
-      print parsed_loc['mProvider'], " ", parsed_loc['mAccuracy']
+      #print parsed_loc['mProvider'], " ", parsed_loc['mAccuracy']
+
+      acc = float(parsed_loc['mAccuracy'])
+      if parsed_loc['mProvider'] == 'gps':
+        if acc >= 100:
+            acc_levels_gps[10] += 1
+        else:
+            quotient = int(acc / 10)
+            acc_levels_gps[quotient] += 1
+      elif parsed_loc['mProvider'] == 'network':
+          if (acc >= 100):
+              acc_levels_network[10] += 1
+          else:
+              quotient = int(acc/10)
+              acc_levels_network[quotient] += 1
 
 
+      
+print acc_levels_gps
+print acc_levels_network
 
-  #provider = log_json['mProvider']
-  #if provider == 'network'
-   # print >> log_json['mAccuracy]
+total_gps = sum(acc_levels_gps)
+total_network = sum(acc_levels_network)
+for i in range(11):
+    acc_levels_gps[i] = math.ceil(float(acc_levels_gps[i]) * 100/total_gps)
+    acc_levels_network[i] = math.ceil(float(acc_levels_network[i]) * 100/total_network)
+
+data = {'gps': acc_levels_gps, 'network':acc_levels_network}
+
+pickle.dump(data, open('data.dat', 'wb'), -1)
 
 
-
-  """charge_level = log_json['BatteryLevel']
-
-  if not charge_levels.has_key(device):
-    charge_levels[device] = []
-  charge_levels[device].append((device_time, charge_level))
-
-for device in charge_levels.keys():
-  charge_levels[device] = sorted(charge_levels[device], key=lambda i: i[0])"""
-
-pickle.dump(charge_levels, open('data.dat', 'wb'), -1)
