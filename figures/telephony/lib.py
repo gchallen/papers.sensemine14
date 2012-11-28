@@ -11,6 +11,7 @@ class Telephony:
     self.path = path
     self.calls = None
     self.texts = None
+    self.devices = set([])
     
   def process(self, data):
     c = CallState()
@@ -19,8 +20,10 @@ class Telephony:
     for logline in data.generate_loglines():
       if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
         c.add(logline)
+        self.devices.add(logline.device)
       elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
         t.add(Text(logline.device, logline.datetime))
+        self.devices.add(logline.device)
     self.calls = c.calls
     self.texts = list(t)
   
