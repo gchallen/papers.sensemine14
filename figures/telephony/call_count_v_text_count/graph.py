@@ -22,17 +22,29 @@ for call in calls:
 for text in texts:
   text_counts[text.device] += 1
 
-calls_by_device, texts_by_device = [], []
+both = []
+texts_only = []
+calls_only = []
 
-for device in t.devices:  
-  calls_by_device.append(call_counts[device])
-  texts_by_device.append(text_counts[device])
-
+for device in t.devices:
+  if call_counts[device] == 0 and text_counts[device] == 0:
+    continue
+  elif call_counts[device] != 0 and text_counts[device] != 0:
+    both.append((call_counts[device], text_counts[device],))
+  elif call_counts[device] == 0:
+    texts_only.append((call_counts[device], text_counts[device],))
+  elif text_counts[device] == 0:
+    calls_only.append((call_counts[device], text_counts[device],))                                                    
+ 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
-ax.scatter(calls_by_device, texts_by_device)
+ax.scatter(*zip(*both), label='Calls and Texts (%d)' % (len(both)))
+ax.scatter(*zip(*texts_only), color='green', label='Texts Only (%d)' % (len(texts_only)))
+ax.scatter(*zip(*calls_only), color='red', label='Calls Only (%d)' % (len(calls_only)))
+
 ax.axis(xmin=-10, ymin=-10, xmax=1000, ymax=200)
+ax.legend(loc='upper right')
 ax.set_xlabel('Call Count')
 ax.set_ylabel('Text Count')
 
