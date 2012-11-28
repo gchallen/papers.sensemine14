@@ -1,4 +1,5 @@
-import os, hashlib, pickle
+import os, hashlib, cPickle, re, json
+from dateutil.parser import parse
 
 ARCHIVE_MD5SUM_PICKLE_FILENAME = 'md5sums.pickle'
 
@@ -25,7 +26,7 @@ def load_hash(directory=None):
   if not os.path.exists(path):
     return None
   else:
-    return pickle.load(open(path, 'rb'))
+    return cPickle.load(open(path, 'rb'))
   
 def hash_logs(directory=None):
   directory = check_directory(directory)
@@ -39,4 +40,45 @@ def hash_logs(directory=None):
         for chunk in iter(lambda: f.read(128 * md5.block_size), b''):
           md5.update(chunk)
       md5sums[filename] = md5.hexdigest()
-  return md5sums    
+  return md5sums
+
+
+
+class Logline:
+  LOGLINE_PATTERN_STRING = r"""^
+   (?P<hashed_ID>\w{40})\s+
+   (?P<datetime>\d+-\d+-\d+\s+\d+:\d+:\d+\.\d+)\s+
+   (?P<process_id>\d+)\s+(?P<thread_id>\d+)\s+(?P<log_level>\w)\s+
+   (?P<log_tag>%s):\s+(?P<json>.*?)$"""
+   
+  def __init__(self, match, line):
+    self.device = match.group('hashed_ID')
+    self.datetime = parse(match.group('datetime'))
+    self.log_tag = match.group('log_tag').strip()
+    self.line = line.strip()
+    self.json = json.loads(match.group('json'))
+  
+  def __str__(self):
+    return self.line
+
+class LogFilter:
+  def __init__(self, tags, directory=None):
+    self.tags = tags
+    self.directory = check_directory(directory)
+    self.logs_md5sums = load_hash(directory)
+    
+  def sorted_keys(self):
+    return sorted(self.logs_md5sums.keys(), key=lambda k: int(os.path.splitext(k)[0]))
+  
+  def generate_loglines(self):
+    
+    log_tag_string = "|".join([r"""%s\s*""" % (tag,) for tag in self.tags])
+    logline_pattern_string = Logline.LOGLINE_PATTERN_STRING % (log_tag_string,)
+    logline_pattern = re.compile(logline_pattern_string, re.VERBOSE)
+    
+    for filename in self.sorted_keys():
+      for line in open(os.path.join(self.directory, filename), 'rb'):
+        m = logline_pattern.match(line)
+        if m != None:
+          yield Logline(m, line)    
+      

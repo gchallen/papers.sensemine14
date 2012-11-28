@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 
-import pickle, argparse, matplotlib
+import cPickle, argparse, matplotlib
 matplotlib.use('Agg')
-
 import matplotlib.pyplot as plt
 
+from common import graphing
+
 parser = argparse.ArgumentParser()
-parser.add_argument('data')
-parser.add_argument("--min_count", help="Minimum number of values required for inclusion in plot.", action='store', type=int, default=24)
 args = parser.parse_args()
 
-charge_levels = pickle.load(open(args.data, 'rb'))
+calls = cPickle.load(open('../data.dat', 'rb'))
 
-figure = plt.figure()
-axes = figure.add_subplot(111)
+call_count = {}
+for c in calls:
+  if not call_count.has_key(c.device):
+    call_count[c.device] = 1
+  else:
+    call_count[c.device] += 1
 
-for device in charge_levels.keys():
-  if len(charge_levels[device]) < args.min_count:
-    continue
-  axes.plot([i[0] for i in charge_levels[device]], [i[1] for i in charge_levels[device]])
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1)
 
-for label in axes.get_xticklabels():
-  label.set_rotation(30)
+ax.hist([call_count[device] for device in call_count.keys()])
 
-figure.savefig('simple.pdf')
+fig.savefig('graph.pdf')

@@ -1,53 +1,79 @@
 #!/usr/bin/env python
 
-import sys, gzip, re, json, pickle
+import cPickle
+
 from common import lib
-from datetime import datetime
+from telephony.lib import Call
 
-"""Example of the log lines we are looking for:
-3ddb921496c26db81aa7022893f07656e996b6e4  11-13 00:11:39.082 25378 25378 I PhoneLabSystemAnalysis-BatteryChange: {"Action":"android.intent.action.BATTERY_CHANGED","Temparature":260,"BatteryLevel":95,"Plugged":true}"""
+class CallState:
   
-LOGLINE_PATTERN = re.compile(r"""^
-   (?P<hashed_ID>\w{40})\s+
-   (?P<month>\d+)-(?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)\.(?P<millisecond>\d+)\s+
-   (?P<process_id>\d+)\s+(?P<thread_id>\d+)\s+(?P<log_level>\w)\s+
-   (?P<log_tag>.+?):\s+(?P<json>.*?)$""", re.VERBOSE)
+  def __init__(self):
+    self.call_state = {}
+    self.calls = []
+    
+  def add(self, logline):
+    if logline.json['State'] == 'CALL_STATE_RINGING':
+      self.start_ringing(logline.device, logline.datetime)
+    elif logline.json['State'] == 'CALL_STATE_OFFHOOK':
+      self.off_hook(logline.device, logline.datetime)
+    elif logline.json['State'] == 'CALL_STATE_IDLE':
+      self.idle(logline.device, logline.datetime)
+  
+  def start_ringing(self, device, datetime):
+    self.call_state[device] = ('r', datetime)
+  
+  def is_ringing(self, device):
+    if self.has(device) and self.call_state[device][0] == 'r':
+      return True
+    else:
+      return False
+    
+  def off_hook(self, device, datetime):
+    if self.is_ringing(device):
+      self.call_state[device] = ('r', datetime)
+    else:
+      self.call_state[device] = ('p', datetime)
+      
+  def is_off_hook(self, device):
+    if self.has(device) and ( self.call_state[device][0] == 'r' or self.call_state[device][0] == 'p' ):
+      return True
+    else:
+      return False
+  
+  def is_received(self, device):
+    if not self.is_off_hook(device):
+      return False
+    return self.call_state[device][0] == 'r'
+  
+  def is_placed(self, device):
+    if not self.is_off_hook(device):
+      return False
+    return self.call_state[device][0] == 'p'
+  
+  def idle(self, device, datetime):
+    if self.is_off_hook(device):
+      self.calls.append(Call(device, self.is_placed(device), self.get_time(device), datetime))
+    self.call_state[device] = ('i', datetime)
+  
+  def is_idle(self, device):
+    if self.has(device) and self.call_state[device][0] == 'i':
+      return True
+    else:
+      return False
+  
+  def has(self, device):
+    return self.call_state.has_key(device)
+  
+  def get_time(self, device):
+    if self.call_state.has_key(device):
+      return self.call_state[device][1]
+    else:
+      return None
 
+data = lib.LogFilter(['PhoneLabSystemAnalysis-Telephony'])
 
-
-f = gzip.open(sys.argv[1], 'rb')
-
-charge_levels = {}
-
-for line in f.readlines():
-  line = line.strip()
-  logline_match = LOGLINE_PATTERN.match(line)
-  if logline_match == None:
-    continue
-  if logline_match.group('log_tag') != 'PhoneLabSystemAnalysis-BatteryChange':
-    continue
-
-  try:
-    device_time = datetime(datetime.now().year,
-                           int(logline_match.group('month')),
-                           int(logline_match.group('day')),
-                           int(logline_match.group('hour')),
-                           int(logline_match.group('minute')),
-                           int(logline_match.group('second')),
-                           int(logline_match.group('millisecond')) * 1000)
-    log_json = json.loads(logline_match.group('json'))
-  except Exception, e:
-    print >>sys.stderr, "Error processsing %s: %s" % (line, e)
-    continue
-
-  device = logline_match.group('hashed_ID')
-  charge_level = log_json['BatteryLevel']
-
-  if not charge_levels.has_key(device):
-    charge_levels[device] = []
-  charge_levels[device].append((device_time, charge_level))
-
-for device in charge_levels.keys():
-  charge_levels[device] = sorted(charge_levels[device], key=lambda i: i[0])
-
-pickle.dump(charge_levels, open('simple.dat', 'wb'), -1)
+c = CallState()    
+for logline in data.generate_loglines():
+  if logline.json.has_key('State'):
+    c.add(logline)
+cPickle.dump(c.calls, open('data.dat', 'wb'), cPickle.HIGHEST_PROTOCOL)
