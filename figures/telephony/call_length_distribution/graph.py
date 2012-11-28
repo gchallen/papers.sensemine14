@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
-import cPickle, argparse, matplotlib
+import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from common import graphing
+from telephony.lib import * #@UnusedWildImport
 
-parser = argparse.ArgumentParser()
-args = parser.parse_args()
-
-calls = cPickle.load(open('data.dat', 'rb'))
+calls = Telephony.load('../data.dat').calls
 
 received_lengths = [((c.end - c.start).seconds / 60.0) for c in calls if c.placed == False]
 placed_lengths = [((c.end - c.start).seconds / 60.0) for c in calls if c.placed == True]
