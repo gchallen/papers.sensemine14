@@ -27,12 +27,12 @@ calls_by_device, texts_by_device = [], []
 for device in t.devices:  
   calls_by_device.append(call_counts[device])
   texts_by_device.append(text_counts[device])
-    
+
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
 ax.scatter(calls_by_device, texts_by_device)
-ax.axis(xmin=0, ymin=0, xmax=1000, ymax=200)
+ax.axis(xmin=-10, ymin=-10, xmax=1000, ymax=200)
 ax.set_xlabel('Call Count')
 ax.set_ylabel('Text Count')
 
