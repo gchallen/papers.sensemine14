@@ -18,7 +18,7 @@ ax = fig.add_subplot(1,1,1)
 ax.plot(*graphing.cdf(received_lengths), label='Received')
 ax.plot(*graphing.cdf(placed_lengths), label='Placed')
 
-ax.xlabel('Call Length (min)')
+ax.set_xlabel('Call Length (min)')
 ax.set_xscale('log')
 ax.legend(loc=4)
 

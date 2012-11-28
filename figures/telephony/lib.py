@@ -5,7 +5,7 @@ import cPickle
 class Telephony:
   @classmethod
   def load(cls, path):
-    return cPickle.load(open(path, 'rb'), cPickle.HIGHEST_PROTOCOL)
+    return cPickle.load(open(path, 'rb'))
   
   def __init__(self, path):
     self.path = path
@@ -21,6 +21,8 @@ class Telephony:
         c.add(logline)
       elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
         t.add(Text(logline.device, logline.datetime))
+    self.calls = c.calls
+    self.texts = list(t)
   
   def dump(self):
     cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
