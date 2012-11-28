@@ -56,7 +56,13 @@ class Logline:
     self.datetime = parse(match.group('datetime'))
     self.log_tag = match.group('log_tag').strip()
     self.line = line.strip()
-    self.json = json.loads(match.group('json'))
+    self.log_message = match.group('json').strip()
+      
+    try:
+      self.json = json.loads(match.group('json').strip())
+    except ValueError:
+      self.json = None
+  
   
   def __str__(self):
     return self.line
@@ -80,5 +86,4 @@ class LogFilter:
       for line in open(os.path.join(self.directory, filename), 'rb'):
         m = logline_pattern.match(line)
         if m != None:
-          yield Logline(m, line)    
-      
+          yield Logline(m, line)

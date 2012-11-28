@@ -3,6 +3,11 @@
 import cPickle
 from common import lib
 
+class Telephony:
+  def __init__(self, calls, texts):
+    self.calls = calls
+    self.texts = texts
+    
 class Call:
   def __init__(self, device, placed, start, end):
     self.device = device
@@ -10,6 +15,11 @@ class Call:
     self.start = start
     self.end = end
 
+class Text:
+  def __init__(self, device, datetime):
+    self.device = device
+    self.datetime = datetime
+    
 class CallState:
   
   def __init__(self):
@@ -75,10 +85,15 @@ class CallState:
     else:
       return None
 
-data = lib.LogFilter(['PhoneLabSystemAnalysis-Telephony'])
+data = lib.LogFilter(['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService'])
 
-c = CallState()    
+c = CallState()
+t = []
+    
 for logline in data.generate_loglines():
-  if logline.json.has_key('State'):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
     c.add(logline)
-cPickle.dump(c.calls, open('data.dat', 'wb'), cPickle.HIGHEST_PROTOCOL)
+  elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
+    print logline
+    
+cPickle.dump(Telephony(c.calls, texts), open('data.dat', 'wb'), cPickle.HIGHEST_PROTOCOL)
