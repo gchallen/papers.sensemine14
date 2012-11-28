@@ -9,18 +9,19 @@ from common import graphing
 parser = argparse.ArgumentParser()
 args = parser.parse_args()
 
-calls = cPickle.load(open('../data.dat', 'rb'))
+calls = cPickle.load(open('data.dat', 'rb'))
 
-call_count = {}
-for c in calls:
-  if not call_count.has_key(c.device):
-    call_count[c.device] = 1
-  else:
-    call_count[c.device] += 1
+received_lengths = [((c.end - c.start).seconds / 60.0) for c in calls if c.placed == False]
+placed_lengths = [((c.end - c.start).seconds / 60.0) for c in calls if c.placed == True]
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
-ax.hist([call_count[device] for device in call_count.keys()])
+ax.plot(*graphing.cdf(received_lengths), label='Received')
+ax.plot(*graphing.cdf(placed_lengths), label='Placed')
+
+ax.xlabel('Call Length (min)')
+ax.set_xscale('log')
+ax.legend(loc=4)
 
 fig.savefig('graph.pdf')
