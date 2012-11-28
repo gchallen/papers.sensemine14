@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import re,sys,numpy,pickle,argparse
-import matplotlib
+import pickle, argparse, matplotlib
 matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()

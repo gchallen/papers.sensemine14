@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import os,sys,gzip,re,json,pickle
+import sys, gzip, re, json, pickle
+from common import lib
 from datetime import datetime
 
 """Example of the log lines we are looking for:
@@ -12,9 +13,7 @@ LOGLINE_PATTERN = re.compile(r"""^
    (?P<process_id>\d+)\s+(?P<thread_id>\d+)\s+(?P<log_level>\w)\s+
    (?P<log_tag>.+?):\s+(?P<json>.*?)$""", re.VERBOSE)
 
-if len(sys.argv) <= 1:
-  print >>sys.stderr, "Please define a DATA environment variable that points to a compressed PhoneLab output archive."
-  sys.exit(-1)
+
 
 f = gzip.open(sys.argv[1], 'rb')
 
