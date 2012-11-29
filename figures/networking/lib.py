@@ -3,7 +3,7 @@
 import re, cPickle
 
 from common import lib
-from location.lib import Location
+from location.lib import DeviceLocation
 
 class Networking:
   @classmethod
@@ -48,12 +48,16 @@ class Networking:
             wifi_states[logline.device].end = logline.datetime
             self.data_sessions.append(wifi_states[logline.device])
             del(wifi_states[logline.device])
-        elif logline.log_tag == 'PhoneLabSystemAnalysis-Location':
-          if wifi_states.has_key(logline.device):
-            wifi_states[logline.device].locations.append(Location(
+      elif logline.log_tag == 'PhoneLabSystemAnalysis-Location' and logline.json != None \
+        and logline.json.has_key('Action') and logline.json['Action'] == 'edu.buffalo.cse.phonelab.LOCATION_UPDATE':
+        
+        if wifi_states.has_key(logline.device):
+          wifi_states[logline.device].locations.append(DeviceLocation(logline))
+        if threeg_states.has_key(logline.device):
+          threeg_states[logline.device].locations.append(DeviceLocation(logline))
             
-    def dump(self):
-      cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
+  def dump(self):
+    cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
 
 class NetworkSession(object):
   def __init__(self, logline):
@@ -77,11 +81,6 @@ class ThreeGSession(NetworkSession):
   def __init__(self, logline):
     super(ThreeGSession, self).__init__(logline)
 
-class Location:
-  def __init__(self, lat, lon):
-    self.lat = lat
-    self.lon = lon
-    
 if __name__=="__main__":
   t = Networking('data.dat')
   t.process()
