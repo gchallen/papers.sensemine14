@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cPickle
+from common import lib
 
 class Telephony:
   @classmethod
@@ -9,15 +10,17 @@ class Telephony:
   
   def __init__(self, path):
     self.path = path
+    self.tags = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService']
+    self.devices = set([])
+
     self.calls = None
     self.texts = None
-    self.devices = set([])
     
-  def process(self, data):
+  def process(self):
     c = CallState()
     t = set([])
     
-    for logline in data.generate_loglines():
+    for logline in lib.LogFilter(self.tags).generate_loglines():
       if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
         c.add(logline)
         self.devices.add(logline.device)
