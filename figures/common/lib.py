@@ -3,6 +3,14 @@ from dateutil.parser import parse
 
 ARCHIVE_MD5SUM_PICKLE_FILENAME = 'md5sums.pickle'
 
+class AutoDict(dict):
+  def __getitem__(self, item):
+    try:
+      return dict.__getitem__(self, item)
+    except KeyError:
+      value = self[item] = type(self)()
+      return value
+          
 class LibraryException(Exception):
   def __init__(self, value):
     self.value = value
