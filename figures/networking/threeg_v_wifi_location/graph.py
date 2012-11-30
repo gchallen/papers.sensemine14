@@ -27,7 +27,7 @@ threeg_locations = [suny_north.m(l.lon, l.lat) for l in threeg_locations]
 
 suny_north.m.imshow(suny_north.background, origin='upper')
 suny_north.m.plot(*suny_north.m(DAVIS_HALL.lon, DAVIS_HALL.lat), color='b', marker='o')
-suny_north.m.scatter(*zip(*wifi_locations), color='r')
-suny_north.m.scatter(*zip(*threeg_locations), color='g')
+suny_north.m.scatter(*zip(*wifi_locations), color='r', rasterized=True, s=1)
+suny_north.m.scatter(*zip(*threeg_locations), color='g', rasterized=True, s=1)
 
 fig.savefig('graph.pdf')

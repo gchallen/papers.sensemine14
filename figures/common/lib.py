@@ -50,8 +50,6 @@ def hash_logs(directory=None):
       md5sums[filename] = md5.hexdigest()
   return md5sums
 
-
-
 class Logline:
   LOGLINE_PATTERN_STRING = r"""^
    (?P<hashed_ID>\w{40})\s+
