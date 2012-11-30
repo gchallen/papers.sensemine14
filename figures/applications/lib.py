@@ -23,6 +23,8 @@ class Application:
     self.install_counts = {}
     self.coinstalled_applications = lib.AutoDict()
     
+    self.popular_installs = []
+    
   def process(self):
     for logline in lib.LogFilter(self.tags).generate_loglines():
       if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
@@ -44,7 +46,9 @@ class Application:
     for device in self.device_applications.keys():  
       for first_application, second_application in itertools.combinations(sorted(self.device_applications[device]), 2):
         self.coinstalled_applications[first_application][second_application] += 1
-      
+    
+    self.popular_installs = [app for app in sorted(self.install_counts.values(), key=lambda k: self.install_count[k]) if app not in self.PHONELAB_APPS]
+                                                   
   def dump(self):
     cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
 
