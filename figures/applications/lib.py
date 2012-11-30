@@ -28,7 +28,7 @@ class Application:
     self.coinstalled_applications = lib.AutoDict()
     
     self.popular_installs = []
-    
+  
   def process(self, time_limit=None):
     for logline in lib.LogFilter(self.tags).generate_loglines():
       
