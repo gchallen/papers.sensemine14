@@ -1,9 +1,0 @@
-paper : LOG := paper.log
-paper : PDF := paper.pdf
-paper : $(START) paper.pdf $(END)
-%s.ps : %s.pdf
-paper.pdf : paper.tex ./include/start.tex abstract.tex .xxxnote common.tex /home/challen/code/pytex//cls/sig-alternate-10pt.cls
-	pdflatex paper.tex
-	pdflatex paper.tex
-	pdflatex paper.tex
-PDFS = paper.pdf

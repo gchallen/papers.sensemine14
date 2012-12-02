@@ -13,6 +13,6 @@ ABSTRACT: $(PYTEX)/bin/clean $(PYTEX)/bin/lib.py abstract.tex
 # 16 Nov 2010 : GWA : Add other cleaning rules here.
 
 clean: rulesclean
-	@rm ABSTRACT
+	@rm -f ABSTRACT
 
 include $(PYTEX)/make/Makerules
