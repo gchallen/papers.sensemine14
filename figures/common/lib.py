@@ -38,6 +38,8 @@ class LogFilter(object):
                                key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
     
     self.devices = set([])
+    self.start_time = None
+    self.end_time = None
     
     self.processed = False
     self.__process()
@@ -74,9 +76,14 @@ class LogFilter(object):
         m = logline_pattern.match(line)
         if m == None:
           continue
+        
+        l = Logline(m, line)
+        self.devices.add(l.device)
+        if self.start_time == None:
+          self.start_time = l.datetime
+        self.end_time = l.datetime
+        
         try:
-          l = Logline(m, line)
-          self.devices.add(l.device)
           yield l
         except StopIteration:
           return

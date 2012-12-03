@@ -8,6 +8,7 @@ class Telephony(lib.LogFilter):
   def __init__(self):  
     self.calls = None
     self.texts = None
+    
     super(Telephony, self).__init__()
     
   def process(self):
