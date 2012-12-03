@@ -1,34 +1,25 @@
 #!/usr/bin/env python
 
-import os, cPickle
 from common import lib
 
-class Telephony:
-  @classmethod
-  def load(cls, path):
-    return cPickle.load(open(path, 'rb'))
+class Telephony(lib.LogFilter):
+  TAGS = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService']
   
-  def __init__(self, path):
-    if path == None:
-      self.path = os.path.join(os.path.realpath(__file__), 'data.dat')
-    else:
-      self.path = path
-    self.tags = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService']
-    self.devices = set([])
-
+  def __init__(self):  
     self.calls = None
     self.texts = None
+    super(Telephony, self).__init__()
     
   def process(self):
     c = CallState()
     t = set([])
     
-    for logline in lib.LogFilter(self.tags).generate_loglines():
+    for logline in self.generate_loglines():
       if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
         c.add(logline)
       elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
         t.add(Text(logline.device, logline.datetime))
-    self.devices.add(logline.device)
+    
     self.calls = c.calls
     self.texts = list(t)
   
@@ -47,9 +38,6 @@ class Telephony:
     for text in [t for t in self.texts if ( start_time == None or t.datetime >= start_time ) and ( end_time == None or t.datetime < end_time )]:
       text_counts[text.device] += 1
     return text_counts
-  
-  def dump(self):
-    cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
     
 class Call:
   def __init__(self, device, placed, start, end):
@@ -136,8 +124,3 @@ class CallState:
       return self.call_state[device][1]
     else:
       return None
-
-if __name__=="__main__":
-  t = Telephony('data.dat')
-  t.process()
-  t.dump()

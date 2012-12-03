@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from telephony.lib import * #@UnusedWildImport
 
-t = Telephony.load('../data.dat')
+t = Telephony.load()
 
 call_counts = t.get_call_counts()
 text_counts = t.get_text_counts()
