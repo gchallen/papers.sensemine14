@@ -13,7 +13,7 @@ class Networking:
   
   def __init__(self, path=None):
     if path == None:
-      self.path = os.path.join(os.path.realpath(__file__), 'data.dat')
+      self.path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data.dat')
     else:
       self.path = path
     self.tags = ['PhoneLabSystemAnalysis-Telephony', 'PhoneLabSystemAnalysis-Wifi', 'PhoneLabSystemAnalysis-Location', 'PhoneLabSystemAnalysis-Snapshot']
