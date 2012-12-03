@@ -26,6 +26,7 @@ class Networking:
     traffic_states = {}
     
     for logline in lib.LogFilter(self.tags).generate_loglines(time_limit=time_limit):
+      print logline.datetime
       self.devices.add(logline.device)
       if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
         if logline.json['State'] == 'DATA_CONNECTED':
@@ -144,7 +145,13 @@ class NetworkUsage(object):
     
     if self.rx < 0 or self.tx < 0:
       raise Exception("Negative RX or TX for NetworkUsage object.") 
-    
+  
+  def __str__(self):
+    if self.is_wifi:
+      return "%.20s : %s -> %s, %d/%d TX/RX over Wifi" % (self.device, self.start, self.end, self.tx, self.rx,)
+    else:
+      return "%.20s : %s -> %s, %d/%d TX/RX over 3G" % (self.device, self.start, self.end, self.tx, self.rx,)
+
 if __name__=="__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--time_limit_hours", help="Hours to process.",

@@ -96,8 +96,8 @@ class LogFilter:
           if time_limit != None:
             if first_logline == None:
               first_logline = l.datetime
-            if first_logline - l.datetime > time_limit:
-              return
+            if l.datetime - first_logline > time_limit:
+              return  
           yield l
 
 def add_md5sum(archive_directory):
