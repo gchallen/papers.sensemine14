@@ -13,138 +13,134 @@ def generateAppsList(path):
         tmparray=[]
         filelist=[]
         output = open('output.txt','w')
-	for root, dirs, files in os.walk('.'):
-		for name in files:
-			extension = os.path.splitext(name)[1]
-			if "filtered" in name: 
-                            filelist.append(os.path.join(root,name))
+	root, dirs, files = os.walk('.').next()
+	for name in files:
+	    extension = os.path.splitext(name)[1]
+	    if "filtered" in name: 
+                filelist.append(os.path.join(root,name))
 		
-		for f in filelist:
-                    componentforgroundtime = dict()
-                    componentstarttimes = defaultdict(int)
-		    try:
-		        log = open(f,'r')
-		    except IOError:
-			#print 'File doesnot exist'
-			break;
-		    name = os.path.basename(f)
-                    print '\n*************************************************, ', name
-                    currentfgapp=None
-                    newfgapp=None
-                    screenontime=None
-                    screenofftime=None
-                    cumulativeontime=0
-                    newfgappontime=None
-                    appstartedstate = False
-                    screenonstate= False
-                    screenoffstate= False
-		    for line in log:
+	for f in filelist:
+            componentforgroundtime = dict()
+            componentstarttimes = defaultdict(int)
+	    log = open(f,'r')
+	    name = os.path.basename(f)
+            print '\nProcessing, ', name
+            currentfgapp=None
+            newfgapp=None
+            screenontime=None
+            screenofftime=None
+            cumulativeontime=0
+            newfgappontime=None
+            appstartedstate = False
+            screenonstate= False
+            screenoffstate= False
+	    for line in log:
                         #print line
-                        if 'android.intent.action.SCREEN_ON' in line:
-                            ss = line.split()
-                            screenontime=datetime.datetime.strptime(ss[0]+ss[1], '%Y-%m-%d%H:%M:%S.%f')
-                            screenonstate = True
-                            screenoffstate = False
-                            appstartedstate = False
+                if 'android.intent.action.SCREEN_ON' in line:
+                    ss = line.split()
+                    screenontime=datetime.datetime.strptime(ss[0]+ss[1], '%Y-%m-%d%H:%M:%S.%f')
+                    screenonstate = True
+                    screenoffstate = False
+                    appstartedstate = False
                                 #print screenontime
                             #print 'current active fg app is ', currentfgapp
                                 
-                        elif 'START' in line:
+                elif 'START' in line:
                                 #print 'screenoffstate ',screenoffstate
-                            ss = line.split()
-                            tmpappstarttime = datetime.datetime.strptime(ss[0]+ss[1], '%Y-%m-%d%H:%M:%S.%f')
+                    ss = line.split()
+                    tmpappstarttime = datetime.datetime.strptime(ss[0]+ss[1], '%Y-%m-%d%H:%M:%S.%f')
 
-                            clms = line.split()
-                            appstr = ' '.join(clms[7:])
-                            tmpappstr=appstr[1:appstr.find('}')]
-                            tmpappstrsplits=tmpappstr.split()
-                            for jj in tmpappstrsplits:
-                                if jj.startswith('cmp'):
-                                    appcmp=jj.split('=')
-                                    newfgapp=appcmp[1][0:appcmp[1].find('/')]
-                                    componentstarttimes[newfgapp]+=1
+                    clms = line.split()
+                    appstr = ' '.join(clms[7:])
+                    tmpappstr=appstr[1:appstr.find('}')]
+                    tmpappstrsplits=tmpappstr.split()
+                    for jj in tmpappstrsplits:
+                        if jj.startswith('cmp'):
+                            appcmp=jj.split('=')
+                            newfgapp=appcmp[1][0:appcmp[1].find('/')]
+                            componentstarttimes[newfgapp]+=1
                                     #print 'new fg app ',newfgapp
 
-                            tmptimeactive=0.0
+                    tmptimeactive=0.0
                                 # update for current app
-                            if currentfgapp != None:
+                    if currentfgapp != None:
                                     #print 'replacing current fg app ', currentfgapp
-                                if appstartedstate:
-                                    tmptimeactive = (tmpappstarttime - newfgappontime).total_seconds()
-                                elif screenonstate:
+                        if appstartedstate:
+                            tmptimeactive = (tmpappstarttime - newfgappontime).total_seconds()
+                        elif screenonstate:
                                     #print 'scr on state'
-                                    tmptimeactive = (tmpappstarttime - screenontime).total_seconds()
+                            tmptimeactive = (tmpappstarttime - screenontime).total_seconds()
                                 
 
                                 # account for incoming calls alarms etc, .
-                                if screenoffstate:
+                        if screenoffstate:
                                     #print 'setting tmpactive time to 0'
-                                    tmptimeactive = 0.0;
+                            tmptimeactive = 0.0;
                                 
                                 #print 'time between screen on and new app = ', tmptimeactive
-                                if currentfgapp in componentforgroundtime:
-                                    cumutime = componentforgroundtime[currentfgapp]
+                        if currentfgapp in componentforgroundtime:
+                            cumutime = componentforgroundtime[currentfgapp]
                                     #print currentfgapp , ' fg time so far ', cumutime
-                                    cumutime += tmptimeactive
-                                    componentforgroundtime[currentfgapp] = cumutime
+                            cumutime += tmptimeactive
+                            componentforgroundtime[currentfgapp] = cumutime
                                     #print 'new cumu time ', cumutime
-                                else:
-                                    componentforgroundtime[currentfgapp] = tmptimeactive
+                        else:
+                            componentforgroundtime[currentfgapp] = tmptimeactive
                                     #print 'made an entry for new app'
                             #print 'screenoffstate= ', screenoffstate   
-                            if screenonstate==True:    
+                        if screenonstate==True:    
                                 #print 'newfgapp is replacing currentfgapp', newfgapp , ' current fgapp is ', currentfgapp
-                                currentfgapp = newfgapp# this is done to account for notifications like incoming messages etc.
-                                newfgappontime = tmpappstarttime
-                                appstartedstate=True
+                            currentfgapp = newfgapp# this is done to account for notifications like incoming messages etc.
+                            newfgappontime = tmpappstarttime
+                            appstartedstate=True
 
-                        elif 'android.intent.action.SCREEN_OFF' in line:
-                            if screenontime == None: continue
-                            if screenoffstate == True:continue
+                elif 'android.intent.action.SCREEN_OFF' in line:
+                    if screenontime == None: continue
+                    if screenoffstate == True:continue
                                 #if ontime==None or appontime==None:continue
-                            screenoffstate = True
-                            screenonstate = False
-                            ss  =line.split()
-                            offtime=datetime.datetime.strptime(ss[0]+ss[1], '%Y-%m-%d%H:%M:%S.%f')
+                    screenoffstate = True
+                    screenonstate = False
+                    ss  =line.split()
+                    offtime=datetime.datetime.strptime(ss[0]+ss[1], '%Y-%m-%d%H:%M:%S.%f')
                                 #duration = offtime - ontime
-                            if newfgapp!=None:
-                                if appstartedstate:
+                    if newfgapp!=None:
+                        if appstartedstate:
                                     #print 'app was started time started = ', str(newfgappontime)
-                                    appfgtime = (offtime-newfgappontime).total_seconds()
-                                else:
+                            appfgtime = (offtime-newfgappontime).total_seconds()
+                        else:
                                     #print 'using screen on time = ', str(screenontime)
-                                    appfgtime = (offtime-screenontime).total_seconds()
+                            appfgtime = (offtime-screenontime).total_seconds()
                                        
                                     #print ' active time for app before screen off is ', newfgapp , ' time ', appfgtime    
-                                if newfgapp in componentforgroundtime:
-                                    cumutime = componentforgroundtime[newfgapp]
-                                    cumutime += appfgtime
-                                    componentforgroundtime[newfgapp] = cumutime
+                        if newfgapp in componentforgroundtime:
+                            cumutime = componentforgroundtime[newfgapp]
+                            cumutime += appfgtime
+                            componentforgroundtime[newfgapp] = cumutime
                                         #print 'new accumulated active time for app ', cumutime
-                                else:
+                        else:
                                         #print 'adding to dict for the first time'
-                                    componentforgroundtime[newfgapp] = appfgtime
+                            componentforgroundtime[newfgapp] = appfgtime
                                 #ontime=None
                                 #offtime=None
 
-                    log.close()
+            log.close()
                        # print componentforgroundtime
                        # print '----------------------'
                        # print componentstarttimes
                        # print '----------------------'
-                    output.write('\n' + os.path.basename(f))
-                    output.write('\n')
-                    for w in sorted(componentforgroundtime, key=componentforgroundtime.get, reverse=True):
-                        output.write(w)
-                        output.write('\t')
-                        output.write(str(componentforgroundtime[w]))
-                        output.write('\n')
-                    output.write('\n # of starts \n')
-                    for w in sorted(componentstarttimes, key=componentstarttimes.get, reverse=True):
-                        output.write(w)
-                        output.write('\t')
-                        output.write(str(componentstarttimes[w]))
-                        output.write('\n')
+            output.write('\n' + os.path.basename(f))
+            output.write('\n')
+            for w in sorted(componentforgroundtime, key=componentforgroundtime.get, reverse=True):
+                output.write(w)
+                output.write('\t')
+                output.write(str(componentforgroundtime[w]))
+                output.write('\n')
+            output.write('\n # of starts \n')
+            for w in sorted(componentstarttimes, key=componentstarttimes.get, reverse=True):
+                output.write(w)
+                output.write('\t')
+                output.write(str(componentstarttimes[w]))
+                output.write('\n')
         output.close()
 
         '''#print ontimes
