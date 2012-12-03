@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import re, cPickle, argparse, datetime
+import os, re, cPickle, argparse, datetime
 
 from common import lib
 from location.lib import DeviceLocation
@@ -11,8 +11,11 @@ class Networking:
   def load(cls, path):
     return cPickle.load(open(path, 'rb'))
   
-  def __init__(self, path):
-    self.path = path
+  def __init__(self, path=None):
+    if path == None:
+      self.path = os.path.join(os.path.realpath(__file__), 'data.dat')
+    else:
+      self.path = path
     self.tags = ['PhoneLabSystemAnalysis-Telephony', 'PhoneLabSystemAnalysis-Wifi', 'PhoneLabSystemAnalysis-Location', 'PhoneLabSystemAnalysis-Snapshot']
     self.devices = set([])
     
