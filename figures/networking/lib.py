@@ -23,6 +23,7 @@ class Networking:
     threeg_states = {}
     
     for logline in lib.LogFilter(self.tags).generate_loglines():
+      self.devices.add(logline.device)
       if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
         if logline.json['State'] == 'DATA_CONNECTED':
           if threeg_states.has_key(logline.device):
