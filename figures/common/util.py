@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import os, argparse, pickle
-from common import lib
+import argparse, pickle
+from common.lib import hash_logs, ARCHIVE_MD5SUM_PICKLE_FILENAME
 
 def add_md5sum(archive_directory):
-  pickle.dump(lib.hash_logs(archive_directory),
-              open(os.path.join(archive_directory, lib.ARCHIVE_MD5SUM_PICKLE_FILENAME), 'wb'),
+  pickle.dump(hash_logs(archive_directory),
+              open(os.path.join(archive_directory, ARCHIVE_MD5SUM_PICKLE_FILENAME), 'wb'),
               pickle.HIGHEST_PROTOCOL)
           
 parser = argparse.ArgumentParser(description="util package for MobiSys'13 graphs")

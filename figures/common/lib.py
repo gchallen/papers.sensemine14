@@ -1,4 +1,4 @@
-import os, hashlib, cPickle, re, json
+import os, hashlib, cPickle, re, json, argparse
 from dateutil.parser import parse
 
 ARCHIVE_MD5SUM_PICKLE_FILENAME = 'md5sums.pickle'
@@ -32,9 +32,8 @@ def load_hash(directory=None):
   directory = check_directory(directory)
   path = os.path.join(directory, ARCHIVE_MD5SUM_PICKLE_FILENAME)
   if not os.path.exists(path):
-    return None
-  else:
-    return cPickle.load(open(path, 'rb'))
+    add_md5sum(directory)
+  return cPickle.load(open(path, 'rb'))
   
 def hash_logs(directory=None):
   directory = check_directory(directory)
@@ -93,3 +92,16 @@ class LogFilter:
         m = logline_pattern.match(line)
         if m != None:
           yield Logline(m, line)
+
+def add_md5sum(archive_directory):
+  cPickle.dump(hash_logs(archive_directory),
+              open(os.path.join(archive_directory, ARCHIVE_MD5SUM_PICKLE_FILENAME), 'wb'),
+              cPickle.HIGHEST_PROTOCOL)
+
+if __name__=='__main__':          
+  parser = argparse.ArgumentParser(description="util package for MobiSys'13 graphs")
+  parser.add_argument('--md5sum', dest='md5sum', action='store', default=None, help='Add md5sum pickle to existing archive.')
+  args = parser.parse_args()
+      
+  if args.md5sum != None:
+    add_md5sum(args.md5sum)
