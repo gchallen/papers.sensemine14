@@ -30,14 +30,11 @@ class Application:
     self.popular_installs = []
   
   def process(self, time_limit=None):
-    for logline in lib.LogFilter(self.tags).generate_loglines():
+    for logline in lib.LogFilter(self.tags).generate_loglines(time_limit):
       
       if self.start_time == None:
         self.start_time = logline.datetime
       self.end_time = logline.datetime
-      
-      if time_limit != None and (self.end_time - self.start_time) >= time_limit:
-        break
       
       if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
         if not self.device_applications.has_key(logline.device):

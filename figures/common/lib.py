@@ -81,17 +81,24 @@ class LogFilter:
   def sorted_keys(self):
     return sorted(self.logs_md5sums.keys(), key=lambda k: int(os.path.splitext(k)[0]))
   
-  def generate_loglines(self):
+  def generate_loglines(self, time_limit=None):
     
     log_tag_string = "|".join([r"""%s\s*""" % (tag,) for tag in self.tags])
     logline_pattern_string = Logline.LOGLINE_PATTERN_STRING % (log_tag_string,)
     logline_pattern = re.compile(logline_pattern_string, re.VERBOSE)
+    first_logline = None
     
     for filename in self.sorted_keys():
       for line in open(os.path.join(self.directory, filename), 'rb'):
         m = logline_pattern.match(line)
         if m != None:
-          yield Logline(m, line)
+          l = Logline(m, line)
+          if time_limit != None:
+            if first_logline == None:
+              first_logline = l.datetime
+            if first_logline - l.datetime > time_limit:
+              return
+          yield l
 
 def add_md5sum(archive_directory):
   cPickle.dump(hash_logs(archive_directory),
