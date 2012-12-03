@@ -77,40 +77,23 @@ class TrafficState(object):
   def __init__(self, device):
     self.device = device
     self.last_update = None
+    self.matches = []
     
-    self.last_threeg_tx = None
-    self.last_threeg_rx = None
-    self.threeg_rx_diff = 0
-    self.threeg_tx_diff = 0
-   
-    self.last_total_tx = None
-    self.last_total_rx = None
-    self.total_rx_diff = 0
-    self.total_tx_diff = 0
   
   def update(self, logline):
     traffic_match = TrafficState.TRAFFIC_PATTERN.search(logline.log_message)
     if traffic_match == None:
       return
-    usages = None
-    if self.last_update != None and logline.datetime > self.last_update:
-      usages = [NetworkUsage(self.device, self.last_update, logline.datetime, self.threeg_rx_diff, self.threeg_tx_diff, False),
-                NetworkUsage(self.device, self.last_update, logline.datetime, (self.total_rx_diff - self.threeg_rx_diff), (self.total_tx_diff - self.threeg_tx_diff), True),]
-      
-    if traffic_match.group('type') == 'mobile':
-      if self.last_threeg_tx != None:
-        self.threeg_tx_diff = int(traffic_match.group('tx')) - self.last_threeg_tx
-        if self.last_threeg_tx != int(traffic_match.group('tx')):
-          self.threeg_update = logline.datetime
-      if self.last_threeg_rx != None:
-        self.threeg_rx_diff = int(traffic_match.group('rx')) - self.last_threeg_rx
-        if self.last_threeg_rx != int(traffic_match.group('rx')):
-          self.threeg_update = logline.datetime
-      
-      self.last_threeg_tx = int(traffic_match.group('tx'))
-      self.last_threeg_rx = int(traffic_match.group('rx'))
     
-    return usages
+    if logline.datetime != self.last_update:
+      # do something
+      self.matches = []
+      return []
+    elif traffic_match not in self.matches:
+      # do something
+      pass
+    
+    return None
   
 class NetworkSession(object):
   def __init__(self, logline):
