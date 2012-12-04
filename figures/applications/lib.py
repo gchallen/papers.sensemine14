@@ -21,7 +21,7 @@ class Application(lib.LogFilter):
     self.coinstalled_applications = lib.AutoDict()
     self.popular_installs = []
     
-    super(Application, self).__init__(**kwargs)
+    super(Application, self).__init__(self.TAGS, **kwargs)
     
   def process_line(self, logline):
     if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledUserApp'):
@@ -52,3 +52,6 @@ class Application(lib.LogFilter):
         self.coinstalled_applications[first_application][second_application] += 1
     
     self.popular_installs = [app for app in reversed(sorted(list(self.applications), key=lambda k: self.install_counts[k])) if app not in self.PHONELAB_APPS]
+
+if __name__=="__main__":
+  Application.load()
