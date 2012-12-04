@@ -1,6 +1,6 @@
 info.pickle is a dictionary object where a key is a hashed MEID and a value is
-Info class in info.py. It contains 190 active devices (missing Diane's phone,
-which was lost and is still not replaced).
+Info class in info.py. It contains 191 devices (in the testbed, there are
+actually 190 active devices; Diane's phone is lost and still not replaced).
 
 Possible values for Info class are:
 
