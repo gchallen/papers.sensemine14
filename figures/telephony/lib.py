@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import copy
 from common import lib
 
 def label_line(logline):
