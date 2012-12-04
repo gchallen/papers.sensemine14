@@ -1,37 +1,54 @@
 #!/usr/bin/env python
 
-import cPickle
+import copy
 from common import lib
 
-class Telephony:
-  @classmethod
-  def load(cls, path):
-    return cPickle.load(open(path, 'rb'))
+def label_line(logline):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json != None and logline.json.has_key('State'):
+    return 'call'
+  elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
+    return 'text'
+  return None
   
-  def __init__(self, path):
-    self.path = path
-    self.tags = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService']
-    self.devices = set([])
-
-    self.calls = None
-    self.texts = None
+class Telephony(lib.LogFilter):
+  TAGS = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService',]
+  
+  def __init__(self, **kwargs):  
+    self.calls = []
+    self.texts = []
+    self.c = CallState()
+    self.t = set([])
+    self.label_line = label_line
+    
+    super(Telephony, self).__init__(self.TAGS, **kwargs)
+  
+  def process_line(self, logline):
+    if logline.label == 'call':
+      self.c.add(logline)
+    elif logline.label == 'text':
+      self.t.add(Text(logline.device, logline.datetime))
     
   def process(self):
-    c = CallState()
-    t = set([])
+    self.process_loop()
     
-    for logline in lib.LogFilter(self.tags).generate_loglines():
-      if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
-        c.add(logline)
-        self.devices.add(logline.device)
-      elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
-        t.add(Text(logline.device, logline.datetime))
-        self.devices.add(logline.device)
-    self.calls = c.calls
-    self.texts = list(t)
+    self.calls = self.c.calls
+    self.texts = list(self.t)
+   
+  def get_call_counts(self, start_time=None, end_time=None):
+    call_counts = {}
+    for device in self.devices:
+      call_counts[device] = 0
+    for call in [c for c in self.calls if ( start_time == None or c.start >= start_time ) and ( end_time == None or c.start < end_time )]:
+      call_counts[call.device] += (call.end - call.start).seconds
+    return call_counts
   
-  def dump(self):
-    cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
+  def get_text_counts(self, start_time=None, end_time=None):
+    text_counts = {}
+    for device in self.devices:
+      text_counts[device] = 0
+    for text in [t for t in self.texts if ( start_time == None or t.datetime >= start_time ) and ( end_time == None or t.datetime < end_time )]:
+      text_counts[text.device] += 1
+    return text_counts
     
 class Call:
   def __init__(self, device, placed, start, end):
@@ -118,8 +135,3 @@ class CallState:
       return self.call_state[device][1]
     else:
       return None
-
-if __name__=="__main__":
-  t = Telephony('data.dat')
-  t.process()
-  t.dump()
