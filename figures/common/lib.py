@@ -14,10 +14,11 @@ class Logline(object):
    (?P<datetime>\d+-\d+-\d+\s+\d+:\d+:\d+\.\d+)\s+
    (?P<process_id>\d+)\s+(?P<thread_id>\d+)\s+(?P<log_level>\w)\s+
    (?P<log_tag>%s):\s+(?P<json>.*?)$"""
-   
+  DATETIME_PATTERN_STRING = r"""%Y-%m-%d %H:%M:%S.%f"""
+  
   def __init__(self, match, line):
     self.device = match.group('hashed_ID')
-    self.datetime = datetime.datetime.strptime(match.group('datetime'), '%Y-%m-%d %H:%M:%S.%f')
+    self.datetime = datetime.datetime.strptime(match.group('datetime'), self.DATETIME_PATTERN_STRING)
     self.log_tag = match.group('log_tag').strip()
     self.line = line.strip()
     self.log_message = match.group('json').strip()
@@ -35,35 +36,42 @@ class Logline(object):
     return self.line
   
 class LogFilter(object):
-  TAGS = []
+  FILTERS = []
   NUM_QUEUES = 1
   THREADS_PER_QUEUE = 1
   
   def __init__(self, verbose=False):
-    self.sorted_files = sorted([os.path.join(os.environ['MOBISYS13_DATA'], f) for f in dircache.listdir(os.environ['MOBISYS13_DATA']) if os.path.splitext(f)[1] == '.out'],
+    self.directory = self._directory()
+    self.path = self._path()
+    
+    self.sorted_files = sorted([os.path.join(self.directory, f) for f in dircache.listdir(self.directory) if os.path.splitext(f)[1] == '.out'],
                                key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
     
     self.devices = set([])
     self.start_time = None
     self.end_time = None
-    
     self.verbose = verbose
-    self.process()
-    self.store()
     
+    self.filtered = False
+    self.processed = False
+  
   @classmethod
-  def path(cls):
-    return os.path.join(os.environ['MOBISYS13_DATA'], cls.__name__.lower() + '.dat')
+  def _directory(cls):
+    return os.environ['MOBISYS13_DATA']
+  
+  @classmethod
+  def _path(cls):
+    return os.path.join(cls._directory(), cls.__name__.lower() + '.dat')
   
   @classmethod
   def load(cls, **kwargs):
-    if os.path.exists(cls.path()):
-      return cPickle.load(open(cls.path(), 'rb'))
+    if os.path.exists(cls._path()):
+      return cPickle.load(open(cls._path(), 'rb'))
     else:
       return cls(**kwargs)
     
   def store(self):
-    cPickle.dump(self, open(self.path(), 'wb'), cPickle.HIGHEST_PROTOCOL)
+    cPickle.dump(self, open(self._path(), 'wb'), cPickle.HIGHEST_PROTOCOL)
   
   def process(self):
     self.process_loop()
@@ -71,10 +79,13 @@ class LogFilter(object):
   @classmethod
   def reset(cls):
     try:
-      os.remove(cls.path())
+      os.remove(cls._path())
     except OSError:
       pass
-     
+  
+  def filter(self):
+    pass
+  
   def process_loop(self):
     
     log_tag_string = "|".join([r"""%s\s*""" % (tag,) for tag in self.TAGS])
