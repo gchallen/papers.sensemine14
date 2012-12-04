@@ -5,7 +5,7 @@ actually 190 active devices; Diane's phone is lost and still not replaced).
 Possible values for Info class are:
 
 gender: 'Male', 'Female'
-gtanding: 'Not Affiliated', 'Freshman', 'Sophomore', 'Junior', 'Senior',
+standing: 'Not Affiliated', 'Freshman', 'Sophomore', 'Junior', 'Senior',
           'Master', 'PhD', 'Professional', 'Faculty', 'Staff'
 ageband: 'Under 18', '18 - 19', '20 - 21', '22 - 24', '25 - 29', '30 - 34',
-         '35 - 39', '40 - 49', '50 - 59', 'Over 60'a
+         '35 - 39', '40 - 49', '50 - 59', 'Over 60'
