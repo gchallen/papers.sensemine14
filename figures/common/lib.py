@@ -104,7 +104,24 @@ class LogFilter(object):
       os.mkdir(self.get_data_directory())
     except OSError:
       pass
-    
+  
+  def test_labels(self, line_count=10000):
+    line_set = set([])
+    for line in open(self.get_log_files()[0], 'rb'):
+      m = self.pattern.match(line)
+      if m == None:
+        continue
+      if line in line_set:
+        continue
+      l = Logline(m, line)
+      label = self.label_line(l)
+      if label == None:
+        continue
+      print line, self.label_line(line)
+      line_set.add(line)
+      if len(line_set) >= line_count:
+        return
+          
   def filter(self):
     if self.filtered:
       return

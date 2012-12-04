@@ -8,10 +8,14 @@ def label_line(logline):
     return 'installed_user_app'
   elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledSystemApp'):
     return 'installed_system_app'
+  elif logline.log_tag == 'ActivityManager' and Application.ACTIVITY_MANAGER_PATTERN.match(logline.log_message):
+    return 'start_activity'
   return None
   
 class Application(lib.LogFilter):
-  TAGS = ['PhoneLabSystemAnalysis-Snapshot',]
+  TAGS = ['PhoneLabSystemAnalysis-Snapshot','PhoneLabSystemAnalysis-Misc', 'ActivityManager', 'PhoneStatusBar', 'NfcService',]
+  
+  ACTIVITY_MANAGER_PATTERN = re.compile(r"""^START.*?cmp=(?P<cmp>[\w\.\/]+)""")
   
   PACKAGENAME_PATTERN = re.compile(r"""PackageName: (?P<packagename>[^,]+),""")
   PHONELAB_APPS = ['edu.buffalo.cse.phonelab.harness.participant', 
