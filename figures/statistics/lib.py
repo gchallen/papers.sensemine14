@@ -24,9 +24,9 @@ class Statistic(lib.LogFilter):
     self.experiment_devices = set([])
     self.num_experiment_devices = None
     self.experiment_length_days = None
-    self.label_line = label_line
     self.active_devices = set([])
     
+    self.label_line = label_line
     super(Statistic, self).__init__(self.TAGS, **kwargs)
   
   def process_line(self, logline):
@@ -58,7 +58,9 @@ class Statistic(lib.LogFilter):
     self.process_loop()
     self.num_experiment_devices = len(self.experiment_devices)
     time_diff = self.end_time - self.start_time
-    self.experiment_length_days = round(time_diff.days + time_diff.seconds / (60.0 * 60.0 * 24.0), 2) 
+    self.experiment_length_days = round(time_diff.days + time_diff.seconds / (60.0 * 60.0 * 24.0), 2)
+    
+    self.set_active_devices() 
 
 if __name__=="__main__":
   Statistic.load(verbose=True)

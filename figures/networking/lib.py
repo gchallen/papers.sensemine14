@@ -1,103 +1,72 @@
 #!/usr/bin/env python
 
-import os, re, cPickle, argparse, datetime
+import re
 
 from common import lib
 from location.lib import DeviceLocation
 
-class Networking:
+def label_line(logline):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
+    return 'threeg_state'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Wifi' and logline.json != None and logline.json.has_key('State'):
+    return 'wifi_state'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Location' and logline.json != None and \
+       logline.json.has_key('Action') and logline.json['Action'] == 'edu.buffalo.cse.phonelab.LOCATION_UPDATE':
+    return 'location'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('Taffic'):
+    return 'traffic'
+  return None
+
+class Networking(lib.LogFilter):
+  TAGS = ['PhoneLabSystemAnalysis-Telephony', 'PhoneLabSystemAnalysis-Wifi', 'PhoneLabSystemAnalysis-Location', 'PhoneLabSystemAnalysis-Snapshot']
   
-  @classmethod
-  def load(cls, path):
-    return cPickle.load(open(path, 'rb'))
-  
-  def __init__(self, path=None):
-    if path == None:
-      self.path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data.dat')
-    else:
-      self.path = path
-    self.tags = ['PhoneLabSystemAnalysis-Telephony', 'PhoneLabSystemAnalysis-Wifi', 'PhoneLabSystemAnalysis-Location', 'PhoneLabSystemAnalysis-Snapshot']
-    self.devices = set([])
+  def __init__(self, **kwargs):
     
     self.data_sessions = []
-    self.data_usage = []
     
+    self.label_line = label_line
+    super(Networking, self).__init__(self.TAGS, **kwargs)
+  
+  def process_line(self, logline):
+    if logline.label == 'threeg_state':
+      if logline.json['State'] == 'DATA_CONNECTED':
+        if self.threeg_states.has_key(logline.device):
+          continue
+        self.threeg_states[logline.device] = ThreeGSession(logline)
+      elif logline.json['State'] == 'DATA_DISCONNECTED':
+        if not self.threeg_states.has_key(logline.device):
+          continue
+        else:
+          self.threeg_states[logline.device].end = logline.datetime
+          self.data_sessions.append(self.threeg_states[logline.device])
+          del(self.threeg_states[logline.device])
+    elif logline.label == 'wifi_state':
+      if logline.json['State'] == 'CONNECTED':
+        if self.wifi_states.has_key(logline.device):
+          if self.wifi_states[logline.device].bssid == WifiSession.get_bssid(logline):
+            continue
+        self.wifi_states[logline.device] = WifiSession(logline)
+      elif logline.json['State'] == 'DISCONNECTED':
+        if not self.wifi_states.has_key(logline.device):
+          continue
+        else:
+          self.wifi_states[logline.device].end = logline.datetime
+          self.data_sessions.append(self.wifi_states[logline.device])
+          del(self.wifi_states[logline.device])
+    elif logline.label == 'traffic':
+      if self.wifi_states.has_key(logline.device):
+        self.wifi_states[logline.device].locations.append(DeviceLocation(logline))
+      if self.threeg_states.has_key(logline.device):
+        self.threeg_states[logline.device].locations.append(DeviceLocation(logline))
+        
   def process(self, time_limit=None):
     
-    wifi_states = {}
-    threeg_states = {}
-    traffic_states = {}
+    self.wifi_states = {}
+    self.threeg_states = {}
+    self.traffic_states = {}
     
-    for logline in lib.LogFilter(self.tags).generate_loglines(time_limit=time_limit):
-      print logline.datetime
-      self.devices.add(logline.device)
-      if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
-        if logline.json['State'] == 'DATA_CONNECTED':
-          if threeg_states.has_key(logline.device):
-            continue
-          threeg_states[logline.device] = ThreeGSession(logline)
-        elif logline.json['State'] == 'DATA_DISCONNECTED':
-          if not threeg_states.has_key(logline.device):
-            continue
-          else:
-            threeg_states[logline.device].end = logline.datetime
-            self.data_sessions.append(threeg_states[logline.device])
-            del(threeg_states[logline.device])
-      elif logline.log_tag == 'PhoneLabSystemAnalysis-Wifi' and logline.json != None and logline.json.has_key('State'):
-        if logline.json['State'] == 'CONNECTED':
-          if wifi_states.has_key(logline.device):
-            if wifi_states[logline.device].bssid == WifiSession.get_bssid(logline):
-              continue
-          wifi_states[logline.device] = WifiSession(logline)
-        elif logline.json['State'] == 'DISCONNECTED':
-          if not wifi_states.has_key(logline.device):
-            continue
-          else:
-            wifi_states[logline.device].end = logline.datetime
-            self.data_sessions.append(wifi_states[logline.device])
-            del(wifi_states[logline.device])
-      elif logline.log_tag == 'PhoneLabSystemAnalysis-Location' and logline.json != None \
-        and logline.json.has_key('Action') and logline.json['Action'] == 'edu.buffalo.cse.phonelab.LOCATION_UPDATE':
-        
-        if wifi_states.has_key(logline.device):
-          wifi_states[logline.device].locations.append(DeviceLocation(logline))
-        if threeg_states.has_key(logline.device):
-          threeg_states[logline.device].locations.append(DeviceLocation(logline))
-      elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('Taffic'):     
-        if not traffic_states.has_key(logline.device):
-          traffic_states[logline.device] = TrafficState(logline.device)
-        usages = traffic_states[logline.device].update(logline)
-        if usages != None:
-          self.data_usages += usages
-          
-      
-  def dump(self):
-    cPickle.dump(self, open(self.path, 'wb'), cPickle.HIGHEST_PROTOCOL)
-
-class TrafficState(object):
-  TRAFFIC_PATTERN = re.compile(r"""Type:\s*(?P<type>\w+), Rx:\s*(?P<rx>\d+), Tx:\s*(?P<tx>\d+)""")
-  
-  def __init__(self, device):
-    self.device = device
-    self.last_update = None
-    self.matches = []
+    self.process_loop()
     
-  
-  def update(self, logline):
-    traffic_match = TrafficState.TRAFFIC_PATTERN.search(logline.log_message)
-    if traffic_match == None:
-      return
-    
-    if logline.datetime != self.last_update:
-      # do something
-      self.matches = []
-      return []
-    elif traffic_match not in self.matches:
-      # do something
-      pass
-    
-    return None
-  
 class NetworkSession(object):
   def __init__(self, logline):
     self.device = logline.device
@@ -139,15 +108,4 @@ class NetworkUsage(object):
       return "%.20s : %s -> %s, %d/%d TX/RX over 3G" % (self.device, self.start, self.end, self.tx, self.rx,)
 
 if __name__=="__main__":
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--time_limit_hours", help="Hours to process.",
-                    action='store', type=int, default=None)
-  args = parser.parse_args()
-  
-  time_limit = None
-  if args.time_limit_hours != None:
-    time_limit = datetime.timedelta(hours=args.time_limit_hours)
-  
-  t = Networking('data.dat')
-  t.process(time_limit=time_limit)
-  t.dump()
+  Networking.load(verbose=True)
