@@ -87,7 +87,7 @@ class LogFilter(object):
     if self.filtered:
       return
     pool = Pool(processes=self.NUM_FILTER_PROCESSES)
-    f_lines = pool.map(do_filter_star, itertools.izip(self.sorted_files, itertools.repeat(self.pattern), itertools.repeat(self.verbose)))
+    f_lines = pool.map(do_filter_star, zip(self.sorted_files, itertools.repeat(self.pattern), itertools.repeat(self.verbose)))
     print len(f_lines)
       
   def process_loop(self): 
