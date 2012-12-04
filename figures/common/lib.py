@@ -1,7 +1,5 @@
-import os, hashlib, cPickle, re, json, argparse
-from dateutil.parser import parse
-
-ARCHIVE_MD5SUM_PICKLE_FILENAME = 'md5sums.pickle'
+import sys, os, cPickle, re, json, dircache, datetime, itertools
+from multiprocessing import Pool
 
 class AutoDict(dict):
   def __getitem__(self, item):
@@ -11,97 +9,161 @@ class AutoDict(dict):
       value = self[item] = type(self)()
       return value
           
-class LibraryException(Exception):
-  def __init__(self, value):
-    self.value = value
-  
-  def __str__(self):
-    return repr(self.value)
-
-def check_directory(directory):
-  if directory == None:
-    if not os.environ.has_key('MOBISYS13_DATA'):
-      raise LibraryException("MOBISYS13_DATA environment variable not set.")
-    else:
-      directory = os.environ['MOBISYS13_DATA'] 
-  if not os.path.isdir(directory):
-    raise LibraryException("Path that should be a directory is not.")
-  return directory
-
-def load_hash(directory=None):
-  directory = check_directory(directory)
-  path = os.path.join(directory, ARCHIVE_MD5SUM_PICKLE_FILENAME)
-  if not os.path.exists(path):
-    add_md5sum(directory)
-  return cPickle.load(open(path, 'rb'))
-  
-def hash_logs(directory=None):
-  directory = check_directory(directory)
-  md5sums = {}
-  for dirname, unused, filenames in os.walk(directory):
-    for filename in filenames:
-      if os.path.splitext(filename)[1] != '.out':
-        continue
-      md5 = hashlib.md5()
-      with open(os.path.join(dirname, filename), 'rb') as f:
-        for chunk in iter(lambda: f.read(128 * md5.block_size), b''):
-          md5.update(chunk)
-      md5sums[filename] = md5.hexdigest()
-  return md5sums
-
-class Logline:
+class Logline(object):
   LOGLINE_PATTERN_STRING = r"""^
    (?P<hashed_ID>\w{40})\s+
    (?P<datetime>\d+-\d+-\d+\s+\d+:\d+:\d+\.\d+)\s+
    (?P<process_id>\d+)\s+(?P<thread_id>\d+)\s+(?P<log_level>\w)\s+
-   (?P<log_tag>%s):\s+(?P<json>.*?)$"""
-   
+   (?P<log_tag>%s):\s+(?P<json>.*)$"""
+  
   def __init__(self, match, line):
     self.device = match.group('hashed_ID')
-    self.datetime = parse(match.group('datetime'))
+    self.datetime = datetime.datetime.strptime(match.group('datetime'), '%Y-%m-%d %H:%M:%S.%f')
     self.log_tag = match.group('log_tag').strip()
     self.line = line.strip()
     self.log_message = match.group('json').strip()
-      
     try:
       self.json = json.loads(match.group('json').strip())
-    except ValueError:
+    except:
       self.json = None
-  
-  
+    self.label = None
+    
   def __str__(self):
     return self.line
-
-class LogFilter:
-  def __init__(self, tags, directory=None):
-    self.tags = tags
-    self.directory = check_directory(directory)
-    self.logs_md5sums = load_hash(directory)
-    
-  def sorted_keys(self):
-    return sorted(self.logs_md5sums.keys(), key=lambda k: int(os.path.splitext(k)[0]))
   
-  def generate_loglines(self):
+class LogFilter(object):
+  
+  DEFAULT_FILTER_PROCESSES = 4
+  
+  @classmethod
+  def load(cls, **kwargs):
+    if os.path.exists(cls.get_pickle_path()):
+      p = cPickle.load(open(cls.get_pickle_path(), 'rb'))
+    else:
+      p = cls(**kwargs)
+    p.filter()
+    p.process()
+    p.store()
+    return p
+  
+  def store(self):
+    cPickle.dump(self, open(self.get_pickle_path(), 'wb'), cPickle.HIGHEST_PROTOCOL)
+  
+  @classmethod
+  def remove(cls):
+    try:
+      os.remove(cls.get_pickle_path())
+    except OSError:
+      pass
     
-    log_tag_string = "|".join([r"""%s\s*""" % (tag,) for tag in self.tags])
-    logline_pattern_string = Logline.LOGLINE_PATTERN_STRING % (log_tag_string,)
-    logline_pattern = re.compile(logline_pattern_string, re.VERBOSE)
+  @classmethod
+  def get_log_directory(cls):
+    return os.environ['MOBISYS13_DATA']
+  
+  @classmethod
+  def get_data_directory(cls):
+    return os.path.join(cls.get_log_directory(), cls.__name__.lower())
+  
+  @classmethod
+  def get_pickle_path(cls):
+    return os.path.join(cls.get_data_directory(), 'processed.pickle')
+  
+  @classmethod
+  def get_log_files(cls):
+    return sorted([os.path.join(cls.get_log_directory(), f) for f in dircache.listdir(cls.get_log_directory()) if os.path.splitext(f)[1] == '.out'],
+            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+  
+  @classmethod
+  def get_data_files(cls):
+    return sorted([os.path.join(cls.get_data_directory(), f) for f in dircache.listdir(cls.get_data_directory()) if os.path.splitext(f)[1] == '.dat'],
+            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
     
-    for filename in self.sorted_keys():
-      for line in open(os.path.join(self.directory, filename), 'rb'):
-        m = logline_pattern.match(line)
-        if m != None:
-          yield Logline(m, line)
-
-def add_md5sum(archive_directory):
-  cPickle.dump(hash_logs(archive_directory),
-              open(os.path.join(archive_directory, ARCHIVE_MD5SUM_PICKLE_FILENAME), 'wb'),
-              cPickle.HIGHEST_PROTOCOL)
-
-if __name__=='__main__':          
-  parser = argparse.ArgumentParser(description="util package for MobiSys'13 graphs")
-  parser.add_argument('--md5sum', dest='md5sum', action='store', default=None, help='Add md5sum pickle to existing archive.')
-  args = parser.parse_args()
+  @classmethod
+  def log_file_to_data_file(cls, path):
+    return os.path.join(cls.get_data_directory(), os.path.splitext(os.path.basename(path))[0] + '.dat')
+    
+  def __init__(self, tags, verbose=False):
+    
+    if os.environ.has_key('MOBISYS13_FILTER_PROCESSES'):
+      self.filter_processes = int(os.environ['MOBISYS13_FILTER_PROCESSES'])
+    else:
+      self.filter_processes = self.DEFAULT_FILTER_PROCESSES
       
-  if args.md5sum != None:
-    add_md5sum(args.md5sum)
+    self.tags = tags
+    
+    self.pattern = re.compile(Logline.LOGLINE_PATTERN_STRING % ("|".join([r"""%s\s*""" % (tag,) for tag in self.TAGS]),), re.VERBOSE)
+    
+    self.devices = set([])
+    self.start_time = None
+    self.end_time = None
+    self.verbose = verbose
+    
+    self.filtered = False
+    self.processed = False
+    try:
+      os.mkdir(self.get_data_directory())
+    except OSError:
+      pass
+    
+  def filter(self):
+    if self.filtered:
+      return
+    
+    pool = Pool(processes=self.filter_processes)
+    log_files = self.get_log_files()
+    data_files = [self.log_file_to_data_file(f) for f in log_files]
+    pool.map(do_filter_star, zip(log_files, data_files, itertools.repeat(self.pattern), itertools.repeat(self.label_line), itertools.repeat(self.verbose)))
+    pool.close()
+    pool.join()
+    
+    self.filtered = True
+      
+  def process_loop(self):
+    if self.processed:
+      return
+    
+    for data_file in self.get_data_files():
+      if self.verbose:
+        print >>sys.stderr, "Processing %s" % (data_file,)
+      
+      lines = cPickle.load(open(data_file, 'rb'))
+      for line in lines:
+        self.devices.add(line.device)
+        if self.start_time == None:
+          self.start_time = line.datetime
+        self.end_time = line.datetime
+        self.process_line(line)
+    
+    self.processed = True
+      
+  @classmethod
+  def reset(self):
+    self.filtered = False
+    self.processed = False
+
+def do_filter_star(l_d_p_l_v):
+  return do_filter(*l_d_p_l_v)
+
+def do_filter(log_file, data_file, pattern, label_line, verbose):
+    if verbose:
+      print >>sys.stderr, "Filtering %s" % (log_file,)
+    lines = []
+    
+    log_f = open(log_file, 'rb')
+    for line in log_f:
+      m = pattern.match(line)
+      if m == None:
+        continue
+      l = Logline(m, line)
+      label = label_line(l)
+      if label == None:
+        continue
+      l.label = label
+      lines.append(l)
+    log_f.close()
+    
+    data_f = open(data_file, 'wb')
+    cPickle.dump(lines, data_f, cPickle.HIGHEST_PROTOCOL)
+    data_f.close()
+    del(data_f)
+    del(lines)

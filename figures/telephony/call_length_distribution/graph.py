@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from common import graphing
 from telephony.lib import * #@UnusedWildImport
 
-calls = Telephony.load('../data.dat').calls
+calls = Telephony.load().calls
 
 received_lengths = [((c.end - c.start).seconds / 60.0) for c in calls if c.placed == False]
 placed_lengths = [((c.end - c.start).seconds / 60.0) for c in calls if c.placed == True]

@@ -6,21 +6,10 @@ import matplotlib.pyplot as plt
 
 from telephony.lib import * #@UnusedWildImport
 
-t = Telephony.load('../data.dat')
-calls, texts = t.calls, t.texts
+t = Telephony.load()
 
-call_counts = {}
-text_counts = {}
-
-for device in t.devices:
-  call_counts[device] = 0
-  text_counts[device] = 0
-  
-for call in calls:
-  call_counts[call.device] += (call.end - call.start).seconds
-
-for text in texts:
-  text_counts[text.device] += 1
+call_counts = t.get_call_counts()
+text_counts = t.get_text_counts()
 
 both = []
 texts_only = []
