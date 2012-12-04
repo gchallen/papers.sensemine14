@@ -3,8 +3,15 @@
 import re, itertools
 from common import lib
 
+def label_line(logline):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledUserApp'):
+    return 'installed_user_app'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledSystemApp'):
+    return 'installed_system_app'
+  return None
+  
 class Application(lib.LogFilter):
-  TAGS = ['PhoneLabSystemAnalysis-Snapshot']
+  TAGS = ['PhoneLabSystemAnalysis-Snapshot',]
   
   PACKAGENAME_PATTERN = re.compile(r"""PackageName: (?P<packagename>[^,]+),""")
   PHONELAB_APPS = ['edu.buffalo.cse.phonelab.harness.participant', 
@@ -13,18 +20,18 @@ class Application(lib.LogFilter):
                    'edu.buffalo.cse.phonelab.systemanalysis']
 
   def __init__(self, **kwargs):
-    
     self.applications = set([])
     self.system_applications = set([])
     self.device_applications = {}
     self.install_counts = {}
     self.coinstalled_applications = lib.AutoDict()
     self.popular_installs = []
+    self.label_line = label_line
     
     super(Application, self).__init__(self.TAGS, **kwargs)
-    
+  
   def process_line(self, logline):
-    if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledUserApp'):
+    if logline.label == 'installed_user_app':
       if not self.device_applications.has_key(logline.device):
         self.device_applications[logline.device] = set([])
       application = Application.PACKAGENAME_PATTERN.match(logline.json['InstalledUserApp']).group('packagename').strip()
@@ -37,7 +44,7 @@ class Application(lib.LogFilter):
         self.applications.add(application)
         
       self.device_applications[logline.device].add(application)
-    elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledSystemApp'):
+    elif logline.label == 'installed_system_app':
       application = Application.PACKAGENAME_PATTERN.match(logline.json['InstalledSystemApp']).group('packagename').strip()
       self.system_applications.add(application)
   
@@ -54,4 +61,4 @@ class Application(lib.LogFilter):
     self.popular_installs = [app for app in reversed(sorted(list(self.applications), key=lambda k: self.install_counts[k])) if app not in self.PHONELAB_APPS]
 
 if __name__=="__main__":
-  Application.load()
+  Application.load(verbose=True)

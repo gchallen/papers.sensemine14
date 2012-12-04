@@ -14,7 +14,7 @@ class Logline(object):
    (?P<hashed_ID>\w{40})\s+
    (?P<datetime>\d+-\d+-\d+\s+\d+:\d+:\d+\.\d+)\s+
    (?P<process_id>\d+)\s+(?P<thread_id>\d+)\s+(?P<log_level>\w)\s+
-   (?P<log_tag>%s):\s+(?P<json>.*?)$"""
+   (?P<log_tag>%s):\s+(?P<json>.*)$"""
   
   def __init__(self, match, line):
     self.device = match.group('hashed_ID')
@@ -22,49 +22,76 @@ class Logline(object):
     self.log_tag = match.group('log_tag').strip()
     self.line = line.strip()
     self.log_message = match.group('json').strip()
-    self._json = match.group('json').strip()
-    self.json = None
-    
-  def get_json(self):
     try:
-      self.json = json.loads(self._json)
-    except ValueError:
-      pass    
-    return self.json
-  
+      self.json = json.loads(match.group('json').strip())
+    except:
+      self.json = None
+    self.label = None
+    
   def __str__(self):
     return self.line
   
 class LogFilter(object):
   
-  NUM_FILTER_PROCESSES = 8
+  DEFAULT_FILTER_PROCESSES = 4
   
   @classmethod
   def load(cls, **kwargs):
-    if os.path.exists(cls._path()):
-      return cPickle.load(open(cls._path(), 'rb'))
+    if os.path.exists(cls.get_pickle_path()):
+      p = cPickle.load(open(cls.get_pickle_path(), 'rb'))
     else:
-      return cls(**kwargs)
+      p = cls(**kwargs)
+    p.filter()
+    p.process()
+    p.store()
+    return p
   
   def store(self):
-    cPickle.dump(self, open(self._path(), 'wb'), cPickle.HIGHEST_PROTOCOL)
+    cPickle.dump(self, open(self.get_pickle_path(), 'wb'), cPickle.HIGHEST_PROTOCOL)
   
   @classmethod
-  def _directory(cls):
+  def remove(cls):
+    try:
+      os.remove(cls.get_pickle_path())
+    except OSError:
+      pass
+    
+  @classmethod
+  def get_log_directory(cls):
     return os.environ['MOBISYS13_DATA']
   
   @classmethod
-  def _path(cls):
-    return os.path.join(cls._directory(), cls.__name__.lower() + '.dat')
+  def get_data_directory(cls):
+    return os.path.join(cls.get_log_directory(), cls.__name__.lower())
+  
+  @classmethod
+  def get_pickle_path(cls):
+    return os.path.join(cls.get_data_directory(), 'processed.pickle')
+  
+  @classmethod
+  def get_log_files(cls):
+    return sorted([os.path.join(cls.get_log_directory(), f) for f in dircache.listdir(cls.get_log_directory()) if os.path.splitext(f)[1] == '.out'],
+            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+  
+  @classmethod
+  def get_data_files(cls):
+    return sorted([os.path.join(cls.get_data_directory(), f) for f in dircache.listdir(cls.get_data_directory()) if os.path.splitext(f)[1] == '.dat'],
+            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+    
+  @classmethod
+  def log_file_to_data_file(cls, path):
+    return os.path.join(cls.get_data_directory(), os.path.splitext(os.path.basename(path))[0] + '.dat')
     
   def __init__(self, tags, verbose=False):
     
+    if os.environ.has_key('MOBISYS13_FILTER_PROCESSES'):
+      self.filter_processes = int(os.environ['MOBISYS13_FILTER_PROCESSES'])
+    else:
+      self.filter_processes = self.DEFAULT_FILTER_PROCESSES
+      
     self.tags = tags
-    self.pattern = re.compile(Logline.LOGLINE_PATTERN_STRING % ("|".join([r"""%s\s*""" % (tag,) for tag in self.TAGS]),), re.VERBOSE)
     
-    self.directory = self._directory()
-    self.sorted_files = sorted([os.path.join(self.directory, f) for f in dircache.listdir(self.directory) if os.path.splitext(f)[1] == '.out'],
-                               key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+    self.pattern = re.compile(Logline.LOGLINE_PATTERN_STRING % ("|".join([r"""%s\s*""" % (tag,) for tag in self.TAGS]),), re.VERBOSE)
     
     self.devices = set([])
     self.start_time = None
@@ -72,44 +99,71 @@ class LogFilter(object):
     self.verbose = verbose
     
     self.filtered = False
-    self.filter()
     self.processed = False
-    self.process()
- 
-  
-  def process(self):
-    if self.processed:
-      return
+    try:
+      os.mkdir(self.get_data_directory())
+    except OSError:
+      pass
     
-    self.process_loop()
-  
   def filter(self):
     if self.filtered:
       return
-    pool = Pool(processes=self.NUM_FILTER_PROCESSES)
-    f_lines = pool.map(do_filter_star, zip(self.sorted_files, itertools.repeat(self.pattern), itertools.repeat(self.verbose)))
-    print len(f_lines)
+    
+    pool = Pool(processes=self.filter_processes)
+    log_files = self.get_log_files()
+    data_files = [self.log_file_to_data_file(f) for f in log_files]
+    pool.map(do_filter_star, zip(log_files, data_files, itertools.repeat(self.pattern), itertools.repeat(self.label_line), itertools.repeat(self.verbose)))
+    pool.close()
+    pool.join()
+    
+    self.filtered = True
       
-  def process_loop(self): 
-    for line in self.lines:
-      self.process_line(line)
+  def process_loop(self):
+    if self.processed:
+      return
+    
+    for data_file in self.get_data_files():
+      if self.verbose:
+        print >>sys.stderr, "Processing %s" % (data_file,)
+      
+      lines = cPickle.load(open(data_file, 'rb'))
+      for line in lines:
+        self.devices.add(line.device)
+        if self.start_time == None:
+          self.start_time = line.datetime
+        self.end_time = line.datetime
+        self.process_line(line)
+    
+    self.processed = True
       
   @classmethod
   def reset(self):
     self.filtered = False
     self.processed = False
 
-def do_filter_star(f_pattern_verbose):
-  return do_filter(*f_pattern_verbose)
+def do_filter_star(l_d_p_l_v):
+  return do_filter(*l_d_p_l_v)
 
-def do_filter(f, pattern, verbose=False):
-  if verbose:
-    print >>sys.stderr, f
-  lines = []
-  for line in open(f, 'rb'):
-    m = pattern.match(line)
-    if m == None:
-      continue
-    l = Logline(m, line)
-    lines.append(l)
-  return lines
+def do_filter(log_file, data_file, pattern, label_line, verbose):
+    if verbose:
+      print >>sys.stderr, "Filtering %s" % (log_file,)
+    lines = []
+    
+    log_f = open(log_file, 'rb')
+    for line in log_f:
+      m = pattern.match(line)
+      if m == None:
+        continue
+      l = Logline(m, line)
+      label = label_line(l)
+      if label == None:
+        continue
+      l.label = label
+      lines.append(l)
+    log_f.close()
+    
+    data_f = open(data_file, 'wb')
+    cPickle.dump(lines, data_f, cPickle.HIGHEST_PROTOCOL)
+    data_f.close()
+    del(data_f)
+    del(lines)

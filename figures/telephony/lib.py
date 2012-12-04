@@ -1,29 +1,39 @@
 #!/usr/bin/env python
 
+import copy
 from common import lib
 
-class Telephony(lib.LogFilter):
-  TAGS = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService']
+def label_line(logline):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json != None and logline.json.has_key('State'):
+    return 'call'
+  elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
+    return 'text'
+  return None
   
-  def __init__(self):  
-    self.calls = None
-    self.texts = None
+class Telephony(lib.LogFilter):
+  TAGS = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService',]
+  
+  def __init__(self, **kwargs):  
+    self.calls = []
+    self.texts = []
+    self.c = CallState()
+    self.t = set([])
+    self.label_line = label_line
     
-    super(Telephony, self).__init__()
+    super(Telephony, self).__init__(self.TAGS, **kwargs)
+  
+  def process_line(self, logline):
+    if logline.label == 'call':
+      self.c.add(logline)
+    elif logline.label == 'text':
+      self.t.add(Text(logline.device, logline.datetime))
     
   def process(self):
-    c = CallState()
-    t = set([])
+    self.process_loop()
     
-    for logline in self.generate_loglines():
-      if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
-        c.add(logline)
-      elif logline.log_tag == 'SmsReceiverService' and logline.log_message == "onStart: #1 mResultCode: -1 = Activity.RESULT_OK":
-        t.add(Text(logline.device, logline.datetime))
-    
-    self.calls = c.calls
-    self.texts = list(t)
-  
+    self.calls = self.c.calls
+    self.texts = list(self.t)
+   
   def get_call_counts(self, start_time=None, end_time=None):
     call_counts = {}
     for device in self.devices:
