@@ -4,9 +4,9 @@ import re, itertools
 from common import lib
 
 def label_line(logline):
-  if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledUserApp'):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
     return 'installed_user_app'
-  elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.get_json() != None and logline.json.has_key('InstalledSystemApp'):
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledSystemApp'):
     return 'installed_system_app'
   return None
   
