@@ -41,11 +41,15 @@ class LogFilter(object):
       p = cPickle.load(open(cls.get_pickle_path(), 'rb'))
     else:
       p = cls(**kwargs)
-    p.filter()
-    p.store()
-    
-    p.process()
-    p.store()
+
+    if not p.filtered:
+      p.filter()
+      p.store()
+     
+    if not p.processed:
+      p.process()
+      p.store()
+
     return p
   
   def store(self):
