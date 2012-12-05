@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 import re, itertools
 from common import lib
 
@@ -8,10 +9,19 @@ def label_line(logline):
     return 'installed_user_app'
   elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledSystemApp'):
     return 'installed_system_app'
+  elif logline.log_tag == 'ActivityManager' and Application.ACTIVITY_MANAGER_PATTERN.match(logline.log_message):
+    return 'start_activity'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Misc' and logline.json != None and logline.json.has_key('Action'):
+    if logline.json['Action'] == 'android.intent.action.SCREEN_ON':
+      return 'screen_on'
+    elif logline.json['Action'] == 'android.intent.action.SCREEN_OFF':
+      return 'screen_off'
   return None
   
 class Application(lib.LogFilter):
-  TAGS = ['PhoneLabSystemAnalysis-Snapshot',]
+  TAGS = ['PhoneLabSystemAnalysis-Snapshot','PhoneLabSystemAnalysis-Misc', 'ActivityManager', 'PhoneStatusBar', 'NfcService',]
+  
+  ACTIVITY_MANAGER_PATTERN = re.compile(r"""^START.*?cmp=(?P<cmp>[\w\.\/]+)""")
   
   PACKAGENAME_PATTERN = re.compile(r"""PackageName: (?P<packagename>[^,]+),""")
   PHONELAB_APPS = ['edu.buffalo.cse.phonelab.harness.participant', 
@@ -26,8 +36,13 @@ class Application(lib.LogFilter):
     self.install_counts = {}
     self.coinstalled_applications = lib.AutoDict()
     self.popular_installs = []
-    self.label_line = label_line
     
+    self.activities = []
+    self.screen_states = []
+    self.device_activities = {}
+    self.device_screen_states = {}
+    
+    self.label_line = label_line    
     super(Application, self).__init__(self.TAGS, **kwargs)
   
   def process_line(self, logline):
@@ -47,6 +62,15 @@ class Application(lib.LogFilter):
     elif logline.label == 'installed_system_app':
       application = Application.PACKAGENAME_PATTERN.match(logline.json['InstalledSystemApp']).group('packagename').strip()
       self.system_applications.add(application)
+    elif logline.label == 'start_activity':
+      pass
+    elif logline.label == 'screen_on':
+      self.device_screen_states[logline.device] = ScreenState(logline.device, logline.datetime)
+    elif logline.label == 'screen_off':
+      if self.device_screen_states.has_key(logline.device):
+        self.device_screen_states[logline.device].end = logline.datetime
+        self.screen_states.append(self.device_screen_states[logline.device])
+        del(self.device_screen_states[logline.device])
   
   def process(self):
     self.process_loop()
@@ -60,5 +84,18 @@ class Application(lib.LogFilter):
     
     self.popular_installs = [app for app in reversed(sorted(list(self.applications), key=lambda k: self.install_counts[k])) if app not in self.PHONELAB_APPS]
 
+class ScreenState(object):
+  def __init__(self, device, start):
+    self.device = device
+    self.start = start
+    self.end = None
+    
+class Activity(object):
+  def __init__(self, logline, match):
+    self.device = logline.device
+    self.start = logline.datetime
+    self.end = None
+    self.package = match.group('cmp').strip()
+    
 if __name__=="__main__":
   Application.load(verbose=True)

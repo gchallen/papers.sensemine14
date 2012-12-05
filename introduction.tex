@@ -1,17 +1,58 @@
 \section{Introduction}
 \label{sec-introduction}
 
-The scale of smartphone network is exploding: from \XXXnote{GWA} in
-\XXXnote{GWA} to \XXXnote{GWA} in \XXXnote{GWA}. \XXXnote{GWA: Say something
-descriptive about increase in smartphone usage.} Seen as a whole, the
-emerging network of smartphone devices represents the most pervasive
-distributed system in computing history.
+Smartphone usage is exploding. Google reports 1.3~M Android device activations
+per day in September, 2013~\cite{google-Sep2012-activations}. IDC projects that
+224~M smartphone units will ship worldwide in 2013 Q4, a 40\% increase over
+2012 Q4~\cite{idc-smartphone-growth}. Taken as a whole, the growing network of
+smartphone devices represents the largest and most pervasive distributed system
+in history.
 
-The scale of smartphone experimentation, however, is lagging. \XXXnote{GWA:
-Pull numbers from MobiSys'12 papers to make this point.} Multiple factors
-account for this smartphone experimentation gap: uncooperative wireless
-carriers, closed-source software platforms, lack of user incentives, and the
-challenge incorporating human subjects experimentation into a public computer
-science testbed. But despite these challenges, harnessing the growing number
-of smartphone devices requires expanding the scale of our experimental
-facilities.
+Meanwhile, the scale of smartphone experimentation is lagging. A survey of
+MobiSys'12 papers shows reveals that when smartphone evaluations use real
+devices, this use small numbers---3, 12, or 20
+phones~\cite{nowar-mobisys12,comon-mobisys12,caching-mobisys12}. Other
+experiments use simulations driven by small, old, or synthesized data
+sets~\cite{falcon-mobisys12,ace-mobisys12,humanmobility-mobisys12}. In either
+case, large-scale results from representative users are more compelling.
+While multiple factors---including recruitment, human subjections compliance,
+and data collection---make large-scale smartphone challenging, harnessing the
+growth of smartphones requires evaluating ideas at scale.
+
+We present \PhoneLab{}, an open-access programmable smartphone testbed
+designed to enable smartphone research at scales not currently practical.
+\PhoneLab{} provides access to a large and stable set of participants,
+already incentivized to participate in smartphone experimentation. Currently
+comprising 191~participants, \PhoneLab{} is scheduled to grow to over 700
+devices by 2014. By exploiting locality, \PhoneLab{} increases the density
+and interaction rate between participating smartphones, which we expect to be
+important for evaluating new research on phone-to-phone protocols and
+crowdsourcing algorithms.
+
+By utilizing the Android open-source smartphone platform, \PhoneLab{} enables
+research both above and below the application-platform interface. Researchers
+can distribute new interactive applications or custom non-interactive data
+loggers, but they can also change core Android platform and kernel
+components, making \PhoneLab{} ideal for platform experiments impossible to
+distribute through the Play Store (Android Market).
+
+We make two core contributions in this paper. First, we introduce
+\PhoneLab{}, describe the testbed and our participants, and explain
+experimental procedures. We also describe the Android logging framework and
+discuss the visibility it provides into the inner workings of the Android
+platform.
+
+% 02 Dec 2012 : GWA : run on ... phones is
+% ./figures/statistics/lib.py % --experiment_count
+
+% 02 Dec 2012 : GWA : for ... days is
+% ./figures/statistics/lib.py % --experiment_length_days
+% For initial abstract submission this number is estimated.
+
+Second, we present results from a broad usage characterization experiment run
+on \PhoneLab{} by 88 participants for 24 days and yielding \XXXnote{GWA} log
+messages. We focus our analyses on the patterns that emerge when a large
+number of participants are studied over a long period of time. \XXXnote{GWA:
+Put three of four top-level findings here.}
+
+The rest of this paper is structured as follows...

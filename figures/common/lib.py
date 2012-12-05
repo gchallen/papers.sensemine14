@@ -41,9 +41,15 @@ class LogFilter(object):
       p = cPickle.load(open(cls.get_pickle_path(), 'rb'))
     else:
       p = cls(**kwargs)
-    p.filter()
-    p.process()
-    p.store()
+
+    if not p.filtered:
+      p.filter()
+      p.store()
+     
+    if not p.processed:
+      p.process()
+      p.store()
+
     return p
   
   def store(self):
@@ -104,7 +110,27 @@ class LogFilter(object):
       os.mkdir(self.get_data_directory())
     except OSError:
       pass
-    
+  
+  def test_labels(self, line_count=10000):
+    line_set = set([])
+    labels = set([])
+    for line in open(self.get_log_files()[0], 'rb'):
+      m = self.pattern.match(line)
+      if m == None:
+        continue
+      if line in line_set:
+        continue
+      l = Logline(m, line)
+      label = self.label_line(l)
+      if label == None:
+        continue
+      print label, line.strip()
+      line_set.add(line)
+      labels.add(label)
+      if len(line_set) >= line_count:
+        break
+    print labels
+          
   def filter(self):
     if self.filtered:
       return

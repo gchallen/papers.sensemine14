@@ -34,7 +34,7 @@ ax.scatter(*zip(*calls_only), color='red', label='Calls Only (%d)' % (len(calls_
 
 ax.axis(xmin=-10, ymin=-10, xmax=1000, ymax=200)
 ax.legend(loc='upper right')
-ax.set_xlabel('Call Usage (min)')
+ax.set_xlabel('Call Usage (sec)')
 ax.set_ylabel('Text Usage (count)')
 
 fig.savefig('graph.pdf')
