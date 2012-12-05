@@ -1,6 +1,8 @@
 /ABSTRACT
 /paper.pdf
 /.deps
+*.bbl
+*.blg
 *.swp
 *.pyc
 *.aux
