@@ -42,6 +42,8 @@ class LogFilter(object):
     else:
       p = cls(**kwargs)
     p.filter()
+    p.store()
+    
     p.process()
     p.store()
     return p
@@ -107,6 +109,7 @@ class LogFilter(object):
   
   def test_labels(self, line_count=10000):
     line_set = set([])
+    labels = set([])
     for line in open(self.get_log_files()[0], 'rb'):
       m = self.pattern.match(line)
       if m == None:
@@ -117,10 +120,12 @@ class LogFilter(object):
       label = self.label_line(l)
       if label == None:
         continue
-      print line, self.label_line(line)
+      print label, line.strip()
       line_set.add(line)
+      labels.add(label)
       if len(line_set) >= line_count:
-        return
+        break
+    print labels
           
   def filter(self):
     if self.filtered:

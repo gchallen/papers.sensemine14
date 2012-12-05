@@ -34,14 +34,13 @@ class Statistic(lib.LogFilter):
       self.experiment_devices.add(logline.device)
   
   def set_active_devices(self):
-    p = Power.load(self.verbose)
+    p = Power.load(verbose=self.verbose)
     battery_active_devices = set([])
     for device in self.experiment_devices:
       if p.battery_below_threshold(device, self.BATTERY_USAGE_THRESHOLD):
         battery_active_devices.add(device)
-    print len(battery_active_devices)
     
-    t = Telephony.load(self.verbose)
+    t = Telephony.load(verbose=self.verbose)
     calls, texts = t.get_call_counts(), t.get_text_counts()
     
     telephony_active_devices = set([])
@@ -49,12 +48,13 @@ class Statistic(lib.LogFilter):
       if ( calls.has_key(device) and calls[device] > self.PHONE_USAGE_THRESHOLD_SEC * self.experiment_length_days ) or \
          ( texts.has_key(device) and texts[device] > self.SMS_USAGE_THRESHOLD_COUNT * self.experiment_length_days ):
         telephony_active_devices.add(device)
-    print len(telephony_active_devices)
     
     self.active_devices = battery_active_devices.union(telephony_active_devices)
     self.store()
     
   def process(self):
+    if self.processed:
+      return
     self.process_loop()
     self.num_experiment_devices = len(self.experiment_devices)
     time_diff = self.end_time - self.start_time
