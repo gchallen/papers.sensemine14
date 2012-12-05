@@ -5,10 +5,17 @@ from common import lib
 def label_line(logline):
   if logline.log_tag == 'PhoneLabSystemAnalysis-BatteryChange' and logline.json != None and logline.json.has_key('BatteryLevel'):
     return 'battery_level'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None:
+    if logline.json.has_key('UidInfo'):
+      return 'uidinfo'
+    elif logline.json.has_key('ProcInfo'):
+      return 'procinfo'
+    elif logline.json.has_key('SensorInfo'):
+      return 'sensorinfo'
   return None
   
 class Power(lib.LogFilter):
-  TAGS = ['PhoneLabSystemAnalysis-BatteryChange',]
+  TAGS = ['PhoneLabSystemAnalysis-BatteryChange', 'PhoneLabSystemAnalysis-Snapshot',]
   
   def __init__(self, **kwargs):
     self.device_power = {}

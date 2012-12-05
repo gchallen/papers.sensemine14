@@ -44,8 +44,7 @@ class LogFilter(object):
 
     if not p.filtered:
       p.filter()
-      p.store()
-     
+      
     if not p.processed:
       p.process()
       p.store()
@@ -131,8 +130,8 @@ class LogFilter(object):
         break
     print labels
           
-  def filter(self):
-    if self.filtered:
+  def filter(self, refilter=False):
+    if self.filtered and not refilter:
       return
     
     pool = Pool(processes=self.filter_processes)
@@ -143,7 +142,9 @@ class LogFilter(object):
     pool.join()
     
     self.filtered = True
-      
+    self.processed = False
+    self.store()
+    
   def process_loop(self):
     if self.processed:
       return
