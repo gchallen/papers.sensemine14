@@ -25,6 +25,7 @@ class Networking(lib.LogFilter):
   def __init__(self, **kwargs):
     
     self.data_sessions = []
+    self.data_usages = []
     
     self.label_line = label_line
     super(Networking, self).__init__(self.TAGS, **kwargs)
@@ -145,11 +146,36 @@ class UsageState(object):
         self.total[logline.device].append(logline)
      
     if total_len == 2 and threeg_len == 2:
+      total_0_m = Networking.TRAFFIC_TYPE_PATTERN.match(self.total[logline.device][0].json['Taffic'])
+      threeg_0_m = Networking.TRAFFIC_TYPE_PATTERN.match(self.threeg[logline.device][0].json['Taffic'])
+      total_1_m = Networking.TRAFFIC_TYPE_PATTERN.match(self.total[logline.device][1].json['Taffic'])
+      threeg_1_m = Networking.TRAFFIC_TYPE_PATTERN.match(self.threeg[logline.device][1].json['Taffic'])
+      
+      threeg = ThreeGUsage(logline.device,
+                           int(threeg_1_m.group('rx')) - int(threeg_0_m.group('rx')),
+                           int(threeg_1_m.group('tx')) - int(threeg_0_m.group('tx')),
+                           self.threeg[logline.device][0].datetime,
+                           self.threeg[logline.device][1].datetime)
+      
+      if threeg.tx >= 0 and threeg.rx >= 0:
+        if threeg.tx >= 0 or threeg.rx >= 0:
+          self.data_usages.append(threeg)
+          print "%.20s : threeg : %s -> %s %d/%d TX/RX" % (threeg.device, threeg.start, threeg.end, threeg.tx, threeg.rx)
+          
+        wifi = WifiUsage(logline.device,
+                         (int(total_1_m.group('rx')) - int(total_0_m.group('rx'))) - threeg.rx,
+                         (int(total_1_m.group('tx')) - int(total_0_m.group('tx'))) - threeg.tx,
+                         self.total[logline.device][0].datetime,
+                         self.total[logline.device][1].datetime)
+        if wifi.tx >= 0 or wifi.rx >= 0:
+          print "%.20s : wifi : %s -> %s %d/%d TX/RX" % (threeg.device, threeg.start, threeg.end, threeg.tx, threeg.rx)
+          self.data_usages.append(wifi)
+      
       self.total[logline.device].pop(0)
       self.threeg[logline.device].pop(0)
       
 class NetworkUsage(object):
-  def __init__(self, device, rx, tx, start, end, is_wifi):
+  def __init__(self, device, rx, tx, start, end):
     self.device = device
     self.start = start
     self.end = end
@@ -157,12 +183,12 @@ class NetworkUsage(object):
     self.tx = tx
 
 class ThreeGUsage(NetworkUsage):
-  def __init__(self, logline):
-    super(ThreeGUsage, self).__init__(logline)
+  def __init__(self, *args):
+    super(ThreeGUsage, self).__init__(*args)
     
 class WifiUsage(NetworkUsage):
-  def __init__(self, logline):
-    super(WifiUsage, self).__init__(logline)
+  def __init__(self, *args):
+    super(WifiUsage, self).__init__(*args)
 
 if __name__=="__main__":
   Networking.load(verbose=True)

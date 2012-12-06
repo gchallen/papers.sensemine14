@@ -137,7 +137,11 @@ class LogFilter(object):
     pool = Pool(processes=self.filter_processes)
     log_files = self.get_log_files()
     data_files = [self.log_file_to_data_file(f) for f in log_files]
-    pool.map(do_filter_star, zip(log_files, data_files, itertools.repeat(self.pattern), itertools.repeat(self.label_line), itertools.repeat(self.verbose)))
+    pool.map(do_filter_star, zip(log_files, data_files,
+                                 itertools.repeat(self.pattern),
+                                 itertools.repeat(self.label_line),
+                                 itertools.repeat(self.verbose),
+                                 itertools.repeat(self.__class__.__name__)))
     pool.close()
     pool.join()
     
@@ -171,9 +175,9 @@ class LogFilter(object):
 def do_filter_star(l_d_p_l_v):
   return do_filter(*l_d_p_l_v)
 
-def do_filter(log_file, data_file, pattern, label_line, verbose):
+def do_filter(log_file, data_file, pattern, label_line, verbose, name):
     if verbose:
-      print >>sys.stderr, "Filtering %s" % (log_file,)
+      print >>sys.stderr, "%s: filtering %s" % (name, log_file,)
     lines = []
     
     log_f = open(log_file, 'rb')

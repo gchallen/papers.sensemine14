@@ -47,3 +47,10 @@ try:
   t.store()
 except Exception, e:
   print >>sys.stderr, "Telephony processing caused an exception: %s" % (e,)
+
+try:
+  n = Networking.load(verbose=True)
+  n.verbose = False
+  n.store()
+except Exception, e:
+  print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)
