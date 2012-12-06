@@ -71,6 +71,7 @@ class Networking(lib.LogFilter):
     self.usage_state = UsageState()
     
     self.process_loop()
+    self.data_usages = self.usage_state.data_usages
     
 class NetworkSession(object):
   def __init__(self, logline):
@@ -99,6 +100,7 @@ class UsageState(object):
     self.devices = set([])
     self.total = {}
     self.threeg = {}
+    self.data_usages = []
   
   def add(self, logline):
     match = Networking.TRAFFIC_TYPE_PATTERN.match(logline.json['Taffic'])
@@ -158,7 +160,7 @@ class UsageState(object):
                            self.threeg[logline.device][1].datetime)
       
       if threeg.tx >= 0 and threeg.rx >= 0:
-        if threeg.tx >= 0 or threeg.rx >= 0:
+        if threeg.tx > 0 or threeg.rx > 0:
           self.data_usages.append(threeg)
           print "%.20s : threeg : %s -> %s %d/%d TX/RX" % (threeg.device, threeg.start, threeg.end, threeg.tx, threeg.rx)
           
@@ -167,8 +169,8 @@ class UsageState(object):
                          (int(total_1_m.group('tx')) - int(total_0_m.group('tx'))) - threeg.tx,
                          self.total[logline.device][0].datetime,
                          self.total[logline.device][1].datetime)
-        if wifi.tx >= 0 or wifi.rx >= 0:
-          print "%.20s : wifi : %s -> %s %d/%d TX/RX" % (threeg.device, threeg.start, threeg.end, threeg.tx, threeg.rx)
+        if wifi.tx > 0 or wifi.rx > 0:
+          print "%.20s : wifi : %s -> %s %d/%d TX/RX" % (wifi.device, wifi.start, wifi.end, wifi.tx, wifi.rx)
           self.data_usages.append(wifi)
       
       self.total[logline.device].pop(0)
