@@ -46,6 +46,9 @@ class Application(lib.LogFilter):
     super(Application, self).__init__(self.TAGS, **kwargs)
   
   def process_line(self, logline):
+    if logline.device not in self.s.experiment_devices:
+      return
+
     if logline.label == 'installed_user_app':
       if not self.device_applications.has_key(logline.device):
         self.device_applications[logline.device] = set([])
@@ -73,6 +76,8 @@ class Application(lib.LogFilter):
         del(self.device_screen_states[logline.device])
   
   def process(self):
+    self.s = Statistic.load()
+
     self.process_loop()
               
     for first_application, second_application in itertools.combinations(sorted(self.applications), 2):
