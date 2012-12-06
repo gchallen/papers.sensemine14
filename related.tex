@@ -4,14 +4,47 @@
 We categorize our related work into three areas---testbeds, smartphone
 measurement studies, and smartphone measurement tools. We discuss each category
 below.
-\paragraph{Testbeds:} Existing testbeds offer different features depending on
-their target domains. For example, PlanetLab~\cite{peterson:ccr:2003, planetlab}
-is currently operating more than 1,000 machines world-wide in order to provide
-an environment for large-scale, realistic Internet research.
-Emulab~\cite{white:osdi:2002, emulab} can provide emulated network environments
-with arbitrary network topologies, enabling controlled, repeatable experiments.
-MoteLab~\cite{
-\paragraph{Smartphone Usage Measurement Studies:} storage~\cite{kim:fast:2012},
-diversity~\cite{falaki:mobisys:2010}, network-level
-monitoring~\cite{xu:imc:2011}, power usage~\cite{shye:micro:2009}
-\paragraph{Smartphone Measurement Tools:}
+
+{\bf Testbeds:} In many research domains, a testbed is typically tailored
+to the needs of its target domain and proven to be a valuable tool. For example,
+recognizing the difficulty for conducting large-scale, realistic Internet
+research, PlanetLab~\cite{peterson:ccr:2003, planetlab} operates more than 1,000
+machines world-wide. Emulab~\cite{white:osdi:2002, emulab} is also designed for
+large-scale networking research but provides emulated network environments for
+controlled, repeatable experiments.  MoteLab~\cite{werner-allen:ipsn:2005} is a
+sensor network testbed deployed in a building at Harvard, enabling realistic
+sensor network experiments.  ORBIT~\cite{raychaudhuri:tridentcom:2005} takes a
+two-tier approach allowing emulated experiments as well as real deployments,
+targeting reproducibility and realism at the same time. Likewise, \PhoneLab{} is
+tailored to the needs of smartphone research with its focus on scale and
+realism.
+
+To the best of our knowledge, LiveLabs~\cite{livelabs} is the only smartphone
+testbed except \PhoneLab{} that promises access to a large number of
+participants. Since it is a work in progress, the exact features and operational
+details are not yet documented well. According to their website, it will
+eventually have three sites---a mall, a campus, and a theme park---that are
+instrumented with custom wireless infrastructure. It will collect location and
+activity information from the participants.
+
+{\bf Smartphone Usage Measurement Studies:} A number of studies have looked at
+smartphone usage from various perspectives. Falaki et
+al.~\cite{falaki:mobisys:2010} are among the first ones to study smartphone
+usage. Their central finding is that in many of the metrics they studied, there
+was significant diversity without a clear pattern; the metrics include the mean
+interaction length, the mean number of applications used, the mean amount of
+traffic, etc. Xu et al.~\cite{xu:imc:2011} uses a network-level trace to analyze
+smartphone application usage. The key findings are that smartphone users use
+many regional applications such as local news apps; certain applications are
+installed together; and mobility patterns affect the types of applications
+used. Shye et al.~\cite{shye:micro:2009} studies how power consumption is
+distributed over different hardware components. 
+
+serendipity~\cite{trestian:imc:2009}
+dropzones~\cite{trestian:ton:2012}
+storage~\cite{kim:fast:2012}
+power usage~\cite{shye:micro:2009}
+\XXXnote{stevko: Say something about our findings in comparison to these
+studies.}
+
+{\bf Smartphone Measurement Tools:}
