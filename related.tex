@@ -14,29 +14,21 @@ infrastructure; and it will collect location and activity information from the
 participants. Since it is a work in progress, the exact features and operational
 details are not yet documented well.
 
-Testbeds in other domains also have chosen their design points to meet
-domain-specific needs. For example, PlanetLab~\cite{peterson:ccr:2003,
-planetlab} operates more than 1,000 machines world-wide in order to enable
-large-scale, realistic Internet research. Emulab~\cite{white:osdi:2002, emulab}
-provides emulated network environments to enable controlled, repeatable
-network experiments. MoteLab~\cite{werner-allen:ipsn:2005} targets realistic
-sensor network experiments by deploying a sensor network testbed in a building
-at Harvard. ORBIT~\cite{raychaudhuri:tridentcom:2005} takes a two-tier approach
-allowing emulated experiments as well as real deployments, targeting
-reproducibility and realism at the same time.
-
 As a case study, we demonstrate the power of \PhoneLab{} by collecting and
 analyzing comprehensive usage data from a subset of our participants
 (Section~\ref{evaluation}). Though smartphone usage measurement studies exist,
 our goal is to showcase that \PhoneLab{} enables {\it any} researcher to
-collect real usage data from a large pool of participants according to their
-needs when they need it; with the lack of such ability, researchers have
-resorted to arduous methods such as obtaining and analyzing service providers'
-network-level data sets~\cite{xu:imc:2011, trestian:imc:2009,
-trestian:ton:2012}, incentivizing a large number of
-participants~\cite{falaki:mobisys:2010}, recruiting
-volunteers~\cite{shye:micro:2009}, etc. Through our case study, we demonstrate
-that \PhoneLab{} greatly simplifies this process.
+examine {\it real, up-to-date} smartphone usage from a large pool of
+participants {\it according to their needs when they need it}; with the lack of
+such ability, researchers have resorted to arduous methods such as obtaining and
+analyzing service providers' network-level data sets~\cite{xu:imc:2011,
+trestian:imc:2009, trestian:ton:2012}, incentivizing a large number of
+participants themselves~\cite{falaki:mobisys:2010}, recruiting volunteers
+through a long period of publicizing the project~\cite{shye:micro:2009}, etc.
+Although these processes make it possible to obtain traces, they are
+prohibitedly expensive to repeat, hence the traces quickly become obsolete.
+Through our case study, we demonstrate that \PhoneLab{} greatly simplifies this
+process.
 
 \XXXnote{stevko: need to revise according to our findings.}
 Though the primary purpose of our analysis is to demonstrate the power of
@@ -66,3 +58,14 @@ consumption~\cite{zhang:codes:2010, pathak:eurosys:2012} or 3G
 performance~\cite{huang:mobisys:2010}. Though we have developed a measurement
 tool for our analysis as well, our focus for this paper is not the tool design,
 but the power of \PhoneLab{}.
+
+Testbeds in other domains also have chosen their design points to meet
+domain-specific needs. For example, PlanetLab~\cite{peterson:ccr:2003,
+planetlab} operates more than 1,000 machines world-wide in order to enable
+large-scale, realistic Internet research. Emulab~\cite{white:osdi:2002, emulab}
+provides emulated network environments to enable controlled, repeatable
+network experiments. MoteLab~\cite{werner-allen:ipsn:2005} targets realistic
+sensor network experiments by deploying a sensor network testbed in a building
+at Harvard. ORBIT~\cite{raychaudhuri:tridentcom:2005} takes a two-tier approach
+allowing emulated experiments as well as real deployments, targeting
+reproducibility and realism at the same time.
