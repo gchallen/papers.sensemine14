@@ -1,0 +1,67 @@
+\section{Related Work}
+\label{sec:related}
+
+We have chosen the design points of \PhoneLab{}---scale, realism, locality, and
+platform experimentation---in order to meet the needs of smartphone research
+that are currently lacking. To the best of our knowledge, \PhoneLab{} is the
+only smartphone testbed that plans to provide all four characteristics.
+LiveLabs~\cite{livelabs} is the most similar testbed that we are aware of. Its
+plan is to provide scale, realism, and locality, but lacks the ability to
+perform platform experimentation. LiveLabs will eventually have three sites---a
+mall, a campus, and a theme park---that are instrumented with custom wireless
+infrastructure; and it will collect location and activity information from the
+participants. Since it is a work in progress, the exact features and operational
+details are not yet documented well.
+
+Testbeds in other domains also have chosen their design points to meet
+domain-specific needs. For example, PlanetLab~\cite{peterson:ccr:2003,
+planetlab} operates more than 1,000 machines world-wide in order to enable
+large-scale, realistic Internet research. Emulab~\cite{white:osdi:2002, emulab}
+provides emulated network environments to enable controlled, repeatable
+network experiments. MoteLab~\cite{werner-allen:ipsn:2005} targets realistic
+sensor network experiments by deploying a sensor network testbed in a building
+at Harvard. ORBIT~\cite{raychaudhuri:tridentcom:2005} takes a two-tier approach
+allowing emulated experiments as well as real deployments, targeting
+reproducibility and realism at the same time.
+
+As a case study, we demonstrate the power of \PhoneLab{} by collecting and
+analyzing comprehensive usage data from a subset of our participants
+(Section~\ref{evaluation}). Though smartphone usage measurement studies exist,
+our goal is to showcase that \PhoneLab{} enables \emph{any} researcher to
+collect real usage data from a large pool of participants according to their
+needs when they need it; with the lack of such ability, researchers have
+resorted to arduous methods such as obtaining and analyzing service providers'
+network-level data sets~\cite{xu:imc:2011, trestian:imc:2009,
+trestian:ton:2012}, incentivizing a large number of
+participants~\cite{falaki:mobisys:2010}, recruiting
+volunteers~\cite{shye:micro:2009}, etc. Through our case study, we demonstrate
+that \PhoneLab{} greatly simplifies this process.
+
+\XXXnote{stevko: need to revise according to our findings.}
+Though the primary purpose of our analysis is to demonstrate the power of
+\PhoneLab{}, our findings complement what previous studies have reported. Falaki
+et al.~\cite{falaki:mobisys:2010} are among the first ones to study smartphone
+usage. Their central finding is that in many of the metrics they studied, there
+was significant diversity without a clear pattern; the metrics include the mean
+interaction length, the mean number of applications used, the mean amount of
+traffic, etc. Xu et al.~\cite{xu:imc:2011} use a network-level trace to analyze
+smartphone application usage. The key findings are that smartphone users use
+many regional applications such as local news apps; certain applications are
+installed together; and mobility patterns affect the types of applications
+used. Trestian et al.~\cite{trestian:imc:2009} study users of a 3G network and
+report a similar finding: people's movement and locations correlate with
+applications they use. They also report that there is a correlation between
+content upload and location in another study~\cite{trestian:ton:2012}. Shye et
+al.~\cite{shye:micro:2009} studies how power consumption is distributed over
+different hardware components. Kim et al.~\cite{kim:fast:2012} focus on
+correlation between storage and application performance and find multiple
+factors that affect application performance. Many studies have also looked at
+WiFi and 3G network characteristics using
+smartphones~\cite{keralapura:mobicom:2010, maier:pam:2010, gember:pam:2011}.
+
+Researchers have also developed special-purpose measurement tools. These tools
+are designed to measure certain metrics such as power
+consumption~\cite{zhang:codes:2010, pathak:eurosys:2012} or 3G
+performance~\cite{huang:mobisys:2010}. Though we have developed a measurement
+tool for our analysis as well, our focus for this paper is not the tool design,
+but the design of \PhoneLab{}.
