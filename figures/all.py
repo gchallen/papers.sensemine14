@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import sys, argparse
 
-from applications.lib import Application
-from power.lib import Power
-from statistics.lib import Statistic
-from telephony.lib import Telephony
+from applications.lib import *
+from power.lib import *
+from statistics.lib import *
+from telephony.lib import *
+from networking.lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--clean', action='store_true', default=False)
@@ -16,6 +17,7 @@ if args.clean or args.reparse:
   Power.remove()
   Statistic.remove()
   Telephony.remove()
+  Networking.remove()
 
 if args.clean:
   sys.exit(0)
@@ -47,3 +49,10 @@ try:
   t.store()
 except Exception, e:
   print >>sys.stderr, "Telephony processing caused an exception: %s" % (e,)
+
+try:
+  n = Networking.load(verbose=True)
+  n.verbose = False
+  n.store()
+except Exception, e:
+  print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)
