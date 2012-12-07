@@ -6,7 +6,7 @@ from common import lib
 from location.lib import DeviceLocation
 
 def label_line(logline):
-  if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json.has_key('State'):
+  if logline.log_tag == 'PhoneLabSystemAnalysis-Telephony' and logline.json != None and logline.json.has_key('State'):
     return 'threeg_state'
   elif logline.log_tag == 'PhoneLabSystemAnalysis-Wifi' and logline.json != None and logline.json.has_key('State'):
     return 'wifi_state'
@@ -162,7 +162,6 @@ class UsageState(object):
       if threeg.tx >= 0 and threeg.rx >= 0:
         if threeg.tx > 0 or threeg.rx > 0:
           self.data_usages.append(threeg)
-          print "%.20s : threeg : %s -> %s %d/%d TX/RX" % (threeg.device, threeg.start, threeg.end, threeg.tx, threeg.rx)
           
         wifi = WifiUsage(logline.device,
                          (int(total_1_m.group('rx')) - int(total_0_m.group('rx'))) - threeg.rx,
@@ -170,7 +169,6 @@ class UsageState(object):
                          self.total[logline.device][0].datetime,
                          self.total[logline.device][1].datetime)
         if wifi.tx > 0 or wifi.rx > 0:
-          print "%.20s : wifi : %s -> %s %d/%d TX/RX" % (wifi.device, wifi.start, wifi.end, wifi.tx, wifi.rx)
           self.data_usages.append(wifi)
       
       self.total[logline.device].pop(0)

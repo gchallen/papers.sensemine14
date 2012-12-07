@@ -3,6 +3,7 @@
 
 import re, itertools
 from common import lib
+from statistics.lib import *
 
 def label_line(logline):
   if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
