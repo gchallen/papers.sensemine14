@@ -5,20 +5,20 @@
 
 \PhoneLab{} was designed to fill a gap in existing smartphone experimentation
 capabilities. Specifically, current experimental approaches are forced to
-trade off:
+trade off
 
 \begin{itemize}[nosep]
-\vspace*{0.1in}
+\vspace*{0.08in}
 \item power: permitting the modification of any smartphone software component,
 \item scale: facilitating deployment on many devices,
 \item and realism: collecting results from a representative set of smartphone users.
-\vspace*{0.1in}
+\vspace*{0.08in}
 \end{itemize}
 
-Distributing experiments through the Play Store or App Store provides realism
-but limits research to distributing applications, with scale a possibility
-but a challenge due to lack of incentives. Distributing experiments to
-graduate students provides power but limits scale and (probably) realism.
+Distributing experiments via application marketplaces provides realism but
+limits research to distributing applications, with scale a possibility but a
+challenge due to lack of incentives. Distributing experiments to graduate
+students provides power but limits scale and realism.
 
 \PhoneLab{} achieves power by utilizing Android open-source devices and a
 self-signed build which allows us to update any software components; scale by
@@ -77,8 +77,7 @@ benefits. First, the availability of the Android source makes \PhoneLab{}
 instrumentation easier even when collecting data from the application level.
 Our usage characterization experiment, described in
 Section~\ref{sec-experiment}, uses Java introspection facilitated by access
-to the Android source to access battery usage information not publicly
-exposed by Android 4.1.1.
+to the Android source to access hidden battery usage information.
 
 Second, the AOSP allows us to sign the platform image used by our
 participants. When the same key is used to sign a software package, that
@@ -95,23 +94,36 @@ experiment-friendly way. Controlling the platform provides the opportunity to
 supplement existing interfaces or add additional logging to make
 experimentation and data collection easier.
 
+\begin{table}[t]
+\begin{threeparttable}
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{CPU} & 1~GHz ARM Cortex A8 \\
+\textbf{GPU} & PowerVR SGX540 \\
+\textbf{RAM} & 512 MB\tnote{1} \\
+\textbf{Storage} & 16~GB of NAND Flash, divided into 1 and 15~GB partitions.\\
+\textbf{Battery} & 1500~mAh 3.7~V Li-ion.\\
+\textbf{Display} & 4" 480~x~800 touch screen.\\
+\textbf{Networking} & 1x/3G/4G (WiMax) cellular data, 802.11 b/g/n Wifi,
+Bluetooth, NFC, and USB.\\
+\textbf{Sensors} & GPS, accelerometer, gyroscope, proximity and compass.\\
+\bottomrule
+\end{tabularx}
+
+{\footnotesize
+\begin{tablenotes}
+\item [1] 128~MB is reserved for the GPU.
+\end{tablenotes}}
+
+\caption{\textbf{The Samsung Nexus S 4G smartphone.}}
+\label{table-nexuss4g}
+\end{threeparttable}
+\end{table}
+
 We have distributed Nexus S 4G smartphones to our first group of
 participants. The Nexus S 4G was first released by Sprint in May, 2011, and
 was one of the official AOSP development phones at the time \PhoneLab{}
-development began. It features include:
-
-\begin{itemize}[nosep]
-\item a 1~GHz ARM Cortex A8 CPU,
-\item a PowerVR SGX 540 GPU,
-\item 512~MB of RAM with 128~MB reserved for the GPU,
-\item 16~GB of NAND Flash divided into 1~GB internal and 15~GB external storage partitions,
-\item a 1500 mAh battery,
-\item a 4" 480x800 resolution touch screen display, and
-\item 3G/4G (WiMax)\footnote{Sprint has not deployed 4G WiMax in the Buffalo
-area}, 802.11 b/g/n WiFi, Bluetooth, NFC (near-field communication) and USB
-networking interfaces.
-\end{itemize}
-
+development began. It features are summarized in Table~\ref{table-nexuss4g}.
 While we expect to receive yearly phone upgrades and will distribute more
 up-to-date device to our second group of participants, we anticipate that the
 prohibitive cost of the newest smartphones will prevent us from ever
@@ -140,13 +152,60 @@ recruitment itself while providing us with a stable set of participants
 comfortable being a part of \PhoneLab{} experimentation.
 
 When recruiting our first batch of participants, we initially intended to
-target freshman and sophomore students studying computer science and
-engineering. We found, however, that many of these students already owned
-smartphones. At this point we broadened our first- and second-year student
-recruitment across all disciplines as well as incoming PhD students. SUNY
-Buffalo has a large international graduate student community, and many of
-these students arrive on campus without phones or phone contracts, making
-them ideal multi-year \PhoneLab{} participants.
+target freshman and sophomore SUNY Buffalo (UB) students studying computer
+science and engineering. We found, however, that many of these students
+already owned smartphones. At this point we broadened our first- and
+second-year student recruitment across all disciplines as well as incoming
+PhD students. The University at Buffalo has a large international graduate
+student community, and many of these students arrive on campus without phones
+or phone contracts, making them ideal multi-year \PhoneLab{} participants.
 
-In the end, as Table~\ref{table-demographics} illustrates, the majority of
-our p
+After a first round of smartphone distribution in late August and early
+September 2012, we also began to rethink targeting students and instead
+started to reach out to the professional population at SUNY Buffalo. We
+realized that many students are still covered by their parents family plans,
+which made us worry that they might abandon the testbed after the first free
+year. Faculty and staff, in contrast, are both used to paying for monthly
+mobile phone service and frequently maintain long affiliations with the
+university.
+
+\begin{table}[t]
+\begin{threeparttable}
+\begin{tabularx}{\columnwidth}{Xr@{\hspace{0.5in}}Xr}
+\multicolumn{4}{c}{\textbf{Affiliation}} \\
+\midrule
+Freshman & 64 & Masters & 5 \\
+Sophomore & 33 & PhD & 53 \\
+Junior & 1 & Faculty/Staff & 29 \\
+Senior & 1 & None & 5 \\[0.1in]
+\multicolumn{4}{c}{\textbf{Gender}} \\
+\midrule
+Female & 51 & Male & 140 \\[0.1in]
+\multicolumn{4}{c}{\textbf{Age}} \\
+\midrule
+Under 18 & 12 & 30--34 & 15 \\
+18--19 & 74 & 35--39 & 6 \\
+20--21 & 12 & 40--49 & 13 \\
+22--24 & 22 & 50--59 & 7 \\
+25--29 & 29 & 60+ & 1 \\
+\end{tabularx}
+\end{threeparttable}
+\caption{\textbf{Demographic breakdown of 191 \PhoneLab{} participants.} Date
+ranges are inclusive.}
+\label{table-demographics}
+\end{table}
+
+In the end, our first round of \PhoneLab{} participant recruitment was done
+largely without careful planning as to the testbed demographic breakdown. We
+were focused primarily on ensuring that all phones were distributed promptly
+to willing participants. Table~\ref{table-demographics} describes the
+demographic breakdown that we achieved. Roughly half of our participants are
+first- and second-year undergraduates, a quarter PhD students, and a fifth
+faculty, staff and other professionals. Males greatly outnumber females, and
+the young outnumber the middle-aged and older, both unrepresentative features
+we will try and rectify in year two. For management reasons we limited
+participation to people with a SUNY Buffalo affiliation, except in a few
+select cases which include a local reporter, a technology writer, and an
+international rock star.
+
+\subsection{Testbed Management}
