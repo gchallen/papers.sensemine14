@@ -10,37 +10,36 @@ in history.
 
 Meanwhile, the scale of smartphone experimentation is lagging. A survey of
 MobiSys'12 papers shows reveals that when smartphone evaluations use real
-devices, this use small numbers---3, 12, or 20
+devices, they use small numbers---3, 12, or 20
 phones~\cite{nowar-mobisys12,comon-mobisys12,caching-mobisys12}. Other
 experiments use simulations driven by small, old, or synthesized data
 sets~\cite{falcon-mobisys12,ace-mobisys12,humanmobility-mobisys12}. In either
-case, large-scale results from representative users are more compelling.
-While multiple factors---including recruitment, human subjections compliance,
+case, large-scale results from representative users would be more compelling.
+While multiple factors---including recruitment, human subjects compliance,
 and data collection---make large-scale smartphone challenging, harnessing the
 growth of smartphones requires evaluating ideas at scale.
 
-We present \PhoneLab{}, an open-access programmable smartphone testbed
-designed to enable smartphone research at scales not currently practical.
-\PhoneLab{} provides access to a large and stable set of participants,
-already incentivized to participate in smartphone experimentation. Currently
-comprising 191~participants, \PhoneLab{} is scheduled to grow to over 700
-devices by 2014. By exploiting locality, \PhoneLab{} increases the density
-and interaction rate between participating smartphones, which we expect to be
-important for evaluating new research on phone-to-phone protocols and
-crowdsourcing algorithms.
+We present \PhoneLab{}, a large programmable smartphone testbed designed to
+enable smartphone research at scales not currently practical. \PhoneLab{}
+provides access to a large and stable set of participants incentivized to
+participate in smartphone experimentation. Currently comprising
+191~participants, \PhoneLab{} is scheduled to grow to over 700 participants
+by 2014. By exploiting locality, \PhoneLab{} increases the density and
+interaction rate between participats, important for evaluating new research
+on phone-to-phone protocols and crowdsourcing algorithms.
 
 By utilizing the Android open-source smartphone platform, \PhoneLab{} enables
 research both above and below the application-platform interface. Researchers
-can distribute new interactive applications or custom non-interactive data
-loggers, but they can also change core Android platform and kernel
-components, making \PhoneLab{} ideal for platform experiments impossible to
-distribute through the Play Store (Android Market).
+can distribute new interactive applications or non-interactive data loggers,
+but can also change core Android platform and kernel components, allowing
+\PhoneLab{} to host experiments impossible to distribute through the Play
+Store.
 
-We make two core contributions in this paper. First,
-Section~\ref{sec-testbed} introduces \PhoneLab{}, describe the testbed and
-our participants, and explains experimental procedures. We also describe the
-Android logging framework in Section~\ref{sec-logging} and discuss the
-visibility it provides into the inner workings of the Android platform.
+We make two contributions in this paper. First, we introduce \PhoneLab{}.
+Section~\ref{sec-testbed} introduces describe the testbed design and
+implementation, presents demographic data on our participants, and explains
+experimental procedures. Section~\ref{sec-logging} describes the Android
+logging framework and the visibility it provides into the Android platform.
 
 % 02 Dec 2012 : GWA : run on ... phones is
 % ./figures/statistics/lib.py % --experiment_count
@@ -49,23 +48,24 @@ visibility it provides into the inner workings of the Android platform.
 % ./figures/statistics/lib.py % --experiment_length_days
 % For initial abstract submission this number is estimated.
 
-Second, Section~\ref{sec-experiment} describes the implementation of a usage
-characterization experiment run on \PhoneLab{}. 88 participants ran the
-experiment for 21 days and generated \XXXnote{GWA} log messages. We do not
-attempt to produce an exhaustive analysis of our dataset; instead, our goal
-is to encourage \PhoneLab{} use by the mobile systems community by
-demonstrating the kinds of research projects it can support. To do so, we
-present a set of six interesting findings investigating
+Second, we demonstrate that \PhoneLab{} is powerful and usable.
+Section~\ref{sec-experiment} describes a usage characterization experiment
+run by 88 \PhoneLab{} participants for 21 days. Rather than attempting a
+comprehensive analysis of the dataset, we use it to highlight the power of
+\PhoneLab{} and breadth of research projects it can support. To do so, we
+present a set of six findings investigating
 
 \begin{itemize}[nosep]
+\vspace*{0.1in}
 \item overall battery usage (Section~\ref{sec-batteryoverview}),
 \item opportunistic charging (Section~\ref{sec-opportunistic}),
 \item user energy awareness (Section~\ref{sec-awareness},
 \item 3G to WiFi transitions (Section~\ref{sec-networktransitions}),
 \item application usage patterns (Section~\ref{sec-apptransitions}), and
 \item location data sharing (Section~\ref{sec-locationsharing}).
+\vspace*{0.1in}
 \end{itemize}
 
-For each, we both present our data and
-discuss how to use \PhoneLab{} to continue research on that aspect of
-smartphone usage. Section~\ref{sec-conclusion} concludes the paper.
+For each, we first present our data and then describe how to use \PhoneLab{}
+perform further investigation. We hope that these examples will encourage
+\PhoneLab{} use by the mobile systems community.
