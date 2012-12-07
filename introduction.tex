@@ -36,11 +36,11 @@ loggers, but they can also change core Android platform and kernel
 components, making \PhoneLab{} ideal for platform experiments impossible to
 distribute through the Play Store (Android Market).
 
-We make two core contributions in this paper. First, we introduce
-\PhoneLab{}, describe the testbed and our participants, and explain
-experimental procedures. We also describe the Android logging framework and
-discuss the visibility it provides into the inner workings of the Android
-platform.
+We make two core contributions in this paper. First,
+Section~\ref{sec-testbed} introduces \PhoneLab{}, describe the testbed and
+our participants, and explains experimental procedures. We also describe the
+Android logging framework in Section~\ref{sec-logging} and discuss the
+visibility it provides into the inner workings of the Android platform.
 
 % 02 Dec 2012 : GWA : run on ... phones is
 % ./figures/statistics/lib.py % --experiment_count
@@ -49,12 +49,23 @@ platform.
 % ./figures/statistics/lib.py % --experiment_length_days
 % For initial abstract submission this number is estimated.
 
-Second, we present results from a usage characterization experiment run by 88
-\PhoneLab{} participants for 24 days and yielding \XXXnote{GWA} log messages.
-We do not attempt to produce an exhaustive analysis of our dataset, which
-will be made available for future study. Instead, we present a set of
-\XXXnote{GWA} five interesting findings and, for each, describe how to use
-\PhoneLab{} to continue research on that aspect of smartphone usage. Our goal
-is to encourage \PhoneLab{} usage by the mobile systems community.
+Second, Section~\ref{sec-experiment} describes the implementation of a usage
+characterization experiment run on \PhoneLab{}. 88 participants ran the
+experiment for 21 days and generated \XXXnote{GWA} log messages. We do not
+attempt to produce an exhaustive analysis of our dataset; instead, our goal
+is to encourage \PhoneLab{} use by the mobile systems community by
+demonstrating the kinds of research projects it can support. To do so, we
+present a set of six interesting findings investigating
 
-The rest of this paper is structured as follows...
+\begin{itemize}[nosep]
+\item overall battery usage (Section~\ref{sec-batteryoverview}),
+\item opportunistic charging (Section~\ref{sec-opportunistic}),
+\item user energy awareness (Section~\ref{sec-awareness},
+\item 3G to WiFi transitions (Section~\ref{sec-networktransitions}),
+\item application usage patterns (Section~\ref{sec-apptransitions}), and
+\item location data sharing (Section~\ref{sec-locationsharing}).
+\end{itemize}
+
+For each, we both present our data and
+discuss how to use \PhoneLab{} to continue research on that aspect of
+smartphone usage. Section~\ref{sec-conclusion} concludes the paper.
