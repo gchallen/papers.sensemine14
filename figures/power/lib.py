@@ -133,8 +133,8 @@ class Power(lib.LogFilter):
           break
 
   def battery_below_threshold(self, device, threshold):
-    for p in self.device_power[device]:
-      if p.battery_level < threshold:
+    for extent in self.filtered_device_extents[device]:
+      if extent.min() < threshold:
         return True
     return False
 

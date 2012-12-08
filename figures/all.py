@@ -24,35 +24,30 @@ if args.clean:
 
 try:
   a = Application.load(verbose=True)
-  a.verbose = False
   a.store()
 except Exception, e:
   print >>sys.stderr, "Application processing caused an exception: %s" % (e,)
   
 try:
   p = Power.load(verbose=True)
-  p.verbose = False
   p.store()
 except Exception, e:
   print >>sys.stderr, "Power processing caused an exception: %s" % (e,)
 
 try:
   s = Statistic.load(verbose=True)
-  s.verbose = False
   s.store()
 except Exception, e:
   print >>sys.stderr, "Statistic processing caused an exception: %s" % (e,)
 
 try:
   t = Telephony.load(verbose=True)
-  t.verbose = False
   t.store()
 except Exception, e:
   print >>sys.stderr, "Telephony processing caused an exception: %s" % (e,)
 
 try:
   n = Networking.load(verbose=True)
-  n.verbose = False
   n.store()
 except Exception, e:
   print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)
