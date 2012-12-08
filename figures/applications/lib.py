@@ -2,8 +2,8 @@
 
 
 import re, itertools
-from common import lib
-from statistics.lib import *
+from common import lib #@UnusedImport
+from statistics.lib import * #@UnusedWildImport
 
 def label_line(logline):
   if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
@@ -82,7 +82,7 @@ class Application(lib.LogFilter):
   def process(self):
     self.reset()
     
-    self.s = Statistic.load(self.verbose)
+    self.s = Statistic.load(verbose=self.verbose)
     
     self.process_loop()
               
