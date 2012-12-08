@@ -107,7 +107,17 @@ class Statistic(lib.LogFilter):
     self.experiment_length_days = round(time_diff.days + time_diff.seconds / (60.0 * 60.0 * 24.0), 2)
     
     self.set_active_devices() 
-
+  
+  def experiment_days(self):
+    day = datetime.datetime(self.start_time.year, self.start_time.month, self.start_time.day)
+    days = [day,]
+    while True:
+      day += datetime.timedelta(days=1)
+      if day >= self.end_time:
+        break
+      days.append(day)
+    return days
+  
 class OnlineState(object):
   def __init__(self):
     self.devices = set([])
