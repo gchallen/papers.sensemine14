@@ -51,6 +51,7 @@ class PowerState(object):
     self.device = logline.device
     self.datetime = logline.datetime
     self.battery_level = int(logline.json['BatteryLevel']) / 100.0
+    self.plugged = logline.json['Plugged']
   
   def __eq__(self, other):
     return isinstance(other, PowerState) and self.device == other.device and self.datetime == other.datetime

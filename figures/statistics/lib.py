@@ -15,11 +15,21 @@ def label_line(logline):
     return 'shutdown'
   if logline.log_tag == 'ActivityManager':
     return 'log_count'
-  return 'count'
+  return 'all'
 
 class Statistic(lib.LogFilter):
   
-  TAGS = ['PhoneLabSystemAnalysis', 'SurfaceFlinger', 'ActivityManager',]
+  TAGS = ["PhoneLabSystemAnalysis", "PhoneLabSystemAnalysis-Wifi",
+          "PhoneLabSystemAnalysis-Telephony", "PhoneLabSystemAnalysis-BatteryChange",
+          "PhoneLabSystemAnalysis-Misc", "PhoneLabSystemAnalysis-Snapshot",
+          "PhoneLabSystemAnalysis-Location", "PhoneLabSystemAnalysis-UidInfo",
+          "PhoneLabSystemAnalysis-Packages", "PhoneLabSystemAnalysis-LocationTask",
+          "PhoneLabSystemAnalysis-Apps", "PhoneLabSystemAnalysis-Storage",
+          "PhoneLabSystemAnalysis-Traffic", "PhoneLabSystemAnalysis-SensorInfo",
+          "PhoneLabSystemAnalysis-Media", "PhoneLabSystemAnalysis-ProcInfo", "ActivityManager",
+          "SmsReceiverService", "GoogleVoice", "LocationManagerService",
+          "LockPatternKeyguardView", "NfcService",
+          "SurfaceFlinger", "PhoneStatusBar"]
   
   BATTERY_USAGE_THRESHOLD = 0.7;
   DATA_USAGE_THRESHOLD_BYTES = 1024;
@@ -41,6 +51,7 @@ class Statistic(lib.LogFilter):
     self.active_devices = set([])
     self.device_intervals = {}
     self.device_counts = {}
+    self.tag_counts = {}
     self.total_count = 0
     
   def process_line(self, logline):
@@ -53,8 +64,12 @@ class Statistic(lib.LogFilter):
     self.total_count += 1
     if not self.device_counts.has_key(logline.device):
       self.device_counts[logline.device] = 0
+    if not self.tag_counts.has_key(logline.log_tag):
+      self.tag_counts[logline.log_tag] = 0
+    
     self.device_counts[logline.device] += 1
-  
+    self.tag_counts[logline.log_tag] += 1
+    
   def set_active_devices(self):
     p = Power.load(verbose=self.verbose)
     battery_active_devices = set([])
