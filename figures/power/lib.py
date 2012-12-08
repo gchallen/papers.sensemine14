@@ -32,6 +32,9 @@ class Power(lib.LogFilter):
   def reset(self):
     self.all_device_extents = {}
     self.filtered_device_extents = {}
+    self.charging_extents = []
+    self.discharging_extents = []
+    self.processed = False
     
   def process_line(self, logline):
     if logline.label == 'battery_level':
@@ -84,6 +87,7 @@ class Power(lib.LogFilter):
         self.all_device_extents[device].append(self.device_discharging[device])
     
     self.filter_extents()
+    self.set_all_extents()
     
   def filter_extents(self):
     for device in self.devices:
@@ -108,7 +112,14 @@ class Power(lib.LogFilter):
       
       self.filtered_device_extents[device].append(current_extent)
       
-      
+  def set_all_extents(self): 
+    for device in self.filtered_device_extents.keys():
+      for extent in self.filtered_device_extents[device]:
+        if isinstance(extent, ChargingExtent):
+          self.charging_extents.append(extent)
+        else:
+          self.discharging_extents.append(extent)    
+  
   def battery_below_threshold(self, device, threshold):
     for p in self.device_power[device]:
       if p.battery_level < threshold:
@@ -135,12 +146,19 @@ class PowerExtent(object):
     return min(self.states, key=lambda k: k.battery_level)
   
 class ChargingExtent(PowerExtent):
+  OPPORTUNISTIC_THRESHOLD = 0.90
+  OPPORTUNISTIC_LENGTH = datetime.timedelta(minutes=10)
+  
   def __init__(self, power_state):
     return super(ChargingExtent, self).__init__(power_state)
   
   def battery_change(self):
     return self.max_battery_state().battery_level - self.min_battery_state().battery_level
   
+  def is_opportunistic(self):
+    return all([self.max_battery_state().battery_level >= ChargingExtent.OPPORTUNISTIC_THRESHOLD,
+                self.time_length() >= ChargingExtent.OPPORTUNISTIC_LENGTH])
+    
 class DischargingExtent(PowerExtent):
   def __init__(self, power_state):
     return super(DischargingExtent, self).__init__(power_state)
