@@ -8,8 +8,8 @@ from statistics.lib import * #@UnusedWildImport
 parser = argparse.ArgumentParser()
 args = parser.parse_args()
 
-p = Power.load()
-s = Statistic.load()
+p = Power.load(verbose=True)
+s = Statistic.load(verbose=True)
 
 device_opportunistic = {}
 opportunistic_per_day = {}
