@@ -130,7 +130,7 @@ Our tool logs usage information in two ways. The first way is to take a
 state of the phone periodically. The information we capture in a snapshot
 includes the amount of battery consumed, the amount of data sent and received
 over 3G or WiFi, storage used, etc. We have chosen the 15-minute interval in
-order to reduce the battery consumption of our application.\XXXnote{stevko:
+order to reduce the battery consumption of our tool.\XXXnote{stevko:
 what's our battery consumption?} Whenever we can, we also collect information
 as they become available. This mainly involves event-related information such as
 screen unlock/lock times, WiFi scan results, call placed/received times, power
@@ -149,12 +149,36 @@ display the battery information. PowerTutor~\cite{zhang:codes:2010} takes a
 similar approach to analyze battery usage.
 
 {\bf IRB Approval:} The turnaround time for our IRB approval
-was relatively quick. We had two revisions due to our misunderstanding of the
-instructions; however, on avarege the turnaround time for each revision was less
-than a week.
+was quick. We had two revisions due to our misunderstanding of the instructions;
+however, the turnaround time for each revision was about a week.
 
-{\bf Distribution and Deployment:} How long did it take to reach 88? Say that
-this in and of itself is an experiment because we only sent out one mass email
-annoucing the availability of the play store app.
+{\bf Distribution and Deployment:} We put our tool on the Play Store on
+November 14, 2012 and announced the availability of the tool to our
+participants via a mass email. Within a day, 82 participants installed the
+tool. Within the first 3 days, 5 days and 7 days, the number grew to 108,
+115, and 120, accordingly. As of December 6, 131 participants have installed the
+tool. \XXXnote{stevko: say something about why we only use 88 devices?}
 
-{\bf Data Collection:} How much did we generate?
+Interestingly, one participant has expressed a concern about the permissions
+requested due to the lack of accurate descriptions of permissions on Android.
+The participant was particularly concerned about two permissions, ``Hardware
+controls'' that we request for collecting camera usage and ``Phone calls'' that
+we request for telephony usage. Since Android's default descriptions give only
+general statements for these permissions such as ``(Hardware control permission)
+record(s) audio'' and ``(Phone call permission) determine(s) ... the remote
+number connected by a call,'' the participant was misled to believe that those
+are what our tool actually does. A survey study has reported a similar problem
+that the user comprehension level for Android permissions is remarkably
+low~\cite{felt:soups:2012}.
+%Though we only have one instance, the implication of
+%this for \PhoneLab{} users is that the description they provide needs to explain
+%clearly why their experiment requests certain sensitive permissions.
+
+{\bf Data Collection:} We leveraged our data logging and collection mechanism by
+labeling different types of information with different tags. For example, the
+label for each snapshot is \texttt{PhoneLabSystemAnalysis-Snapshot}, the label
+for location usage is \texttt{PhoneLabSystemAnalysis-Location}, the label for
+telephony usage is \texttt{PhoneLabSystemAnalysis-Telephony}, etc. Using these
+descriptive tags also helped our analysis as we wrote our custom parsing
+scripts. In the end, we have collected \XXXnote{stevko: how much did we
+generate?} over 21 days from \XXXnote{88 devices?}.
