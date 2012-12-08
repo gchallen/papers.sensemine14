@@ -31,6 +31,12 @@ class Application(lib.LogFilter):
                    'edu.buffalo.cse.phonelab.systemanalysis']
 
   def __init__(self, **kwargs):
+    self.reset()
+    
+    self.label_line = label_line    
+    super(Application, self).__init__(self.TAGS, **kwargs)
+  
+  def reset(self):
     self.applications = set([])
     self.system_applications = set([])
     self.device_applications = {}
@@ -43,9 +49,6 @@ class Application(lib.LogFilter):
     self.device_activities = {}
     self.device_screen_states = {}
     
-    self.label_line = label_line    
-    super(Application, self).__init__(self.TAGS, **kwargs)
-  
   def process_line(self, logline):
     if logline.device not in self.s.experiment_devices:
       return
@@ -77,8 +80,10 @@ class Application(lib.LogFilter):
         del(self.device_screen_states[logline.device])
   
   def process(self):
-    self.s = Statistic.load()
-
+    self.reset()
+    
+    self.s = Statistic.load(self.verbose)
+    
     self.process_loop()
               
     for first_application, second_application in itertools.combinations(sorted(self.applications), 2):

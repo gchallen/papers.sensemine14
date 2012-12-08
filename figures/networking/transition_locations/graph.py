@@ -3,7 +3,6 @@
 import sys, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 
 from networking.lib import * #@UnusedWildImport
 from location.lib import * #@UnusedWildImport
@@ -41,7 +40,10 @@ for d in n.devices:
         l_1.locations[0].dist(l_0.locations[-1]) * 1000.0 < 100.0:
       start = suny_north.m(l_1.locations[0].lon, l_1.locations[0].lat)
       end = suny_north.m(l_0.locations[-1].lon, l_0.locations[-1].lat)
-      lines.append([[start[0], end[0]], [start[1], end[1]]])
+      if isinstance(l_0, WifiSession):
+        lines.append([[start[0], end[0]], [start[1], end[1]]])
+      else:
+        lines.append([[start[1], end[1]], [start[0], end[0]]])
       count += 1
 
 print >>sys.stderr, count
@@ -52,5 +54,5 @@ print >>sys.stderr, count
 suny_north.m.imshow(suny_north.background, origin='upper')
 suny_north.m.plot(*suny_north.m(DAVIS_HALL.lon, DAVIS_HALL.lat), color='b', marker='o')
 for line in lines:
-  suny_north.m.plot(*line, color='b', marker='o')
+  suny_north.m.plot(*line, color='black')
 fig.savefig('graph.pdf')

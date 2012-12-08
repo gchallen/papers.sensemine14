@@ -23,12 +23,14 @@ class Networking(lib.LogFilter):
   TRAFFIC_TYPE_PATTERN = re.compile(r"""Type: (?P<type>\w+), Rx: (?P<rx>\d+), Tx: (?P<tx>\d+)""")
   
   def __init__(self, **kwargs):
-    
-    self.data_sessions = []
-    self.data_usages = []
+    self.reset()
     
     self.label_line = label_line
     super(Networking, self).__init__(self.TAGS, **kwargs)
+  
+  def reset(self):
+    self.data_sessions = []
+    self.data_usages = []
   
   def process_line(self, logline):
     if logline.label == 'threeg_state':
@@ -65,10 +67,10 @@ class Networking(lib.LogFilter):
       self.usage_state.add(logline)
         
   def process(self, time_limit=None):
+    self.reset()
     
     self.wifi_states = {}
     self.threeg_states = {}
-    self.data_sessions = []
     self.usage_state = UsageState()
     
     self.process_loop()
