@@ -86,24 +86,75 @@ participate, the OTA process begins and re-flashes the phone.
 {\bf Data Collection:} \PhoneLab{} users are encouraged to leverage the data
 logging and collection mechanism we provide using the standard Android logging
 API (\texttt{android.util.Log}). This mechanism collects logs from every phone
-when the phone is being plugged in and connected to a network. If for some
-reason a \PhoneLab{} user find our data collection inadequate, the user can
-incorporate a custom data logging and collection.
+when the phone is being plugged in and connected to a network. However, a
+\PhoneLab{} user can incorporate a custom data logging and collection mechanism
+if the user chooses to do so.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Information Type & Analysis\\
+\hline
+Battery Usage &
+Sections~\ref{subsec-batteryoverview},~\ref{subsec-opportunistic},
+\&~\ref{subsec-awareness}\\
+3G \& WiFi Usage & Sections~\ref{subsec-networktransitions}\\
+Application Usage & Sections~\ref{subsec-apptransitions}\\
+Location Usage & Sections~\ref{subsec-awareness}
+\&~\ref{subsec-locationsharing}\\
+\hline
+\end{tabular}
+\caption{Representative Information Logged \XXXnote{stevko: revise
+when we have the graphs}}
+\label{tab:information-logged}
+\end{table}
+
+%subsec-batteryoverview
+%subsec-opportunistic
+%subsec-awareness
+%subsec-networktransitions
+%subsec-apptransitions
+%subsec-locationsharing
 
 \subsection{Our Experiment}
 
-{\bf App Development and Debugging:} Tool description. What we collect and where
-we get it. Say that we're doing something similar to PowerTutor for battery
-using Java reflection for fuelgauge. Comprehensive collection of information
-(list them). 15 min interval to reduce power consumption. Power was the main
-concern for our development.
+{\bf Logging Tool (App Development and Debugging):} We have developed a logging
+tool that collects a comprehensive set of metrics from our participant phones.
+The information we gather include battery usage, application usage, location and
+sensor usage, telephony usage, and 3G and WiFi usage.
+Table~\ref{tab:information-logged} further summarizes what we collect.
 
-{\bf IRB Approval and Distribution:} Started when and finished when. Delay is
-mainly because of us. IRB side review itself took (how long). We uploaded our
-first version on (date).
+Our tool logs usage information in two ways. The first way is to take a
+``snapshot'' every 15 minutes. This snapshot is intended to capture the overall
+state of the phone periodically. The information we capture in a snapshot
+includes the amount of battery consumed, the amount of data sent and received
+over 3G or WiFi, storage used, etc. We have chosen the 15-minute interval in
+order to reduce the battery consumption of our application.\XXXnote{stevko:
+what's our battery consumption?} Whenever we can, we also collect information
+as they become available. This mainly involves event-related information such as
+screen unlock/lock times, WiFi scan results, call placed/received times, power
+connected/disconnected times, etc.
 
-{\bf Deployment:} How long did it take to reach 88? Say that this in and of
-itself is an experiment because we only sent out one mass email annoucing the
-availability of the play store app.
+Most of the information we collect is available through the standard Android
+APIs or by subscribing to system {\it intents}, which are message objects that
+can be sent or received---the Android platform defines system intents for
+certain events such as a call-placed event. The only exception is the
+information related to battery since there is no API or intent that provides the
+information. Due to this reason, we use Java reflection to introspect the
+%internal battery APIs (e.g., \texttt{com.android.internal.os.BatteryStatsImpl}
+%and others). Android's Settings app uses these internal APIs to display the
+internal battery APIs. Android's Settings app uses these internal APIs to
+display the battery information. PowerTutor~\cite{zhang:codes:2010} takes a
+similar approach to analyze battery usage.
+
+{\bf IRB Approval:} The turnaround time for our IRB approval
+was relatively quick. We had two revisions due to our misunderstanding of the
+instructions; however, on avarege the turnaround time for each revision was less
+than a week.
+
+{\bf Distribution and Deployment:} How long did it take to reach 88? Say that
+this in and of itself is an experiment because we only sent out one mass email
+annoucing the availability of the play store app.
 
 {\bf Data Collection:} How much did we generate?
