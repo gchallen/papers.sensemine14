@@ -21,6 +21,7 @@ class Power(lib.LogFilter):
   TAGS = ['PhoneLabSystemAnalysis-BatteryChange', 'PhoneLabSystemAnalysis-Snapshot',]
   EXTENT_BREAK_THRESHOLD = datetime.timedelta(hours=1)
   EXTENT_REJECTION_THRESHOLD = datetime.timedelta(minutes=1)
+  UNNEEDED_OPPORTUNISTIC_THRESHOLD = datetime.timedelta(hours=24)
   
   def __init__(self, **kwargs):
     self.reset()
@@ -88,6 +89,7 @@ class Power(lib.LogFilter):
     
     self.filter_extents()
     self.set_all_extents()
+    self.label_needed_extents()
     
   def filter_extents(self):
     for device in self.devices:
@@ -120,6 +122,16 @@ class Power(lib.LogFilter):
         else:
           self.discharging_extents.append(extent)    
   
+  def label_needed_extents(self):
+    for extent in [e for e in self.charging_extents if e.is_opportunistic()]:
+      for forward_extent in [e for e in self.filtered_device_extents[extent.device] if e.start() > extent.start()]:
+        if forward_extent.min() < extent.battery_change():
+          extent.needed = True
+          break
+        if forward_extent.max() > PowerExtent.CHARGED_THRESHOLD or \
+          forward_extent.end() - extent.start() > self.UNNEEDED_OPPORTUNISTIC_THRESHOLD:
+          break
+
   def battery_below_threshold(self, device, threshold):
     for p in self.device_power[device]:
       if p.battery_level < threshold:
@@ -127,7 +139,10 @@ class Power(lib.LogFilter):
     return False
 
 class PowerExtent(object):
+  CHARGED_THRESHOLD = 0.90
+  
   def __init__(self, power_state):
+    self.device = power_state.device
     self.states = [power_state,]
   
   def time_length(self):
@@ -145,11 +160,18 @@ class PowerExtent(object):
   def min_battery_state(self):
     return min(self.states, key=lambda k: k.battery_level)
   
+  def max(self):
+    return self.max_battery_state().battery_level
+  
+  def min(self):
+    return self.min_battery_state().battery_level
+  
 class ChargingExtent(PowerExtent):
   OPPORTUNISTIC_THRESHOLD = 0.90
   OPPORTUNISTIC_LENGTH = datetime.timedelta(minutes=10)
   
   def __init__(self, power_state):
+    self.needed = False
     return super(ChargingExtent, self).__init__(power_state)
   
   def battery_change(self):
