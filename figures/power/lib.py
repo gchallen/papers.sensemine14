@@ -18,11 +18,15 @@ class Power(lib.LogFilter):
   TAGS = ['PhoneLabSystemAnalysis-BatteryChange', 'PhoneLabSystemAnalysis-Snapshot',]
   
   def __init__(self, **kwargs):
-    self.device_power = {}
+    self.reset()
+    
     self.label_line = label_line
     
     super(Power, self).__init__(self.TAGS, **kwargs)
   
+  def reset(self):
+    self.device_power = {}
+    
   def process_line(self, logline):
     if logline.label == 'battery_level':
       if not self.device_power.has_key(logline.device):
@@ -32,6 +36,8 @@ class Power(lib.LogFilter):
         self.device_power[logline.device].append(p)
 
   def process(self):
+    self.reset()
+    
     self.process_loop()
   
   def battery_below_threshold(self, device, threshold):

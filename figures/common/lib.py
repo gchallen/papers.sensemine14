@@ -87,7 +87,7 @@ class LogFilter(object):
   def log_file_to_data_file(cls, path):
     return os.path.join(cls.get_data_directory(), os.path.splitext(os.path.basename(path))[0] + '.dat')
     
-  def __init__(self, tags, verbose=False):
+  def __init__(self, tags, duplicates=False, verbose=False):
     
     if os.environ.has_key('MOBISYS13_FILTER_PROCESSES'):
       self.filter_processes = int(os.environ['MOBISYS13_FILTER_PROCESSES'])
@@ -101,7 +101,9 @@ class LogFilter(object):
     self.devices = set([])
     self.start_time = None
     self.end_time = None
+    
     self.verbose = verbose
+    self.duplicates = duplicates
     
     self.filtered = False
     self.processed = False
@@ -141,6 +143,7 @@ class LogFilter(object):
                                  itertools.repeat(self.pattern),
                                  itertools.repeat(self.label_line),
                                  itertools.repeat(self.verbose),
+                                 itertools.repeat(self.duplicates),
                                  itertools.repeat(self.__class__.__name__)))
     pool.close()
     pool.join()
@@ -167,18 +170,17 @@ class LogFilter(object):
     
     self.processed = True
       
-  @classmethod
-  def reset(self):
-    self.filtered = False
-    self.processed = False
-
 def do_filter_star(l_d_p_l_v):
   return do_filter(*l_d_p_l_v)
 
-def do_filter(log_file, data_file, pattern, label_line, verbose, name):
+def do_filter(log_file, data_file, pattern, label_line, verbose, duplicates, name):
     if verbose:
       print >>sys.stderr, "%s: filtering %s" % (name, log_file,)
     lines = []
+    device_lines = {}
+    
+    count = 0
+    duplicate_count = 0
     
     log_f = open(log_file, 'rb')
     for line in log_f:
@@ -186,13 +188,25 @@ def do_filter(log_file, data_file, pattern, label_line, verbose, name):
       if m == None:
         continue
       l = Logline(m, line)
+      
+      if not duplicates and device_lines.has_key(l.device):
+        if device_lines[l.device].datetime == l.datetime and \
+           device_lines[l.device].log_message == l.log_message:
+          duplicate_count += 1
+          continue
+      device_lines[l.device] = l
+      
       label = label_line(l)
       if label == None:
         continue
+      count += 1
       l.label = label
       lines.append(l)
     log_f.close()
     
+    if not duplicates and verbose:
+      print >>sys.stderr, "%s: %d duplicates, %d labeled." % (name, duplicate_count, count)
+      
     data_f = open(data_file, 'wb')
     cPickle.dump(lines, data_f, cPickle.HIGHEST_PROTOCOL)
     data_f.close()

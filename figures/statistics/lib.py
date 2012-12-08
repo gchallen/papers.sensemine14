@@ -15,7 +15,7 @@ def label_line(logline):
     return 'shutdown'
   if logline.log_tag == 'ActivityManager':
     return 'log_count'
-  return None
+  return 'count'
 
 class Statistic(lib.LogFilter):
   
@@ -28,22 +28,32 @@ class Statistic(lib.LogFilter):
   
   def __init__(self, **kwargs):
     
+    self.reset()
+    
+    self.label_line = label_line
+    super(Statistic, self).__init__(self.TAGS, **kwargs)
+  
+  def reset(self):
     self.active_devices = set([])
     self.experiment_devices = set([])
     self.num_experiment_devices = None
     self.experiment_length_days = None
     self.active_devices = set([])
     self.device_intervals = {}
+    self.device_counts = {}
+    self.total_count = 0
     
-    self.label_line = label_line
-    super(Statistic, self).__init__(self.TAGS, **kwargs)
-  
   def process_line(self, logline):
     if logline.label == 'in_experiment':
       self.experiment_devices.add(logline.device)
       self.online_state.add(logline)
     elif logline.label == 'boot' or logline.label == 'shutdown' or logline.label == 'log_count':
       self.online_state.add(logline)
+    
+    self.total_count += 1
+    if not self.device_counts.has_key(logline.device):
+      self.device_counts[logline.device] = 0
+    self.device_counts[logline.device] += 1
   
   def set_active_devices(self):
     p = Power.load(verbose=self.verbose)
@@ -67,6 +77,9 @@ class Statistic(lib.LogFilter):
   def process(self):
     if self.processed:
       return
+    
+    self.reset()
+    
     self.online_state = OnlineState()
     
     self.process_loop()
