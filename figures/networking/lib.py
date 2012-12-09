@@ -31,7 +31,9 @@ class Networking(lib.LogFilter):
   def reset(self):
     self.data_sessions = []
     self.data_usages = []
-  
+    
+    super(Networking, self).reset()
+    
   def process_line(self, logline):
     if logline.label == 'threeg_state':
       if logline.json['State'] == 'DATA_CONNECTED':

@@ -51,7 +51,9 @@ class Power(lib.LogFilter):
     self.filtered_device_breakdowns = {}
     
     self.by_snapshot_id = {}
-  
+    
+    super(Power, self).reset()
+    
   def summary(self):
     return super(Power, self).summary() + """
 %d extents (%d charging, %d discharging). %d breakdowns.""" % (len(self.applications),
@@ -404,6 +406,9 @@ class UIDPower(object):
   
   ATTRIBUTES = ['cpu_time', 'cpu_fg_time', 'wakelock_time', 'gps_time', 'power',]
   
+  GPS_CURRENT = 20.0
+  WAKELOCK_CURRENT = 44.0
+  
   def __init__(self, logline):
     self.device = logline.device
     self.start = logline.datetime
@@ -440,6 +445,18 @@ class UIDPower(object):
         return False
       
     return True
+  
+  def get_gps_power(self, current=None):
+    if current == None:
+      return self.gps_time / 1000.0 * UIDPower.GPS_CURRENT
+    else:
+      return self.gps_time / 1000.0 * current
+  
+  def get_wakelock_power(self):
+    return self.wakelock_time / 1000.0 * UIDPower.WAKELOCK_CURRENT
+  
+  def get_cpu_power(self):
+    return self.power - self.get_wakelock_power() - self.get_gps_power()
   
   def __str__(self):
     return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in UIDPower.ATTRIBUTES])

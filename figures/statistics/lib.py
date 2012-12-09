@@ -54,6 +54,8 @@ class Statistic(lib.LogFilter):
     self.tag_counts = {}
     self.total_count = 0
     
+    super(Statistic, self).reset()
+    
   def process_line(self, logline):
     if logline.label == 'in_experiment':
       self.experiment_devices.add(logline.device)

@@ -22,7 +22,9 @@ class Telephony(lib.LogFilter):
   def reset(self):
     self.calls = []
     self.texts = []
-
+    
+    super(Telephony, self).reset()
+    
   def process_line(self, logline):
     if logline.label == 'call':
       self.c.add(logline)
