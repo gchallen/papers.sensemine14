@@ -159,6 +159,12 @@ tool. Within the first 3 days, 5 days and 7 days, the number grew to 108,
 115, and 120, accordingly. As of December 6, 131 participants have installed the
 tool. \XXXnote{stevko: say something about why we only use 88 devices?}
 
+We have only sent out the email announcement once. We speculate that it is the
+reason why our tool have not reached all participants. However, the fact that
+120 participants downloaded our tool within a week with only one email indicates
+that many of our participants are indeed willing to participate in research
+experiments.
+
 Interestingly, one participant has expressed a concern about the permissions
 requested due to the lack of accurate descriptions of permissions on Android.
 The participant was particularly concerned about two permissions, ``Hardware
@@ -175,10 +181,13 @@ low~\cite{felt:soups:2012}.
 %clearly why their experiment requests certain sensitive permissions.
 
 {\bf Data Collection:} We leveraged our data logging and collection mechanism by
-labeling different types of information with different tags. For example, the
-label for each snapshot is \texttt{PhoneLabSystemAnalysis-Snapshot}, the label
-for location usage is \texttt{PhoneLabSystemAnalysis-Location}, the label for
-telephony usage is \texttt{PhoneLabSystemAnalysis-Telephony}, etc. Using these
+labeling different types of information with different tags. For example,
+%snapshots use \texttt{PhoneLabSystemAnalysis-Snapshot} as the tag, the label
+%for location usage is \texttt{PhoneLabSystemAnalysis-Location}, the label for
+%telephony usage is \texttt{PhoneLabSystemAnalysis-Telephony}, etc. Using these
+we use \texttt{PhoneLabSystemAnalysis-Snapshot} for snapshots and
+\texttt{PhoneLabSystemAnalysis-Location} for location usage.
+Using 
 descriptive tags also helped our analysis as we wrote our custom parsing
 scripts. In the end, we have collected \XXXnote{stevko: how much did we
 generate?} over 21 days from \XXXnote{88 devices?}.
