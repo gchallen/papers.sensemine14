@@ -1,4 +1,4 @@
-import sys, os, cPickle, re, json, dircache, datetime, itertools
+import sys, os, cPickle, re, json, dircache, datetime, itertools, gzip
 from multiprocessing import Pool
 
 class AutoDict(dict):
@@ -102,7 +102,7 @@ class LogFilter(object):
     self.start_time = None
     self.end_time = None
     
-    self.verbose = verbose
+    self.verbose = True
     self.duplicates = duplicates
     
     self.filtered = False
@@ -182,7 +182,7 @@ def do_filter(log_file, data_file, pattern, label_line, verbose, duplicates, nam
     count = 0
     duplicate_count = 0
     
-    log_f = open(log_file, 'rb')
+    log_f = gzip.open(log_file, 'rb')
     for line in log_f:
       m = pattern.match(line)
       if m == None:
