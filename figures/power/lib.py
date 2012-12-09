@@ -37,15 +37,27 @@ class Power(lib.LogFilter):
     self.charging_extents = []
     self.discharging_extents = []
     self.processed = False
+    
+    self.all_uidpowers = []
     self.all_device_uidpowers = {}
     self.filtered_device_uidpowers = {}
+    
+    self.all_procpowers = []
     self.all_device_procpowers = {}
     self.filtered_device_procpowers = {}
+    
+    self.all_breakdowns = []
     self.all_device_breakdowns = {}
     self.filtered_device_breakdowns = {}
     
     self.by_snapshot_id = {}
-    
+  
+  def summary(self):
+    return super(Power, self).summary() + """
+%d extents (%d charging, %d discharging). %d breakdowns.""" % (len(self.applications),
+                                                                                len(self.system_applications),
+                                                                                len(self.activities),
+                                                                                len(self.screen_states))
   def process_line(self, logline):
     if logline.label == 'battery_level':
       if not self.all_device_extents.has_key(logline.device):
@@ -85,6 +97,7 @@ class Power(lib.LogFilter):
         self.all_device_uidpowers[logline.device] = []
         self.filtered_device_uidpowers[logline.device] = []
       u = UIDPower(logline)
+      self.all_uidpowers.append(u)
       if u.type == UIDPower.UIDPOWER_TYPE:
         self.all_device_uidpowers[logline.device].append(u)
     elif logline.label == 'procinfo':
@@ -92,6 +105,7 @@ class Power(lib.LogFilter):
         self.all_device_procpowers[logline.device] = []
         self.filtered_device_procpowers[logline.device] = []
       p = ProcPower(logline)
+      self.all_procpowers.append(p)
       if p.type == ProcPower.PROCPOWER_TYPE:
         self.all_device_procpowers[logline.device].append(p)
     elif logline.label == 'breakdown':
@@ -99,6 +113,7 @@ class Power(lib.LogFilter):
         self.all_device_breakdowns[logline.device] = []
         self.filtered_device_breakdowns[logline.device] = []
       s = PowerSnapshot(logline)
+      self.all_breakdowns.append(s)
       if s.type == PowerSnapshot.POWERSNAPSHOT_TYPE:
         self.all_device_breakdowns[logline.device].append(s)
               
@@ -123,7 +138,7 @@ class Power(lib.LogFilter):
     
     self.filter_breakdowns()
     self.filter_uidpowers()
-    # self.filter_procpowers()
+    self.filter_procpowers()
     
   def filter_extents(self):
     for device in self.devices:
@@ -199,7 +214,9 @@ class Power(lib.LogFilter):
             self.by_snapshot_id[device][procpower.snapshot_id].append(prochash[procpower.process_name])
             parent_uid = [u for u in self.by_snapshot_id[device][procpower.snapshot_id] \
                           if isinstance(u, UIDPower) and u.uid == prochash[procpower.process_name].uid]
-            print len(parent_uid)
+            if len(parent_uid) == 1:
+              parent_uid[0].proc_powers.append(prochash[procpower.process_name])
+              
           prochash[procpower.process_name] = procpower
       self.filtered_device_uidpowers[device] = sorted(new_procpowers, key=lambda k: k.start)
   
