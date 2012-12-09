@@ -15,11 +15,21 @@ def label_line(logline):
     return 'shutdown'
   if logline.log_tag == 'ActivityManager':
     return 'log_count'
-  return None
+  return 'all'
 
 class Statistic(lib.LogFilter):
   
-  TAGS = ['PhoneLabSystemAnalysis', 'SurfaceFlinger', 'ActivityManager',]
+  TAGS = ["PhoneLabSystemAnalysis", "PhoneLabSystemAnalysis-Wifi",
+          "PhoneLabSystemAnalysis-Telephony", "PhoneLabSystemAnalysis-BatteryChange",
+          "PhoneLabSystemAnalysis-Misc", "PhoneLabSystemAnalysis-Snapshot",
+          "PhoneLabSystemAnalysis-Location", "PhoneLabSystemAnalysis-UidInfo",
+          "PhoneLabSystemAnalysis-Packages", "PhoneLabSystemAnalysis-LocationTask",
+          "PhoneLabSystemAnalysis-Apps", "PhoneLabSystemAnalysis-Storage",
+          "PhoneLabSystemAnalysis-Traffic", "PhoneLabSystemAnalysis-SensorInfo",
+          "PhoneLabSystemAnalysis-Media", "PhoneLabSystemAnalysis-ProcInfo", "ActivityManager",
+          "SmsReceiverService", "GoogleVoice", "LocationManagerService",
+          "LockPatternKeyguardView", "NfcService",
+          "SurfaceFlinger", "PhoneStatusBar"]
   
   BATTERY_USAGE_THRESHOLD = 0.7;
   DATA_USAGE_THRESHOLD_BYTES = 1024;
@@ -28,23 +38,38 @@ class Statistic(lib.LogFilter):
   
   def __init__(self, **kwargs):
     
+    self.reset()
+    
+    self.label_line = label_line
+    super(Statistic, self).__init__(self.TAGS, **kwargs)
+  
+  def reset(self):
     self.active_devices = set([])
     self.experiment_devices = set([])
     self.num_experiment_devices = None
     self.experiment_length_days = None
     self.active_devices = set([])
     self.device_intervals = {}
+    self.device_counts = {}
+    self.tag_counts = {}
+    self.total_count = 0
     
-    self.label_line = label_line
-    super(Statistic, self).__init__(self.TAGS, **kwargs)
-  
   def process_line(self, logline):
     if logline.label == 'in_experiment':
       self.experiment_devices.add(logline.device)
       self.online_state.add(logline)
     elif logline.label == 'boot' or logline.label == 'shutdown' or logline.label == 'log_count':
       self.online_state.add(logline)
-  
+    
+    self.total_count += 1
+    if not self.device_counts.has_key(logline.device):
+      self.device_counts[logline.device] = 0
+    if not self.tag_counts.has_key(logline.log_tag):
+      self.tag_counts[logline.log_tag] = 0
+    
+    self.device_counts[logline.device] += 1
+    self.tag_counts[logline.log_tag] += 1
+    
   def set_active_devices(self):
     p = Power.load(verbose=self.verbose)
     battery_active_devices = set([])
@@ -67,6 +92,9 @@ class Statistic(lib.LogFilter):
   def process(self):
     if self.processed:
       return
+    
+    self.reset()
+    
     self.online_state = OnlineState()
     
     self.process_loop()
@@ -79,7 +107,17 @@ class Statistic(lib.LogFilter):
     self.experiment_length_days = round(time_diff.days + time_diff.seconds / (60.0 * 60.0 * 24.0), 2)
     
     self.set_active_devices() 
-
+  
+  def experiment_days(self):
+    day = datetime.datetime(self.start_time.year, self.start_time.month, self.start_time.day)
+    days = [day,]
+    while True:
+      day += datetime.timedelta(days=1)
+      if day >= self.end_time:
+        break
+      days.append(day)
+    return days
+  
 class OnlineState(object):
   def __init__(self):
     self.devices = set([])

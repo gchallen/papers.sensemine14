@@ -23,12 +23,14 @@ class Networking(lib.LogFilter):
   TRAFFIC_TYPE_PATTERN = re.compile(r"""Type: (?P<type>\w+), Rx: (?P<rx>\d+), Tx: (?P<tx>\d+)""")
   
   def __init__(self, **kwargs):
-    
-    self.data_sessions = []
-    self.data_usages = []
+    self.reset()
     
     self.label_line = label_line
     super(Networking, self).__init__(self.TAGS, **kwargs)
+  
+  def reset(self):
+    self.data_sessions = []
+    self.data_usages = []
   
   def process_line(self, logline):
     if logline.label == 'threeg_state':
@@ -65,6 +67,7 @@ class Networking(lib.LogFilter):
       self.usage_state.add(logline)
         
   def process(self, time_limit=None):
+    self.reset()
     
     self.wifi_states = {}
     self.threeg_states = {}
@@ -115,7 +118,7 @@ class UsageState(object):
     threeg_len = len(self.threeg[logline.device])
     
     if match.group('type') == 'mobile':
-      if threeg_len > 1 and logline.datetime == self.threeg[logline.device][-1].datetime:
+      if threeg_len > 0 and logline.datetime == self.threeg[logline.device][-1].datetime:
         pass
       elif total_len == 1 and threeg_len == 0:
         if (abs(logline.datetime - self.total[logline.device][0].datetime)).seconds == 0:
@@ -131,7 +134,7 @@ class UsageState(object):
       else:
         self.threeg[logline.device].append(logline)
     elif match.group('type') == 'total':
-      if total_len > 1 and logline.datetime == self.total[logline.device][-1].datetime:
+      if total_len > 0 and logline.datetime == self.total[logline.device][-1].datetime:
         pass
       elif total_len == 0 and threeg_len == 1:
         if (abs(logline.datetime - self.threeg[logline.device][0].datetime)).seconds == 0:
@@ -146,7 +149,10 @@ class UsageState(object):
           self.threeg[logline.device] = []
       else:
         self.total[logline.device].append(logline)
-     
+    
+    total_len = len(self.total[logline.device])
+    threeg_len = len(self.threeg[logline.device])
+    
     if total_len == 2 and threeg_len == 2:
       total_0_m = Networking.TRAFFIC_TYPE_PATTERN.match(self.total[logline.device][0].json['Taffic'])
       threeg_0_m = Networking.TRAFFIC_TYPE_PATTERN.match(self.threeg[logline.device][0].json['Taffic'])

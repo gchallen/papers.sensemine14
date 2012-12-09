@@ -12,15 +12,17 @@ def label_line(logline):
 class Telephony(lib.LogFilter):
   TAGS = ['PhoneLabSystemAnalysis-Telephony', 'SmsReceiverService',]
   
-  def __init__(self, **kwargs):  
-    self.calls = []
-    self.texts = []
-    self.c = CallState()
-    self.t = set([])
+  def __init__(self, **kwargs):
+    self.reset()  
+    
     self.label_line = label_line
     
     super(Telephony, self).__init__(self.TAGS, **kwargs)
   
+  def reset(self):
+    self.calls = []
+    self.texts = []
+
   def process_line(self, logline):
     if logline.label == 'call':
       self.c.add(logline)
@@ -28,6 +30,11 @@ class Telephony(lib.LogFilter):
       self.t.add(Text(logline.device, logline.datetime))
     
   def process(self):
+    self.reset()
+    
+    self.c = CallState()
+    self.t = set([])
+    
     self.process_loop()
     
     self.calls = self.c.calls

@@ -1,19 +1,192 @@
 \begin{figure*}[t]
-\caption{Expected Life Cycle of a \PhoneLab{} Application-Level Experiment}
+\centering
+\includegraphics[width=0.9\textwidth]{./figures/static/experiment-life-cycle.pdf}
+\caption{Expected Life Cycle of a \PhoneLab{} Experiment}
 \label{fig:experiment-life-cycle}
 \end{figure*}
 
 \section{Experiment Case Study}
 \label{sec-experiment}
 
-We have conducted a measurement study in order to demonstrate the power of
-\PhoneLab{}; we have developed a logging tool, deployed it on 88 participant
-phones, and collected data for 21 days. As mentioned in
-Section~\ref{sec:comparison}, the reason why we decided to conduct a measurement
-study is because it requires a combination of many features of \PhoneLab{} such
-as scale, realism, timeliness, and participant control. In a sense, a
+We have conducted a measurement study to demonstrate the power of \PhoneLab{};
+we have developed a logging tool, deployed it on 88 participant phones, and
+collected data for 21 days. As mentioned in Section~\ref{sec:comparison}, 
+a measurement study is an ideal candidate to demonstrate the power of
+\PhoneLab{} because it requires a combination of many features of \PhoneLab{},
+e.g., scale, realism, timeliness, and participant control. In a sense, a
 measurement study ``stress tests'' the power of \PhoneLab{}.
 
-In order to give a look into how an experiment can be performed on \PhoneLab{},
-Figure~\ref{fig:experiment-life-cycle} shows an expected life cycle of an
-application-level experiment. 
+We first give a look into how an experiment can be performed on \PhoneLab{} by
+describing the expected life cycle of an experiment.
+Figure~\ref{fig:experiment-life-cycle} overviews an expected life cycle of an
+experiment. We then report how our own experiment proceeded for each step of the
+life cycle.
+
+\subsection{Experiment Life Cycle}
+
+A typical \PhoneLab{} experiment proceeds in the following five steps.
+
+{\bf App Development and Debugging:} The first step is (obviously) application
+development and debugging. Since we do not consider \PhoneLab{} as a debugging
+facility, we expect \PhoneLab{} users to do a thorough job of local testing and
+consider their applications as ``final products.'' Distribution via the Play
+Store will help in this regard because it imparts the sense that an application
+developed for \PhoneLab{} is a product released to the public.
+
+Thorough local testing is important for both \PhoneLab{} participants and users.
+For participants, buggy or power-hungry software will irritate them and disrupt
+their normal daily phone usage. This behavioral change will affect the users as
+well because it might affect the quality of the results they get; participants'
+behaviors might deviate from their normal usage patterns. In addition, since we
+do not force our participants to participate in any particular experiment, buggy
+or power-hungry software can reduce the chance of participation.
+
+{\bf IRB Approval:} Perhaps the biggest difference between \PhoneLab{} and other
+existing testbeds is the requirement for IRB approval. In existing testbeds,
+users mainly interact with machines, not humans, so there is no need for IRB
+approval. In contrast, \PhoneLab{} users (or more precisely, their experimental
+software) need to interact with humans either directly via the phone UI or
+indirectly as a background service. This inevitably bears the question of
+privacy and protection. In fact, protecting our participants is one of our
+primary operational objectives because participants are a vital part of
+\PhoneLab{}.
+
+This IRB approval is a requirement for every experiment. We recognize that some
+experiments do not need to get any approval, in which case we require a letter
+stating the irrelevance. The IRB approval should be done per experiment by the
+experimenters through their own institution's IRB. SUNY Buffalo's IRB does not
+get involved in this process. Given the popularity of smartphone research
+evaluation with real devices and users, we expect that many researchers in the
+mobile systems community are already familiar with their own IRB process.
+
+{\bf Distribution:} Our distribution channels are different for
+application-level experiments and platform-level experiments. For
+application-level experiments, we leverage the Play Store as our distribution
+channel. In the early design stages, we explored an option of providing our own
+distribution channel even for application-level experiments. However, we
+realized later that Play Store provides all the features we need: a description
+page, an automatic update mechanism, permission display, download statistics,
+etc. For platform-level experiments, we will use our own OTA (Over-The-Air)
+distribution mechanism currently in development.
+
+{\bf Deployment:} Deployment for an experiment is done by each participant
+individually. For an application-level experiment, each participant downloads
+the application for the experiment from the Play Store. We have instructed our
+participants to examine each description and permission requested for every
+experiment they participate. This will continue in the future as well. As
+mentioned before, we do not force any participant to participate in any
+particular experiment. If they feel uncomfortable about the permissions
+requested and information collected from their phones, they can either choose to
+not participate or stop participating in the middle of the experiment. This is
+also a typical requirement from IRB for any experiment. For a platform-level
+experiment, we notify every participant for the availability of a new
+experimental platform image, kernel image, or both. When a participant agrees to
+participate, the OTA process begins and re-flashes the phone.
+
+{\bf Data Collection:} \PhoneLab{} users are encouraged to leverage the data
+logging and collection mechanism we provide using the standard Android logging
+API (\texttt{android.util.Log}). This mechanism collects logs from every phone
+when the phone is being plugged in and connected to a network. However, a
+\PhoneLab{} user can incorporate a custom data logging and collection mechanism
+if the user chooses to do so.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Information Type & Analysis\\
+\hline
+Battery Usage &
+Sections~\ref{subsec-batteryoverview},~\ref{subsec-opportunistic},
+\&~\ref{subsec-awareness}\\
+3G \& WiFi Usage & Sections~\ref{subsec-networktransitions}\\
+Application Usage & Sections~\ref{subsec-apptransitions}\\
+Location Usage & Sections~\ref{subsec-awareness}
+\&~\ref{subsec-locationsharing}\\
+\hline
+\end{tabular}
+\caption{Representative Information Logged \XXXnote{stevko: revise
+when we have the graphs}}
+\label{tab:information-logged}
+\end{table}
+
+%subsec-batteryoverview
+%subsec-opportunistic
+%subsec-awareness
+%subsec-networktransitions
+%subsec-apptransitions
+%subsec-locationsharing
+
+\subsection{Our Experiment}
+
+{\bf Logging Tool (App Development and Debugging):} We have developed a logging
+tool that collects a comprehensive set of metrics from our participant phones.
+The information we gather include battery usage, application usage, location and
+sensor usage, telephony usage, and 3G and WiFi usage.
+Table~\ref{tab:information-logged} further summarizes what we collect.
+
+Our tool logs usage information in two ways. The first way is to take a
+``snapshot'' every 15 minutes. This snapshot is intended to capture the overall
+state of the phone periodically. The information we capture in a snapshot
+includes the amount of battery consumed, the amount of data sent and received
+over 3G or WiFi, storage used, etc. We have chosen the 15-minute interval in
+order to reduce the battery consumption of our tool.\XXXnote{stevko:
+what's our battery consumption?} Whenever we can, we also collect information
+as they become available. This mainly involves event-related information such as
+screen unlock/lock times, WiFi scan results, call placed/received times, power
+connected/disconnected times, etc.
+
+Most of the information we collect is available through the standard Android
+APIs or by subscribing to system {\it intents}, which are message objects that
+can be sent or received---the Android platform defines system intents for
+certain events such as a call-placed event. The only exception is the
+information related to battery since there is no API or intent that provides the
+information. Due to this reason, we use Java reflection to introspect the
+%internal battery APIs (e.g., \texttt{com.android.internal.os.BatteryStatsImpl}
+%and others). Android's Settings app uses these internal APIs to display the
+internal battery APIs. Android's Settings app uses these internal APIs to
+display the battery information. PowerTutor~\cite{zhang:codes:2010} takes a
+similar approach to analyze battery usage.
+
+{\bf IRB Approval:} The turnaround time for our IRB approval
+was quick. We had two revisions due to our misunderstanding of the instructions;
+however, the turnaround time for each revision was about a week.
+
+{\bf Distribution and Deployment:} We put our tool on the Play Store on
+November 14, 2012 and announced the availability of the tool to our
+participants via a mass email. Within a day, 82 participants installed the
+tool. Within the first 3 days, 5 days and 7 days, the number grew to 108,
+115, and 120, accordingly. As of December 6, 131 participants have installed the
+tool. \XXXnote{stevko: say something about why we only use 88 devices?}
+
+We have only sent out the email announcement once. We speculate that it is the
+reason why our tool have not reached all participants. However, the fact that
+120 participants downloaded our tool within a week with only one email indicates
+that many of our participants are indeed willing to participate in research
+experiments.
+
+Interestingly, one participant has expressed a concern about the permissions
+requested due to the lack of accurate descriptions of permissions on Android.
+The participant was particularly concerned about two permissions, ``Hardware
+controls'' that we request for collecting camera usage and ``Phone calls'' that
+we request for telephony usage. Since Android's default descriptions give only
+general statements for these permissions such as ``(Hardware control permission)
+record(s) audio'' and ``(Phone call permission) determine(s) ... the remote
+number connected by a call,'' the participant was misled to believe that those
+are what our tool actually does. A survey study has reported a similar problem
+that the user comprehension level for Android permissions is remarkably
+low~\cite{felt:soups:2012}.
+%Though we only have one instance, the implication of
+%this for \PhoneLab{} users is that the description they provide needs to explain
+%clearly why their experiment requests certain sensitive permissions.
+
+{\bf Data Collection:} We leveraged our data logging and collection mechanism by
+labeling different types of information with different tags. For example,
+%snapshots use \texttt{PhoneLabSystemAnalysis-Snapshot} as the tag, the label
+%for location usage is \texttt{PhoneLabSystemAnalysis-Location}, the label for
+%telephony usage is \texttt{PhoneLabSystemAnalysis-Telephony}, etc. Using these
+we use \texttt{PhoneLabSystemAnalysis-Snapshot} for snapshots and
+\texttt{PhoneLabSystemAnalysis-Location} for location usage. Using these
+descriptive tags also helped our analysis as we wrote our custom parsing
+scripts. In the end, we have collected \XXXnote{stevko: how much did we
+generate?} over 21 days from \XXXnote{88 devices?}.
