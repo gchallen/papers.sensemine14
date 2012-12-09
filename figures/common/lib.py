@@ -75,8 +75,8 @@ class LogFilter(object):
   
   @classmethod
   def get_log_files(cls):
-    return sorted([os.path.join(cls.get_log_directory(), f) for f in dircache.listdir(cls.get_log_directory()) if os.path.splitext(f)[1] == '.out'],
-            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+    return sorted([os.path.join(cls.get_log_directory(), f) for f in dircache.listdir(cls.get_log_directory()) if f.endswith('.out.gz')],
+                  key=lambda k: int(os.path.basename(k)[:-len('.out.gz')]))
   
   @classmethod
   def get_data_files(cls):
@@ -85,7 +85,7 @@ class LogFilter(object):
     
   @classmethod
   def log_file_to_data_file(cls, path):
-    return os.path.join(cls.get_data_directory(), os.path.splitext(os.path.basename(path))[0] + '.dat')
+    return os.path.join(cls.get_data_directory(), os.path.basename(path)[:-len('.out.gz')] + '.dat')
     
   def __init__(self, tags, duplicates=False, verbose=False):
     
@@ -136,8 +136,12 @@ class LogFilter(object):
     if self.filtered and not refilter:
       return
     
-    pool = Pool(processes=self.filter_processes)
     log_files = self.get_log_files()
+    pool_size = min(self.filter_processes, len(log_files))
+    pool = Pool(processes=pool_size)
+    if self.verbose:
+      print >>sys.stderr, "%s: Filtering with %d processes." % (self.__class__.__name__, pool_size)
+
     data_files = [self.log_file_to_data_file(f) for f in log_files]
     pool.map(do_filter_star, zip(log_files, data_files,
                                  itertools.repeat(self.pattern),

@@ -165,8 +165,6 @@ class Power(lib.LogFilter):
           uidhash[uidpower.uid].minus(uidpower)
           if uidhash[uidpower.uid].is_valid():
             new_uidpowers.append(uidhash[uidpower.uid])
-          else:
-            print uidhash[uidpower.uid]
           uidhash[uidpower.uid] = uidpower
       self.filtered_device_uidpowers[device] = sorted(new_uidpowers, key=lambda k: k.start)
   
@@ -183,8 +181,6 @@ class Power(lib.LogFilter):
           last_breakdown.minus(breakdown)
           if last_breakdown.is_valid():
             new_breakdowns.append(last_breakdown)
-          else:
-            print last_breakdown
           last_breakdown = breakdown
       self.filtered_device_breakdowns[device] = new_breakdowns
       
