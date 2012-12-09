@@ -19,7 +19,7 @@ class SUNYNorth(Map):
                     'llcrnrlat': 42.99445,
                     'urcrnrlon': -78.7785,
                     'urcrnrlat': 43.01063,
-                    'resolution': 'l',
+                    'resolution': 'h',
                     'fix_aspect': False}
   BACKGROUND_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'maps/SUNYNorth.png')
   
@@ -30,7 +30,7 @@ class SUNYNorthSpine(Map):
                     'llcrnrlat': 42.99904,
                     'urcrnrlon': -78.78013,
                     'urcrnrlat': 43.00309,
-                    'resolution': 'l',
+                    'resolution': 'h',
                     'fix_aspect': False}
   BACKGROUND_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'maps/SUNYNorthSpine.png')
   
