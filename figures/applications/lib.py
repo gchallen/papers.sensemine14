@@ -166,7 +166,7 @@ class ScreenState(object):
 class Activity(object):
   def __init__(self, logline):
     self.device = logline.device
-    self.package = Application.ACTIVITY_MANAGER_PATTERN.match(logline.log_message).group('cmp').strip()
+    self.package = Application.ACTIVITY_MANAGER_PATTERN.match(logline.log_message).group('cmp').strip().split("/")[0]
     self.start = logline.datetime
     
   def __eq__(self, other):
