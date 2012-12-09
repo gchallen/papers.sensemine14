@@ -1,4 +1,4 @@
-import sys, os, cPickle, re, json, dircache, datetime, itertools
+import sys, os, cPickle, re, json, dircache, datetime, itertools, gzip
 from multiprocessing import Pool
 
 class AutoDict(dict):
@@ -48,7 +48,7 @@ class LogFilter(object):
     if not p.processed:
       p.process()
       p.store()
-
+     
     return p
   
   def store(self):
@@ -75,8 +75,8 @@ class LogFilter(object):
   
   @classmethod
   def get_log_files(cls):
-    return sorted([os.path.join(cls.get_log_directory(), f) for f in dircache.listdir(cls.get_log_directory()) if os.path.splitext(f)[1] == '.out'],
-            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+    return sorted([os.path.join(cls.get_log_directory(), f) for f in dircache.listdir(cls.get_log_directory()) if f.endswith('.out.gz')],
+                  key=lambda k: int(os.path.basename(k)[:-len('.out.gz')]))
   
   @classmethod
   def get_data_files(cls):
@@ -85,7 +85,7 @@ class LogFilter(object):
     
   @classmethod
   def log_file_to_data_file(cls, path):
-    return os.path.join(cls.get_data_directory(), os.path.splitext(os.path.basename(path))[0] + '.dat')
+    return os.path.join(cls.get_data_directory(), os.path.basename(path)[:-len('.out.gz')] + '.dat')
     
   def __init__(self, tags, duplicates=False, verbose=False):
     
@@ -98,11 +98,9 @@ class LogFilter(object):
     
     self.pattern = re.compile(Logline.LOGLINE_PATTERN_STRING % ("|".join([r"""%s\s*""" % (tag,) for tag in self.TAGS]),), re.VERBOSE)
     
-    self.devices = set([])
-    self.start_time = None
-    self.end_time = None
+    self.reset()
     
-    self.verbose = verbose
+    self.verbose = True
     self.duplicates = duplicates
     
     self.filtered = False
@@ -112,10 +110,29 @@ class LogFilter(object):
     except OSError:
       pass
   
+  def reset(self):
+    self.devices = set([])
+    self.start_time = None
+    self.end_time = None
+    
+    self.processed = False
+  
+  def reset_filter(self):
+    self.labeled_count = 0
+    self.duplicate_count = 0
+    
+    self.filtered = False
+    self.reset()
+    
+  def summary(self):
+    return "%s: %s -> %s. %d lines (%d duplicates) from %d devices." % \
+      (self.__class__.__name__, self.start_time, self.end_time,
+       self.labeled_count, self.duplicate_count, len(self.devices))
+  
   def test_labels(self, line_count=10000):
     line_set = set([])
     labels = set([])
-    for line in open(self.get_log_files()[0], 'rb'):
+    for line in gzip.open(self.get_log_files()[0], 'rb'):
       m = self.pattern.match(line)
       if m == None:
         continue
@@ -136,26 +153,36 @@ class LogFilter(object):
     if self.filtered and not refilter:
       return
     
-    pool = Pool(processes=self.filter_processes)
     log_files = self.get_log_files()
+    pool_size = min(self.filter_processes, len(log_files))
+    pool = Pool(processes=pool_size)
+    if self.verbose:
+      print >>sys.stderr, "%s: Filtering with %d processes." % (self.__class__.__name__, pool_size)
+
     data_files = [self.log_file_to_data_file(f) for f in log_files]
-    pool.map(do_filter_star, zip(log_files, data_files,
-                                 itertools.repeat(self.pattern),
-                                 itertools.repeat(self.label_line),
-                                 itertools.repeat(self.verbose),
-                                 itertools.repeat(self.duplicates),
-                                 itertools.repeat(self.__class__.__name__)))
+    results = pool.map(do_filter_star, zip(log_files, data_files,
+                       itertools.repeat(self.pattern),
+                       itertools.repeat(self.label_line),
+                       itertools.repeat(self.verbose),
+                       itertools.repeat(self.duplicates),
+                       itertools.repeat(self.__class__.__name__)))
     pool.close()
     pool.join()
+    
+    self.labeled_count = sum([r[0] for r in results])
+    self.duplicate_count = sum([r[1] for r in results])
     
     self.filtered = True
     self.processed = False
     self.store()
-    
+  
   def process_loop(self):
     if self.processed:
       return
     
+    if not self.filtered:
+      self.filter()
+      
     for data_file in self.get_data_files():
       if self.verbose:
         print >>sys.stderr, "Processing %s" % (data_file,)
@@ -182,7 +209,7 @@ def do_filter(log_file, data_file, pattern, label_line, verbose, duplicates, nam
     count = 0
     duplicate_count = 0
     
-    log_f = open(log_file, 'rb')
+    log_f = gzip.open(log_file, 'rb')
     for line in log_f:
       m = pattern.match(line)
       if m == None:
@@ -212,3 +239,4 @@ def do_filter(log_file, data_file, pattern, label_line, verbose, duplicates, nam
     data_f.close()
     del(data_f)
     del(lines)
+    return count, duplicate_count

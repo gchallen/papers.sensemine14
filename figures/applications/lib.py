@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+import itertools
 
-import re, itertools
-from common import lib
-from statistics.lib import *
+from common import lib #@UnusedImport
+from statistics.lib import * #@UnusedWildImport
 
 def label_line(logline):
   if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
@@ -19,8 +19,6 @@ def label_line(logline):
       return 'screen_on'
     elif logline.json['Action'] == 'android.intent.action.SCREEN_OFF':
       return 'screen_off'
-  elif logline.log_tag == 'PhoneLabSystemAnalysis-Packages':
-    return 'package_addremove'
   return None
   
 class Application(lib.LogFilter):
@@ -35,24 +33,6 @@ class Application(lib.LogFilter):
                    'edu.buffalo.cse.phonelab.systemanalysis']
 
   def __init__(self, **kwargs):
-    self.applications = set([])
-    self.system_applications = set([])
-    self.device_applications = {}
-    self.install_counts = {}
-    self.coinstalled_applications = lib.AutoDict()
-    self.popular_installs = []
-    
-    self.activities = []
-    self.screen_states = []
-    self.device_activities = {}
-    self.device_screen_states = {}
-    self.device_package_management = {}
-
-    self.device_filtered_logs  = {}
-
-    self.tmpmap={}
-    
-    self.label_line = label_line    
     
     self.popular_app_names = {}
     self.popular_app_names['com.google.android.apps.maps'] = 'Google Maps' 
@@ -96,9 +76,33 @@ class Application(lib.LogFilter):
     self.popular_app_names['com.bigduckgames.flow'] = 'Flow' 
     self.popular_app_names['net.zedge.android'] = 'Zedge' 
 
+    self.reset()
 
+    self.label_line = label_line    
     super(Application, self).__init__(self.TAGS, **kwargs)
   
+  def reset(self):
+    self.applications = set([])
+    self.system_applications = set([])
+    self.device_applications = {}
+    self.install_counts = {}
+    self.coinstalled_applications = lib.AutoDict()
+    self.popular_installs = []
+    
+    self.activities = []
+    self.screen_states = []
+    self.device_activities = {}
+    self.device_screen_states = {}
+    
+    super(Application, self).reset()
+  
+  def summary(self):
+    return super(Application, self).summary() + """
+%d applications, %d system applications. %d activities, %d screen states.""" % (len(self.applications),
+                                                                                len(self.system_applications),
+                                                                                len(self.activities),
+                                                                                len(self.screen_states))
+      
   def process_line(self, logline):
     if logline.device not in self.s.experiment_devices:
       return
@@ -120,7 +124,10 @@ class Application(lib.LogFilter):
       application = Application.PACKAGENAME_PATTERN.match(logline.json['InstalledSystemApp']).group('packagename').strip()
       self.system_applications.add(application)
     elif logline.label == 'start_activity':
-      pass
+      activity = Activity(logline)
+      if self.device_screen_states.has_key(logline.device):
+        self.device_screen_states[logline.device].add(activity)
+      self.activities.append(activity)
     elif logline.label == 'screen_on':
       self.device_screen_states[logline.device] = ScreenState(logline.device, logline.datetime)
     elif logline.label == 'screen_off':
@@ -128,29 +135,6 @@ class Application(lib.LogFilter):
         self.device_screen_states[logline.device].end = logline.datetime
         self.screen_states.append(self.device_screen_states[logline.device])
         del(self.device_screen_states[logline.device])
-    elif logline.label == 'package_addremove':
-        if not logline.device in self.device_package_management:
-            self.device_package_management[logline.device] = logline.json
-        else:
-            if logline.json not in self.device_package_management[logline.device]:
-                self.device_package_management[logline.device].append(json)
-
-    if logline.label == 'screen_off' or logline.label == 'screen_on' or logline.label == 'start_activity' or logline.label == 'battery_status':
-        devicename = logline.device
-        if logline.line not in self.tmpmap :
-            self.tmpmap[logline.line] = 1
-            
-            if devicename in self.device_filtered_logs:
-                self.device_filtered_logs[devicename].append(logline)
-            else:
-                newlist = []
-                newlist.append(logline)
-                self.device_filtered_logs[devicename] = newlist
-        
-    #print 'total number of devices found is ', len(self.device_filtered_logs)        
-
-    
-
 
   def process(self):
     self.s = Statistic.load()
@@ -166,25 +150,30 @@ class Application(lib.LogFilter):
     
     self.popular_installs = [app for app in reversed(sorted(list(self.applications), key=lambda k: self.install_counts[k])) if app not in self.PHONELAB_APPS]
 
-    for dev in self.device_package_management:
-        installs = self.device_package_management[dev]
-#    tmpmap={}
-    print 'lines per device'
-    for dev in self.device_filtered_logs:
-        print dev ,'\t', len(self.device_filtered_logs[dev])
-
 class ScreenState(object):
   def __init__(self, device, start):
     self.device = device
     self.start = start
     self.end = None
-    
+    self.activities = []
+  
+  def add(self, activity):
+    if activity in self.activities:
+      return
+    else:
+      self.activities.append(activity)
+      
 class Activity(object):
-  def __init__(self, logline, match):
+  def __init__(self, logline):
     self.device = logline.device
+    self.package = Application.ACTIVITY_MANAGER_PATTERN.match(logline.log_message).group('cmp').strip()
     self.start = logline.datetime
-    self.end = None
-    self.package = match.group('cmp').strip()
     
+  def __eq__(self, other):
+    return isinstance(other, Activity) and self.device == other.device and self.package == other.package and self.start == other.start
+  
+  def __hash__(self):
+    return hash((self.device, self.package, self.start))
+  
 if __name__=="__main__":
   Application.load(verbose=True)
