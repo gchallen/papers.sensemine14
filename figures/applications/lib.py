@@ -2,8 +2,8 @@
 
 
 import re, itertools
-from common import lib #@UnusedImport
-from statistics.lib import * #@UnusedWildImport
+from common import lib
+from statistics.lib import *
 
 def label_line(logline):
   if logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot' and logline.json != None and logline.json.has_key('InstalledUserApp'):
@@ -12,15 +12,19 @@ def label_line(logline):
     return 'installed_system_app'
   elif logline.log_tag == 'ActivityManager' and Application.ACTIVITY_MANAGER_PATTERN.match(logline.log_message):
     return 'start_activity'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-BatteryChange' and logline.json != None and logline.json.has_key('Plugged'):
+    return 'battery_status'
   elif logline.log_tag == 'PhoneLabSystemAnalysis-Misc' and logline.json != None and logline.json.has_key('Action'):
     if logline.json['Action'] == 'android.intent.action.SCREEN_ON':
       return 'screen_on'
     elif logline.json['Action'] == 'android.intent.action.SCREEN_OFF':
       return 'screen_off'
+  elif logline.log_tag == 'PhoneLabSystemAnalysis-Packages':
+    return 'package_addremove'
   return None
   
 class Application(lib.LogFilter):
-  TAGS = ['PhoneLabSystemAnalysis-Snapshot','PhoneLabSystemAnalysis-Misc', 'ActivityManager', 'PhoneStatusBar', 'NfcService',]
+  TAGS = ['PhoneLabSystemAnalysis-Snapshot','PhoneLabSystemAnalysis-Misc', 'ActivityManager', 'PhoneStatusBar', 'NfcService', 'PhoneLabSystemAnalysis-BatteryChange',]
   
   ACTIVITY_MANAGER_PATTERN = re.compile(r"""^START.*?cmp=(?P<cmp>[\w\.\/]+)""")
   
@@ -31,12 +35,6 @@ class Application(lib.LogFilter):
                    'edu.buffalo.cse.phonelab.systemanalysis']
 
   def __init__(self, **kwargs):
-    self.reset()
-    
-    self.label_line = label_line    
-    super(Application, self).__init__(self.TAGS, **kwargs)
-  
-  def reset(self):
     self.applications = set([])
     self.system_applications = set([])
     self.device_applications = {}
@@ -48,7 +46,15 @@ class Application(lib.LogFilter):
     self.screen_states = []
     self.device_activities = {}
     self.device_screen_states = {}
+    self.device_package_management = {}
+
+    self.device_filtered_logs  = {}
+
+    self.tmpmap={}
     
+    self.label_line = label_line    
+    super(Application, self).__init__(self.TAGS, **kwargs)
+  
   def process_line(self, logline):
     if logline.device not in self.s.experiment_devices:
       return
@@ -78,12 +84,33 @@ class Application(lib.LogFilter):
         self.device_screen_states[logline.device].end = logline.datetime
         self.screen_states.append(self.device_screen_states[logline.device])
         del(self.device_screen_states[logline.device])
-  
+    elif logline.label == 'package_addremove':
+        if not logline.device in self.device_package_management:
+            self.device_package_management[logline.device] = logline.json
+        else:
+            if logline.json not in self.device_package_management[logline.device]:
+                self.device_package_management[logline.device].append(json)
+
+    if logline.label == 'screen_off' or logline.label == 'screen_on' or logline.label == 'start_activity' or logline.label == 'battery_status':
+        devicename = logline.device
+        if logline.line not in self.tmpmap :
+            self.tmpmap[logline.line] = 1
+            
+            if devicename in self.device_filtered_logs:
+                self.device_filtered_logs[devicename].append(logline)
+            else:
+                newlist = []
+                newlist.append(logline)
+                self.device_filtered_logs[devicename] = newlist
+        
+    #print 'total number of devices found is ', len(self.device_filtered_logs)        
+
+    
+
+
   def process(self):
-    self.reset()
-    
-    self.s = Statistic.load(verbose=self.verbose)
-    
+    self.s = Statistic.load()
+
     self.process_loop()
               
     for first_application, second_application in itertools.combinations(sorted(self.applications), 2):
@@ -94,6 +121,13 @@ class Application(lib.LogFilter):
         self.coinstalled_applications[first_application][second_application] += 1
     
     self.popular_installs = [app for app in reversed(sorted(list(self.applications), key=lambda k: self.install_counts[k])) if app not in self.PHONELAB_APPS]
+
+    for dev in self.device_package_management:
+        installs = self.device_package_management[dev]
+#    tmpmap={}
+    print 'lines per device'
+    for dev in self.device_filtered_logs:
+        print dev ,'\t', len(self.device_filtered_logs[dev])
 
 class ScreenState(object):
   def __init__(self, device, start):
