@@ -53,6 +53,50 @@ class Application(lib.LogFilter):
     self.tmpmap={}
     
     self.label_line = label_line    
+    
+    self.popular_app_names = {}
+    self.popular_app_names['com.google.android.apps.maps'] = 'Google Maps' 
+    self.popular_app_names['com.facebook.katana'] = 'Facebook' 
+    self.popular_app_names['com.google.android.youtube'] = 'Youtube' 
+    self.popular_app_names['com.pandora.android'] = 'Pandora' 
+    self.popular_app_names['com.jb.gosms'] = 'GO SMS' 
+    self.popular_app_names['com.adobe.reader'] = 'Adobe Reader' 
+    self.popular_app_names['com.skype.raider'] = 'Skype' 
+    self.popular_app_names['com.twitter.android'] = 'Twitter' 
+    self.popular_app_names['com.instagram.android'] = 'Instagram' 
+    self.popular_app_names['com.infonow.bofa'] = 'Bank of America' 
+    self.popular_app_names['com.android.chrome'] = 'Chrome Browser' 
+    self.popular_app_names['com.dropbox.android'] = 'Dropbox' 
+    self.popular_app_names['com.devuni.flashlight'] = 'Tiny Flashlight' 
+    self.popular_app_names['com.jb.gosms.emoji'] = 'GO SMS Pro Emoji Plugin' 
+    self.popular_app_names['com.google.zxing.client.android'] = 'Barcode Scanner'
+    self.popular_app_names['com.imangi.templerun'] = 'Temple Run' 
+    self.popular_app_names['com.google.android.apps.googlevoice'] = 'Google Voice' 
+    self.popular_app_names['com.facebook.orca'] = 'Facebook Messenger' 
+    self.popular_app_names['com.weather.Weather'] = 'The Weather Channel' 
+    self.popular_app_names['com.google.android.street'] = 'Street View' 
+    self.popular_app_names['com.netflix.mediaclient'] = 'Netflix' 
+    self.popular_app_names['com.socialnmobile.dictapps.notepad.color.note'] = 'ColorNote' 
+    self.popular_app_names['com.rovio.angrybirds'] = 'Angry Birds' 
+    self.popular_app_names['com.amazon.mShop.android'] = 'Amazon Mobile' 
+    self.popular_app_names['com.google.android.music'] = 'Google Play Music' 
+    self.popular_app_names['com.google.android.apps.translate'] = 'Google Translate' 
+    self.popular_app_names['com.google.android.apps.docs'] = 'Google Docs' 
+    self.popular_app_names['com.amazon.kindle'] = 'Kindle' 
+    self.popular_app_names['com.evernote'] = 'Evernote' 
+    self.popular_app_names['com.andrewshu.android.reddit'] = 'reddit is fun' 
+    self.popular_app_names['com.espn.score_center'] = 'ESPN ScoreCenter' 
+    self.popular_app_names['com.zynga.words'] = 'Words With Friends' 
+    self.popular_app_names['com.tencent.mobileqq'] = 'QQ2012' 
+    self.popular_app_names['com.spotify.mobile.android.ui'] = 'Spotify' 
+    self.popular_app_names['com.halfbrick.fruitninjafree'] = 'Fruit Ninja' 
+    self.popular_app_names['com.blackboard.android'] = 'Blackboard Mobile' 
+    self.popular_app_names['com.sportstracklive.stopwatch'] = 'StopWatch & Timer' 
+    self.popular_app_names['com.kiragames.unblockmefree'] = 'Unblock Me' 
+    self.popular_app_names['com.bigduckgames.flow'] = 'Flow' 
+    self.popular_app_names['net.zedge.android'] = 'Zedge' 
+
+
     super(Application, self).__init__(self.TAGS, **kwargs)
   
   def process_line(self, logline):
