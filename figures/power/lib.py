@@ -90,7 +90,7 @@ class Power(lib.LogFilter):
     self.filter_extents()
     self.set_all_extents()
     self.label_needed_extents()
-    
+   
   def filter_extents(self):
     for device in self.devices:
       if len(self.all_device_extents[device]) == 0:
@@ -203,3 +203,15 @@ class PowerState(object):
     
 if __name__=="__main__":
   Power.load(verbose=True)
+
+class PowerSnapshot(object):
+  def __init__(self):
+    pass
+  
+class UIDPower(object):
+  def __init__(self):
+    pass
+
+class PIDPower(object):
+  def __init__(self):
+    pass
