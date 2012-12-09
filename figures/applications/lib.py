@@ -46,12 +46,10 @@ class Application(lib.LogFilter):
     self.screen_states = []
     self.device_activities = {}
     self.device_screen_states = {}
-    self.device_package_management = {}
 
-    self.device_filtered_logs  = {}
+    """09 Dec 2012 : GWA : FIXME
+    self.device_package_management = {}"""
 
-    self.tmpmap={}
-    
     self.label_line = label_line    
     super(Application, self).__init__(self.TAGS, **kwargs)
   
@@ -84,29 +82,13 @@ class Application(lib.LogFilter):
         self.device_screen_states[logline.device].end = logline.datetime
         self.screen_states.append(self.device_screen_states[logline.device])
         del(self.device_screen_states[logline.device])
+
+    """09 Dec 2012 : GWA : FIXME
     elif logline.label == 'package_addremove':
-        if not logline.device in self.device_package_management:
-            self.device_package_management[logline.device] = logline.json
-        else:
-            if logline.json not in self.device_package_management[logline.device]:
-                self.device_package_management[logline.device].append(json)
-
-    if logline.label == 'screen_off' or logline.label == 'screen_on' or logline.label == 'start_activity' or logline.label == 'battery_status':
-        devicename = logline.device
-        if logline.line not in self.tmpmap :
-            self.tmpmap[logline.line] = 1
-            
-            if devicename in self.device_filtered_logs:
-                self.device_filtered_logs[devicename].append(logline)
-            else:
-                newlist = []
-                newlist.append(logline)
-                self.device_filtered_logs[devicename] = newlist
-        
-    #print 'total number of devices found is ', len(self.device_filtered_logs)        
-
-    
-
+      if not logline.device in self.device_package_management:
+        self.device_package_management[logline.device] = logline.json
+      elif logline.json not in self.device_package_management[logline.device]:
+        self.device_package_management[logline.device].append(logline.json)"""
 
   def process(self):
     self.s = Statistic.load()
@@ -122,12 +104,9 @@ class Application(lib.LogFilter):
     
     self.popular_installs = [app for app in reversed(sorted(list(self.applications), key=lambda k: self.install_counts[k])) if app not in self.PHONELAB_APPS]
 
+    """ 09 Dec 2012 : GWA : FIXME
     for dev in self.device_package_management:
-        installs = self.device_package_management[dev]
-#    tmpmap={}
-    print 'lines per device'
-    for dev in self.device_filtered_logs:
-        print dev ,'\t', len(self.device_filtered_logs[dev])
+        installs = self.device_package_management[dev]"""
 
 class ScreenState(object):
   def __init__(self, device, start):
