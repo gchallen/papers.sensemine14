@@ -336,7 +336,7 @@ class UIDPower(object):
   UIDPOWER_TYPE = 'STATS_SINCE_CHARGED'
   UID_PATTERN = re.compile(r"""UID: (?P<uid>\d+), UidName: (?P<name>[^,]+),.*?PerUidPerTypeInfo: \[(?P<breakdown>.*?)\]""")
   BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:[ ](?P<type>[\d\.\-E]+),[ ]
+    re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
                    CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
                    CpuFgTime:[ ](?P<cpufgtime>[\d\.\-E]+),[ ]
                    WakelockTime:[ ](?P<wakelocktime>[\d\.\-E]+),[ ]
