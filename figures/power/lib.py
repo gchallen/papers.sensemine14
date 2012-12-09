@@ -258,21 +258,21 @@ if __name__=="__main__":
 
 class PowerSnapshot(object):
   PATTERN = \
-    re.compile(r"""Type:\s*(?P<type>[^,]+).*?
-                   AverageCostPerByte:\s*(?P<averagecostperbyte>[^,]+).*?
-                   TimeSince:\s*(?P<timesince>\d+).*?
-                   AppWifiRunning:\s*(?P<appwifirunning>[\d\.]+).*?
-                   PhoneOnTimeMs:\s*(?P<phoneontimems>\d+).*?
-                   PhoneOnPower:\s*(?P<phoneonpower>[\d\.]+).*?
-                   ScreenOnPower:\s*(?P<screenonpower>[\d\.]+).*?
-                   ScreenOnTimeMs:\s*(?P<screenontimems>\d+).*?
-                   RadioUsagePower:\s*(?P<radiousagepower>[\d\.]+).*?
-                   WifiRunningTimeMs:\s*(?P<wifirunningtimems>\d+).*?
-                   WifiPower:\s*(?P<wifipower>[\d\.]+).*?
-                   BtOnTimeMs:\s*(?P<btontimems>\d+).*?
-                   BtPower:\s*(?P<btpower>[\d\.]+).*?
-                   IdleTimeMs:\s*(?P<idletimems>\d+).*?
-                   IdlePower:\s*(?P<idlepower>[\d\.]+).*""", re.VERBOSE)
+    re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
+                   AverageCostPerByte:[ ](?P<averagecostperbyte>[\d\.\-E]+),[ ]
+                   TimeSince:[ ](?P<timesince>[\d\.\-E]+),[ ]
+                   AppWifiRunning:[ ](?P<appwifirunning>[\d\.\-E]+),[ ]
+                   PhoneOnTimeMs:[ ](?P<phoneontimems>[\d\.\-E]+),[ ]
+                   PhoneOnPower:[ ](?P<phoneonpower>[\d\.\-E]+),[ ]
+                   ScreenOnPower:[ ](?P<screenonpower>[\d\.\-E]+),[ ]
+                   ScreenOnTimeMs:[ ](?P<screenontimems>[\d\.\-E]+),[ ]
+                   RadioUsagePower:[ ](?P<radiousagepower>[\d\.\-E]+),[ ]
+                   WifiRunningTimeMs:[ ](?P<wifirunningtimems>[\d\.\-E]+),[ ]
+                   WifiPower:[ ](?P<wifipower>[\d\.\-E]+),[ ]
+                   BtOnTimeMs:[ ](?P<btontimems>[\d\.\-E]+),[ ]
+                   BtPower:[ ](?P<btpower>[\d\.\-E]+),[ ]
+                   IdleTimeMs:[ ](?P<idletimems>[\d\.\-E]+),[ ]
+                   IdlePower:[ ](?P<idlepower>[\d\.\-E]+)""", re.VERBOSE)
   
   MAX_INTERVAL = datetime.timedelta(minutes=60)
   POWERSNAPSHOT_TYPE = 'STATS_SINCE_CHARGED'
@@ -287,20 +287,23 @@ class PowerSnapshot(object):
     self.end = None
     
     snapshot_match = PowerSnapshot.PATTERN.match(logline.json['PerSnapshotPerTypeInfo'])
+    if snapshot_match == None:
+      print logline.json['PerSnapshotPerTypeInfo']
+
     self.type = snapshot_match.group('type')
     
-    self.time_since = int(snapshot_match.group('timesince'))
+    self.time_since = int(float(snapshot_match.group('timesince')))
     self.app_wifi_running = float(snapshot_match.group('appwifirunning'))
-    self.phone_on_time_ms = int(snapshot_match.group('phoneontimems'))
+    self.phone_on_time_ms = int(float(snapshot_match.group('phoneontimems')))
     self.phone_on_power = float(snapshot_match.group('phoneonpower'))
-    self.screen_on_time_ms = int(snapshot_match.group('screenontimems'))
+    self.screen_on_time_ms = int(float(snapshot_match.group('screenontimems')))
     self.screen_on_power = float(snapshot_match.group('screenonpower'))
     self.radio_usage_power = float(snapshot_match.group('radiousagepower'))
-    self.wifi_running_time_ms = int(snapshot_match.group('wifirunningtimems'))
+    self.wifi_running_time_ms = int(float(snapshot_match.group('wifirunningtimems')))
     self.wifi_power = float(snapshot_match.group('wifipower'))
-    self.bt_on_time_ms = int(snapshot_match.group('btontimems'))
+    self.bt_on_time_ms = int(float(snapshot_match.group('btontimems')))
     self.bt_power = float(snapshot_match.group('btpower'))
-    self.idle_time_ms = int(snapshot_match.group('idletimems'))
+    self.idle_time_ms = int(float(snapshot_match.group('idletimems')))
     self.idle_power = float(snapshot_match.group('idlepower'))
   
   def minus(self, other):
@@ -333,13 +336,13 @@ class UIDPower(object):
   UIDPOWER_TYPE = 'STATS_SINCE_CHARGED'
   UID_PATTERN = re.compile(r"""UID: (?P<uid>\d+), UidName: (?P<name>[^,]+),.*?PerUidPerTypeInfo: \[(?P<breakdown>.*?)\]""")
   BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:\s*(?P<type>[^,]+).*?
-                   CpuTime:\s*(?P<cputime>\d+).*?
-                   CpuFgTime:\s*(?P<cpufgtime>\d+).*?
-                   WakelockTime:\s*(?P<wakelocktime>\d+).*?
-                   GpsTime:\s*(?P<gpstime>\d+).*?
-                   Power:\s*(?P<power>[\d\.]+).*?
-                   WifiRunningTimeMS:\s*(?P<wifirunningtime>\d+)""", re.VERBOSE)
+    re.compile(r"""Type:[ ](?P<type>[\d\.\-E]+),[ ]
+                   CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
+                   CpuFgTime:[ ](?P<cpufgtime>[\d\.\-E]+),[ ]
+                   WakelockTime:[ ](?P<wakelocktime>[\d\.\-E]+),[ ]
+                   GpsTime:[ ](?P<gpstime>[\d\.\-E]+),[ ]
+                   Power:[ ](?P<power>[\d\.\-E]+),[ ]
+                   WifiRunningTimeMS:[ ](?P<wifirunningtime>[\d\.\-E]+)""", re.VERBOSE)
   
   ATTRIBUTES = ['cpu_time', 'cpu_fg_time', 'wakelock_time', 'gps_time', 'power',]
   
@@ -356,10 +359,10 @@ class UIDPower(object):
     for breakdown_match in UIDPower.BREAKDOWN_PATTERN.finditer(uid_match.group('breakdown')):
       if breakdown_match.group('type') == UIDPower.UIDPOWER_TYPE:
         self.type = breakdown_match.group('type').strip()
-        self.cpu_time = int(breakdown_match.group('cputime'))
-        self.cpu_fg_time = int(breakdown_match.group('cpufgtime'))
-        self.wakelock_time = int(breakdown_match.group('wakelocktime'))
-        self.gps_time = int(breakdown_match.group('gpstime'))
+        self.cpu_time = int(float(breakdown_match.group('cputime')))
+        self.cpu_fg_time = int(float(breakdown_match.group('cpufgtime')))
+        self.wakelock_time = int(float(breakdown_match.group('wakelocktime')))
+        self.gps_time = int(float(breakdown_match.group('gpstime')))
         self.power = float(breakdown_match.group('power'))
   
   def minus(self, other):
