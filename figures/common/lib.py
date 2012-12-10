@@ -187,7 +187,7 @@ class LogFilter(object):
       if self.verbose:
         print >>sys.stderr, "Processing %s" % (data_file,)
       
-      lines = cPickle.load(open(data_file, 'rb'))
+      lines = cPickle.load(gzip.open(data_file, 'rb'))
       for line in lines:
         self.devices.add(line.device)
         if self.start_time == None:
