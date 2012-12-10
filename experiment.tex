@@ -1,10 +1,3 @@
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.9\textwidth]{./figures/static/experiment-life-cycle.pdf}
-\caption{Expected Life Cycle of a \PhoneLab{} Experiment}
-\label{fig:experiment-life-cycle}
-\end{figure*}
-
 \section{Experiment Case Study}
 \label{sec-experiment}
 
@@ -90,32 +83,32 @@ when the phone is being plugged in and connected to a network. However, a
 \PhoneLab{} user can incorporate a custom data logging and collection mechanism
 if the user chooses to do so.
 
-\begin{table}[t]
-\centering
-\begin{tabular}{|c|c|c|}
-\hline
-Information Type & Analysis\\
-\hline
-Battery Usage &
-Sections~\ref{subsec-batteryoverview},~\ref{subsec-opportunistic},
-\&~\ref{subsec-awareness}\\
-3G \& WiFi Usage & Sections~\ref{subsec-networktransitions}\\
-Application Usage & Sections~\ref{subsec-apptransitions}\\
-Location Usage & Sections~\ref{subsec-awareness}
-\&~\ref{subsec-locationsharing}\\
-\hline
-\end{tabular}
-\caption{Representative Information Logged \XXXnote{stevko: revise
-when we have the graphs}}
-\label{tab:information-logged}
-\end{table}
-
-%subsec-batteryoverview
-%subsec-opportunistic
-%subsec-awareness
-%subsec-networktransitions
-%subsec-apptransitions
-%subsec-locationsharing
+\begin{table*}[t]
+\begin{threeparttable}
+\begin{tabularx}{\textwidth}{rrrX}
+\multicolumn{1}{c}{\textbf{Tag Name}} & 
+\multicolumn{1}{c}{\textbf{Tag Count}} & 
+\multicolumn{1}{c}{\textbf{\%}} & 
+\multicolumn{1}{c}{\textbf{Description}} \\
+\toprule
+PhoneLabSystemAnalysis-Snapshot & \num{1405851} & 69.4 & \\
+ActivityManager & \num{270967} & 13.4 & \\
+PhoneLabSystemAnalysis-Wifi & \num{137129} & 6.8 & \\
+PhoneLabSystemAnalysis-Telephony & \num{93689} & 4.6 & \\
+PhoneLabSystemAnalysis-BatteryChange & \num{67085} & 3.3 & \\
+PhoneLabSystemAnalysis & \num{13009} & 0.6 & \\
+LocationManagerService & \num{12093} & 0.6 & \\
+PhoneLabSystemAnalysis-Location & \num{11402} & 0.6 & \\
+PhoneLabSystemAnalysis-Misc & \num{8839} & 0.4 & \\
+PhoneLabSystemAnalysis-UidInfo & \num{3552} & 0.2 & \\
+GoogleVoice & \num{1544} & 0.1 & \\
+SmsReceiverService & \num{1038} & 0.1 & \\
+PhoneLabSystemAnalysis-Packages & \num{58} & 0.0 & \\
+\end{tabularx}
+\caption{Log tag statistics for our experiment. \textnormal{\num{2026256} log tags
+were collected over 2 days from 17 users.}}
+\end{threeparttable}
+\end{table*}
 
 \subsection{Our Experiment}
 

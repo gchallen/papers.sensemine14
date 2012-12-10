@@ -36,7 +36,7 @@ class Power(lib.LogFilter):
     self.filtered_device_extents = {}
     self.charging_extents = []
     self.discharging_extents = []
-    self.processed = False
+    self.last_device_power = {}
     
     self.all_uidpowers = []
     self.all_device_uidpowers = {}
@@ -70,9 +70,10 @@ class Power(lib.LogFilter):
     if logline.label == 'battery_level':
       if not self.all_device_extents.has_key(logline.device):
         self.all_device_extents[logline.device] = []
+        self.last_device_power[logline.device] = None
       p = PowerState(logline)
-      
       if p.plugged:
+        self.last_device_power[logline.device] = p
         if self.device_discharging.has_key(logline.device):
           if self.device_discharging[logline.device].time_length() >= Power.EXTENT_REJECTION_THRESHOLD:
             self.all_device_extents[logline.device].append(self.device_discharging[logline.device])
@@ -105,7 +106,7 @@ class Power(lib.LogFilter):
         self.all_device_uidpowers[logline.device] = []
         self.filtered_device_uidpowers[logline.device] = []
       try:
-        u = UIDPower(logline)
+        u = UIDPower(logline, self.last_device_power[logline.device])
         self.all_device_uidpowers[logline.device].append(u)
       except:
         pass
@@ -113,19 +114,19 @@ class Power(lib.LogFilter):
       if not self.all_device_procpowers.has_key(logline.device):
         self.all_device_procpowers[logline.device] = []
         self.filtered_device_procpowers[logline.device] = []
-      p = ProcPower(logline)
+      p = ProcPower(logline, self.last_device_power[logline.device])
       self.all_device_procpowers[logline.device].append(p)
     elif logline.label == 'sensorinfo':
       if not self.all_device_sensorpowers.has_key(logline.device):
         self.all_device_sensorpowers[logline.device] = []
         self.filtered_device_procpowers[logline.device] = []
-      s = SensorPower(logline)
+      s = SensorPower(logline, self.last_device_power[logline.device])
       self.all_device_sensorpowers[logline.device].append(s)
     elif logline.label == 'breakdown':
       if not self.all_device_breakdowns.has_key(logline.device):
         self.all_device_breakdowns[logline.device] = []
         self.filtered_device_breakdowns[logline.device] = []
-      s = PowerSnapshot(logline)
+      s = PowerSnapshot(logline, self.last_device_power[logline.device])
       if s.type == PowerSnapshot.POWERSNAPSHOT_TYPE:
         self.all_device_breakdowns[logline.device].append(s)
               
@@ -423,10 +424,12 @@ class PowerSnapshot(object):
                 'radio_usage_power', 'wifi_running_time_ms', 'wifi_power', 'bt_on_time_ms', 'bt_power',
                 'idle_time_ms', 'idle_power']
   
-  def __init__(self, logline):
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     self.type = self.POWERSNAPSHOT_TYPE
     
@@ -437,6 +440,8 @@ class PowerSnapshot(object):
   
   def minus(self, other):
     self.end = other.start
+    self.end_state = other.start_state
+    
     for attribute in PowerSnapshot.ATTRIBUTES:
       setattr(self, attribute, getattr(other, attribute) - getattr(self, attribute))
   
@@ -483,10 +488,12 @@ class UIDPower(object):
   
   SANE_THRESHOLD = 100.0
   
-  def __init__(self, logline):
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     
     uid_match = UIDPower.UID_PATTERN.match(logline.json['UidInfo'])
@@ -510,6 +517,7 @@ class UIDPower(object):
   
   def minus(self, other):
     self.end = other.start
+    self.end_state = other.start_state
     self.snapshot_id = other.snapshot_id
     
     for attribute in self.ATTRIBUTES:
@@ -600,10 +608,12 @@ class ProcPower(object):
   ATTRIBUTES = ['user_time', 'system_time', 'foreground_time', 'cpu_time', 'process_power', 'cpu_time_at_speedstep_0',
                 'cpu_time_at_speedstep_1', 'cpu_time_at_speedstep_2', 'cpu_time_at_speedstep_3', 'cpu_time_at_speedstep_4',]
   
-  def __init__(self, logline):
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     self.uid = int(logline.json['Uid'])
     self.assigned = False
@@ -627,6 +637,7 @@ class ProcPower(object):
     
   def minus(self, other):
     self.end = other.start
+    self.end_state = other.start_state
     self.snapshot_id = other.snapshot_id
     
     for attribute in ProcPower.ATTRIBUTES:
@@ -666,10 +677,12 @@ class SensorPower(object):
   ATTRIBUTES = ['sensor_time', 'multiplier',]
   GPS_TYPE = -10000
   
-  def __init__(self, logline):
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     self.uid = int(logline.json['Uid'])
     self.assigned = False
@@ -691,6 +704,7 @@ class SensorPower(object):
   
   def minus(self, other):
     self.end = other.start
+    self.end_state = other.start_state
     self.snapshot_id = other.snapshot_id
     
     for attribute in ['sensor_time']:
