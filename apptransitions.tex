@@ -16,7 +16,7 @@ together and apply the same scheduling policy, i.e., the applications can be
 loaded into the memory together to reduce the latency of context switch.
 A previous study has looked at a similar usage pattern by analyzing a network
 traffic trace~\cite{xu:imc:2011}. Our study described below is a more direct
-analysis based on recorded application usage events, hence more fine-grained.
+analysis based on recorded application usage events, hence finer in granularity.
 
 \subsubsection{Jointly-Used Applications}
 In order to understand which applications are used together, we calculate a {\it
@@ -29,3 +29,15 @@ session, i.e., {\it start(a $\rightarrow$ b)}. Our transition probability is
 $\frac{start(a \rightarrow b)}{start(a)}$.
 
 \subsubsection{Future Experiments}
+
+We expect that \PhoneLab{} will enable many kinds of optimization techniques
+that adapt to different usage patterns. As our study shows and previous studies
+have pointed out~\cite{falaki:mobisys:2010, shye:micro:2009}, there is
+significant diversity in smartphone usage across different users. Thus, future
+optimization techniques will necessarily need to adapt to each user's behavior
+rather than relying on commonalities.
+
+As with energy usage experiments, application usage studies need to be
+re-validated; as new software and hardware become available, user behavior will
+inevitably change over time. \PhoneLab{} gives an opportunity to study such
+changes.
