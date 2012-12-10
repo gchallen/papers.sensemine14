@@ -15,6 +15,7 @@ guide the design of future \PhoneLab{} experiments.
 \caption{Power usage by component. \textnormal{The large bar at left shows an
 aggregated breakdown for the entire testbed. The participant bars are scaled
 to match the participant with the most energy usage.}}
+\label{figure-batteryoverview}
 \end{figure*}
 
 Smartphones are constrained by power, and a large amount of research on
@@ -26,6 +27,28 @@ be sure we are addressing actual energy bottlenecks and use Amdahl's law to
 put relative energy savings into context.
 
 \subsubsection{Energy Breakdown}
+
+A component-by-component breakdown for the entire testbed and per-participant
+is shown in Figure~\ref{figure-batteryoverview}. Our results are similar to
+those reported by other studies, and indicate that mobile data, the screen,
+and CPU usage are the main sources of smartphone power consumption. The
+per-participant bars also show a great deal of variation, with differences in
+both the amount and the breakdown of energy consumed by each participant.
+
+One supposedly power-hungry component that has less of an impact than we had
+expected is the GPS. This is particularly surprising given the large amount
+of location-monitoring work motivated by GPS power consumption. One of
+several factors may be at work. First, the Android platform estimates the GPS
+chipset current consumption at 50~mA. This number is used by the standard
+``Fuel Guage'' battery monitor and by our calculations. However, it is lower
+than the data sheet for the part~\cite{FIXME} and may represent a best-case
+average. However, increasing the GPS current by a factor of four does not
+significant increase its contribution: from \XXXnote{GWA} to \XXXnote{GWA}.
+
+Other hypothesis are that Android network location is providing location with
+sufficient accuracy for many applications, eliminating the need for GPS. Or,
+participants and applications may simply be conscious of GPS power
+consumption and taking active steps to control it.
 
 \subsubsection{Future Experiments}
 
@@ -39,4 +62,3 @@ develop an awareness of the power consumption properties of their phones and
 how to control them. And as we bring new hardware onto the testbed, we can
 repeat power usage experiments to determine differences between smartphone
 hardware generations.
-
