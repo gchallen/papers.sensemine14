@@ -35,6 +35,11 @@ ax = fig.add_subplot(111)
 
 bottom = len(opportunistic_devices) - 1
 
+legend_done = {'Opportunistic Needed': False,
+               'Opportunistic Unneeded': False,
+               'Habitual': False,
+               'Charge Level': False}
+               
 for device in opportunistic_devices:
   for extent in p.filtered_device_extents[device]:
     if not isinstance(extent, ChargingExtent):
@@ -49,15 +54,30 @@ for device in opportunistic_devices:
     end = extent.end()
     if end > end_time:
       end = end_time
-    bar_start = (start - start_time).seconds
-    bar_width = (end - start).seconds
+    bar_start = (start - start_time).seconds / 60.0 / 60.0
+    bar_width = (end - start).seconds / 60.0 / 60.0
     if extent.is_opportunistic():
       if extent.needed:
-        ax.barh(bottom, bar_width, 1.0, bar_start, linewidth=0.0, color='red', label='Opportunistic Needed')
+        legend = 'Opportunistic Needed'
+        if not legend_done[legend]:
+          legend_done[legend] = True
+        else:
+          legend = '__none__'
+        ax.barh(bottom, bar_width, 1.0, bar_start, linewidth=0.0, color='red', label=legend)
       else:
-        ax.barh(bottom, bar_width, 1.0, bar_start, linewidth=0.0, color='blue', label='Opportunistic Unneeded')
+        legend = 'Opportunistic Unneeded'
+        if not legend_done[legend]:
+          legend_done[legend] = True
+        else:
+          legend = '__none__'
+        ax.barh(bottom, bar_width, 1.0, bar_start, linewidth=0.0, color='blue', label=legend)
     else:
-      ax.barh(bottom, bar_width, 1.0, bar_start, linewidth=0.0, color='grey', label='Habitual')
+      legend = 'Habitual'
+      if not legend_done[legend]:
+        legend_done[legend] = True
+      else:
+        legend = '__none__'
+      ax.barh(bottom, bar_width, 1.0, bar_start, linewidth=0.0, color='grey', label=legend)
   for extent in p.filtered_device_extents[device]:
     if extent.end() < start_time:
       continue
@@ -67,14 +87,20 @@ for device in opportunistic_devices:
     for state in extent.states:
       if state.datetime < start_time or state.datetime > end_time:
         continue
-      print state.datetime, state.battery_level
-      points.append(((state.datetime - start_time).seconds, bottom + state.battery_level))
-    ax.plot(*zip(*points), color='black')
+      points.append(((state.datetime - start_time).seconds / 60.0 / 60.0, bottom + state.battery_level))
+    legend = 'Charge Level'
+    if not legend_done[legend]:
+      legend_done[legend] = True
+    else:
+      legend = '__none__'
+    ax.plot(*zip(*points), color='black', label=legend)
   bottom -= 1
 
+ax.axis(ymin=0, ymax=(len(opportunistic_devices) + 1), xmax=24.0)
+ax.set_yticks([])
 ax.set_ylabel("Participants")
-ax.set_xlabel("Time")
-# fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+ax.set_xlabel("Time (hours after midnight)")
+fig.subplots_adjust(left=0.10, right=0.98, top=0.99, bottom=0.06)
 fig.set_size_inches(3.33, 9.25)
-# ax.legend(loc=4)
+ax.legend(loc=9, prop={'size': 10})
 fig.savefig('graph.pdf')
