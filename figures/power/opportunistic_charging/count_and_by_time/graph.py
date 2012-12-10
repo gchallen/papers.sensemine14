@@ -73,7 +73,8 @@ for device in opportunistic_devices:
   bottom -= 1
 
 ax.set_ylabel("Participants")
-ax.set_xlabel("Time")  
-# ax.set_xlabel('Call Length (min)')
+ax.set_xlabel("Time")
+# fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+fig.set_size_inches(3.33, 9.25)
 # ax.legend(loc=4)
 fig.savefig('graph.pdf')
