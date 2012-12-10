@@ -168,12 +168,12 @@ class Power(lib.LogFilter):
         if current_extent.__class__.__name__ != other_extent.__class__.__name__:
           self.filtered_device_extents[device].append(current_extent)
           current_extent = other_extent
-          
-        if (other_extent.states[0].datetime - current_extent.states[-1].datetime) < Power.EXTENT_BREAK_THRESHOLD:
-          current_extent.states += other_extent.states
         else:
-          self.filtered_device_extents[device].append(current_extent)
-          current_extent = other_extent
+          if (other_extent.states[0].datetime - current_extent.states[-1].datetime) < Power.EXTENT_BREAK_THRESHOLD:
+            current_extent.states += other_extent.states
+          else:
+            self.filtered_device_extents[device].append(current_extent)
+            current_extent = other_extent
       
       self.filtered_device_extents[device].append(current_extent)
       
@@ -400,7 +400,7 @@ class ChargingExtent(PowerExtent):
     return self.max_battery_state().battery_level - self.min_battery_state().battery_level
   
   def is_opportunistic(self):
-    return all([self.max_battery_state().battery_level >= ChargingExtent.OPPORTUNISTIC_THRESHOLD,
+    return all([self.max_battery_state().battery_level <= ChargingExtent.OPPORTUNISTIC_THRESHOLD,
                 self.time_length() >= ChargingExtent.OPPORTUNISTIC_LENGTH])
     
 class DischargingExtent(PowerExtent):
