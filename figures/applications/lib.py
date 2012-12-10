@@ -74,6 +74,23 @@ class Application(lib.LogFilter):
     self.popular_app_names['com.sportstracklive.stopwatch'] = 'StopWatch & Timer' 
     self.popular_app_names['com.kiragames.unblockmefree'] = 'Unblock Me' 
     self.popular_app_names['com.bigduckgames.flow'] = 'Flow' 
+    self.popular_app_names['com.bluetornadosf.smartypants'] = 'Viber' 
+    self.popular_app_names['com.kakao.talk'] = 'Kakao Talk' 
+    self.popular_app_names['com.renren.mobile.apad'] = 'MIcons Project' 
+    self.popular_app_names['com.sina.weibo'] = 'Sina Weibo' 
+    self.popular_app_names['com.kakao.talk'] = 'Kakao Talk' 
+    
+    self.popular_app_names['com.android.settings'] = 'Settings' 
+    self.popular_app_names['com.android.packageinstaller'] = 'Package Installer' 
+    self.popular_app_names['com.android.deskclock'] = 'Deskclock' 
+    self.popular_app_names['com.android.contacts'] = 'Contacts' 
+    self.popular_app_names['com.android.phone'] = 'Phone' 
+    self.popular_app_names['com.android.vending'] = 'Play Store' 
+    self.popular_app_names['com.android.browser'] = 'Browser' 
+    self.popular_app_names['com.android.gallery3d'] = 'Gallery' 
+    self.popular_app_names['com.android.mms'] = 'Messaging' 
+    self.popular_app_names['com.google.android.googlequicksearchbox'] = 'Google Search' 
+    self.popular_app_names['com.bluetornadosf.smartypants'] = 'Skyvi' 
     self.popular_app_names['net.zedge.android'] = 'Zedge' 
 
     self.reset()
@@ -93,6 +110,12 @@ class Application(lib.LogFilter):
     self.screen_states = []
     self.device_activities = {}
     self.device_screen_states = {}
+    
+    self.tmp_active_devices = []
+    f = open('out','r')
+    for line in f:
+        self.tmp_active_devices.append(line.strip())
+
     
     super(Application, self).reset()
   
@@ -135,6 +158,7 @@ class Application(lib.LogFilter):
         self.device_screen_states[logline.device].end = logline.datetime
         self.screen_states.append(self.device_screen_states[logline.device])
         del(self.device_screen_states[logline.device])
+
 
   def process(self):
     self.s = Statistic.load()
