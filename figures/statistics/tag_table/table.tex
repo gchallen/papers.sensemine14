@@ -1,18 +1,25 @@
-\multicolumn{1}{c}{\textbf{Tag Name}} & 
-\multicolumn{1}{c}{\textbf{Tag Count}} & 
-\multicolumn{1}{c}{\textbf{\%}} & 
-\multicolumn{1}{c}{\textbf{Description}} \\
-PhoneLabSystemAnalysis-Snapshot & \num{1405851} & 69.4 & \\
-ActivityManager & \num{270967} & 13.4 & \\
-PhoneLabSystemAnalysis-Wifi & \num{137129} & 6.8 & \\
-PhoneLabSystemAnalysis-Telephony & \num{93689} & 4.6 & \\
-PhoneLabSystemAnalysis-BatteryChange & \num{67085} & 3.3 & \\
-PhoneLabSystemAnalysis & \num{13009} & 0.6 & \\
-LocationManagerService & \num{12093} & 0.6 & \\
-PhoneLabSystemAnalysis-Location & \num{11402} & 0.6 & \\
-PhoneLabSystemAnalysis-Misc & \num{8839} & 0.4 & \\
-PhoneLabSystemAnalysis-UidInfo & \num{3552} & 0.2 & \\
-GoogleVoice & \num{1544} & 0.1 & \\
-SmsReceiverService & \num{1038} & 0.1 & \\
-PhoneLabSystemAnalysis-Packages & \num{58} & 0.0 & \\
-% 2026256 tags total, 2 days, 17 users
+\begin{table*}[t]
+\begin{threeparttable}
+{\small
+\begin{tabularx}{\textwidth}{rrrX}
+\multicolumn{1}{c}{\normalsize{\textbf{Tag Name}}} & 
+\multicolumn{1}{c}{\normalsize{\textbf{Tag Count}}} & 
+\multicolumn{1}{c}{\normalsize{\textbf{\%}}} & 
+\multicolumn{1}{c}{\normalsize{\textbf{Description}}} \\
+\toprule
+\texttt{PhoneLabSystemAnalysis-Snapshot} & \num{1405851} & 70.0 & Snapshots battery breakdown across components and applications. Polled every 15 minutes. \\
+\texttt{ActivityManager} & \num{270967} & 13.5 & Records when applications are started. \\
+\texttt{PhoneLabSystemAnalysis-Wifi} & \num{137129} & 6.8 & Logs connection state, scan information and signal strength. \\
+\texttt{PhoneLabSystemAnalysis-Telephony} & \num{93689} & 4.7 & Records phone call state and radio signal strength. \\
+\texttt{PhoneLabSystemAnalysis-BatteryChange} & \num{67085} & 3.3 & Logs every change to the battery level. \\
+\texttt{LocationManagerService} & \num{12093} & 0.6 & Records when GPS is enabled and disabled. \\
+\texttt{PhoneLabSystemAnalysis-Location} & \num{11402} & 0.6 & Passively logs all location updates. \\
+\texttt{PhoneLabSystemAnalysis-Misc} & \num{8839} & 0.4 & Logs when the screen turns on and off. \\
+\texttt{SmsReceiverService} & \num{1038} & 0.1 & Used to count text messages sent and received. \\
+\texttt{PhoneLabSystemAnalysis-Packages} & \num{58} & 0.0 & Records when applications and installed and removed. \\
+\end{tabularx}
+}
+\caption{Log tag statistics for our experiment. \textnormal{\num{2008151} log tags
+were collected over 2 days from 17 users. In the interest of space, not all tags logged are included.}}
+\end{threeparttable}
+\end{table*}
