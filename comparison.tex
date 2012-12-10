@@ -1,87 +1,92 @@
 \begin{table*}[t]
 \begin{tabularx}{\textwidth}{Xcccccc}
-&
-{\normalsize{\textbf{Scale}}} &
+& {\normalsize{\textbf{Scale}}} &
 {\normalsize{\textbf{Realism}}} &
 {\normalsize{\textbf{Locality}}} &
 {\normalsize{\textbf{Timeliness}}} &
-{\normalsize{\textbf{Control}}} &
-{\normalsize{\textbf{Platform Access}}} \\
+{\normalsize{\textbf{Power}}} \\
 \toprule
-{\large \PhoneLab{}} & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ \\
+
+{\large \PhoneLab{}}
+& $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ \\
 \toprule
-LiveLabs & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & \\
+
+LiveLabs &
+$\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\
 \midrule
-Small-Scale Volunteers & & & $\blacksquare$ & $\blacksquare$ & & $\blacksquare$ \\
+
+One-off Studies &
+& & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ \\
 \midrule
-Online Application Stores & $\blacksquare$ & $\blacksquare$ & & $\blacksquare$ & & \\
+
+Application Marketplaces &
+$\blacksquare$ & $\blacksquare$ & & & \\
 \midrule
-Large-Scale Traces & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & $\blacksquare$ \\
+
+Large Traces &
+$\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\
+
 \end{tabularx}
-\caption{\textbf{Smartphone testbed feature comparison.}}
+\caption{\textbf{Smartphone experimentation comparison.} Only \PhoneLab{}
+provides all necessary features.}
 \label{tab:comparison}
 \end{table*}
 
-\section{Comparison of Approaches}
-\label{sec:comparison}
+\section{Comparing \PhoneLab{} with Other Approaches}
+\label{sec-comparison}
 
-\PhoneLab{} provides a comprehensive set of features necessary for smartphone
-research evaluation---scale, realism, locality, timeliness, participant control,
-and platform experimentation. To the best of our knowledge, \PhoneLab{} is the
-only smartphone testbed that plans to provide these features together. Existing
-approaches typically lack one or multiple of these features as we discuss below.
-
-{\bf Features of \PhoneLab{}:} In order to facilitate our discussion on existing
-approaches, we first present the features that \PhoneLab{} provides:
+\PhoneLab{} provides features necessary for smartphone research---power,
+scale, realism, locality, and timeliness. We define these features as:
 
 \begin{itemize}[nosep]
-\item {\bf Scale:} \PhoneLab{} is scheduled to grow up to 700 participants.
-\item {\bf Realism:} \PhoneLab{} participants use the phones as their primary
-phones.
-\item {\bf Locality:} \PhoneLab{} participants are largely co-located in or near
-SUNY Buffalo campuses, enabling the evaluation of research that needs local
-communication.
-\item {\bf Timeliness:} \PhoneLab{} experimenters do not need to resort to
-obsolete data sets collected once; \PhoneLab{} allows access to a large number
-of smartphone users when an experimenter needs them.
-\item {\bf Participant Control:} \PhoneLab{} participants are pre-recruited and
-incentivized already; experimenters do not need to go through this process.
-\item {\bf Platform Experimentation:} \PhoneLab{} allows application-level
-experiments as well as platform-level, i.e., Android kernel, middleware,
-libraries, and Dalvik virtual machine.
+\item {\bf Scale:} \PhoneLab{} will grow to 700 participants, already
+recruited to participate in smartphone experiments.
+\item {\bf Power:} \PhoneLab{} allows application-level experiments as well
+as platform-level, i.e., Android kernel, middleware, libraries, and Dalvik
+virtual machine.
+\item {\bf Realism:} Participants use the phones as their primary device.
+\item {\bf Locality:} Most participants live in Buffalo near SUNY campuses,
+enabling research requiring device-to-device interaction.
+\item {\bf Timeliness:} \PhoneLab{} allows researchers to quit relying on
+out-of-date datasets. Instead, new data can be collected and customized to
+the experiment being performed.
 \end{itemize}
 
-Table~\ref{tab:comparison} summarizes \PhoneLab{}'s features compared to other
-approaches.
+We believe that \PhoneLab{} is the only smartphone testbed providing all of
+these features together. Table~\ref{tab:comparison} summarizes \PhoneLab{}'s
+features compared to other approaches, which we discuss individually below.
 
-{\bf LiveLabs:} LiveLabs~\cite{livelabs} is the most similar testbed that we are
-aware of. Its target feature set is similar to that of \PhoneLab{} (i.e., scale,
-realism, locality, timeliness, and participant control), but lacks the ability
-to perform platform experimentation. LiveLabs will eventually have three
-sites---a mall, a campus, and a theme park---that are instrumented with custom
-wireless infrastructure; and it will provide APIs to collect location and
-activity information from the participants. Since it is a work in progress, the
-exact features and operational details are not yet documented well.
+LiveLabs~\cite{livelabs} is the most similar testbed to \PhoneLab{}. While it
+provides many desirable features, it lacks the ability to perform platform
+experimentation. LiveLabs will eventually have three sites---a mall, a
+campus, and a theme park---that are instrumented with custom wireless
+infrastructure. Their goal is to scale to \num{25000} participants, but
+currently only have tens of participants connected. LiveLabs plans to provide
+public interfaces to collect processed location and activity information.
+Their aim seems largely to support commercial and marketing-driven location
+and consumer analytics, rather than smartphone systems experimentation.
+However, given that the testbed is still being built, its features may
+change.
 
-{\bf Small-Scale Volunteers:} A relatively effortless evaluation methodology
-with real devices is perhaps to use a small number of volunteers composed of
-research group members and acquaintances. This methodology obviously lacks
-scale, but also suffers from the question of realism; with only a small number
-of people recruited through personal contacts, it is difficult to justify that
-they are representative. Using an open-access testbed such as \PhoneLab{}
-removes the burden of justifying a particular evaluation methodology from
-individual researchers.
+The standard evaluation methodology when using real devices is to recruit a
+small number of volunteers composed of fellow researchers and acquaintances.
+Clearly the scale that can be achived this way is limited, but this approach
+also lacks realism. A small number of personal contacts is unlikely to
+produce a representative sample, and users in a short-term study are unlikely
+to be willing to use a new phone as their primary device. In comparison,
+\PhoneLab{} amortizes the recruitment and maintainence costs across multiple
+experiments, and provides repeated access to the same participants so that
+finding can be verified and competing approaches compared.
 
-{\bf Online Application Stores:} A few research tools~\cite{huang:mobisys:2010,
-zhang:codes:2010} have demonstrated that it is possible to reach a large
-population of users by deploying the tools on online application stores (e.g.,
-Google Play Store and Apple App Store). However, this methodology lacks a few
-features such as locality, participant control, and platform experimentation; it
-is not guaranteed that the tools will be downloaded and used by many people; it
-does not give any control over locality as online stores are available
-world-wide; it does not allow platform experimentation since online stores
-distribute applications only. This methodology is suitable when these are not
-the criteria for evaluation.
+A few research tools~\cite{huang:mobisys:2010, zhang:codes:2010} have
+demonstrated that it is possible to reach large numbers of users by deploying
+the tools on online application stores such as the Google Play Store or Apple
+AppStore. Assuming participants can be incentivized to participate in
+experiments, this methodology still lacks power and locality. It is unlikely
+that applications distributed via online marketplaces will be downloaded and
+used by large numbers of co-located participants. In addition, these stores
+only distributed applications and cannot be used for experimentation with
+core system components.
 
 {\bf Large-Scale Traces:} A particularly challenging kind of research evaluation
 is the one that requires large-scale measurement data. Smartphone usage studies
@@ -91,15 +96,14 @@ features such as scale, realism, timeliness, and participant control. This is
 precisely the reason why we use our own data collection and analysis as a
 showcase to demonstrate the power of \PhoneLab{} in this paper.
 
-In order to conduct large-scale measurement studies, researchers have resorted
-to arduous methods such as obtaining and analyzing service providers'
-network-level data sets~\cite{xu:imc:2011, trestian:imc:2009,
+In order to conduct large-scale measurement studies, researchers have
+resorted to arduous methods such as obtaining and analyzing service
+providers' network-level data sets~\cite{xu:imc:2011, trestian:imc:2009,
 trestian:ton:2012}, incentivizing a large number of participants
 themselves~\cite{falaki:mobisys:2010}, recruiting volunteers through a long
 period of publicizing the project~\cite{shye:micro:2009}, etc. Although it is
-possible to obtain large-scale traces using these methods, they are
-prohibitively expensive to repeat. As a result, the traces quickly become
-obsolete and lose the timeliness of data. Our case study demonstrates that
-\PhoneLab{} greatly simplifies this process. With \PhoneLab{}, {\it any}
-researcher can use {\it real, up-to-date} smartphone data from a large pool of
-participants {\it according to their needs when they need it}.
+possible to obtain large-scale traces using these methods, they are nearly
+impossible to repeat. As a result, the traces age rapdily and quickly become
+obsolete. Our experiment case study described in Section~\ref{sec-experiment}
+demonstrates how \PhoneLab{} greatly simplifies trace collection, while
+simplying access to participants and allowing experiments to be repeated.
