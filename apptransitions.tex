@@ -18,7 +18,7 @@ A previous study has looked at a similar usage pattern by analyzing a network
 traffic trace~\cite{xu:imc:2011}. Our study described below is a more direct
 analysis based on recorded application usage events, hence more fine-grained.
 
-\subsection{Jointly-Used Applications}
+\subsubsection{Jointly-Used Applications}
 In order to understand which applications are used together, we calculate a {\it
 transition} probability from an application $a$ to another application $b$
 within a session. A session is defined as the time between a screen unlock event
@@ -28,4 +28,4 @@ of start events for $b$ that occur after an $a$'s start event within the same
 session, i.e., {\it start(a $\rightarrow$ b)}. Our transition probability is
 $\frac{start(a \rightarrow b)}{start(a)}$.
 
-\subsection{Future Experiments}
+\subsubsection{Future Experiments}
