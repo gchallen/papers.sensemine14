@@ -1,18 +1,24 @@
 \begin{table*}[t]
-\centering
-\begin{tabular}{|c|c|c|c|c|c|c|}
-\hline
-& Scale & Realism & Locality & Timeliness & Participant Control & Platform
-Exp.\\
-\hline
-{\bf \PhoneLab{}} & {\bf O} & {\bf O} & {\bf O} & {\bf O} & {\bf O} & {\bf O}\\
-LiveLabs{} & O & O & O & O & O & X\\
-Small-Scale Volunteers & X & X & O & O & X & O\\
-Online Application Stores & O & O & X & O & X & X\\
-Large-Scale Traces & O & O & O & X & X & O\\
-\hline
-\end{tabular}
-\caption{Feature Comparison}
+\begin{tabularx}{\textwidth}{Xcccccc}
+&
+{\normalsize{\textbf{Scale}}} &
+{\normalsize{\textbf{Realism}}} &
+{\normalsize{\textbf{Locality}}} &
+{\normalsize{\textbf{Timeliness}}} &
+{\normalsize{\textbf{Control}}} &
+{\normalsize{\textbf{Platform Access}}} \\
+\toprule
+{\large \PhoneLab{}} & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ \\
+\toprule
+LiveLabs & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & \\
+\midrule
+Small-Scale Volunteers & & & $\blacksquare$ & $\blacksquare$ & & $\blacksquare$ \\
+\midrule
+Online Application Stores & $\blacksquare$ & $\blacksquare$ & & $\blacksquare$ & & \\
+\midrule
+Large-Scale Traces & $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & & $\blacksquare$ \\
+\end{tabularx}
+\caption{\textbf{Smartphone testbed feature comparison.}}
 \label{tab:comparison}
 \end{table*}
 
@@ -29,7 +35,7 @@ approaches typically lack one or multiple of these features as we discuss below.
 approaches, we first present the features that \PhoneLab{} provides:
 
 \begin{itemize}[nosep]
-\item {\bf Scale:} \PhoneLab{} is schedule to grow up to 700 participants.
+\item {\bf Scale:} \PhoneLab{} is scheduled to grow up to 700 participants.
 \item {\bf Realism:} \PhoneLab{} participants use the phones as their primary
 phones.
 \item {\bf Locality:} \PhoneLab{} participants are largely co-located in or near
