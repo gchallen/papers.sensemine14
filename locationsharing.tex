@@ -1,28 +1,50 @@
 \subsection{Location Sharing}
 \label{subsec-locationsharing}
 
-\begin{table}
-	\centering
-		\begin{tabular}{|c|c|c|c|c|}\hline
-		\textbf{Interval} & \textbf{Shared} & \textbf{Total} & \textbf{\%}\\\hline\hline
-		5 min. & 4742 & 340084 & 1.39\\\hline\hline
-		10 min. & 5486 & 340084 & 1.61\\\hline
-		15. min & 6064 & 340084 & 1.78\\\hline
-		20 min. & 6450 & 340084 & 1.89\\\hline
-		\end{tabular}
-	\caption{GPS-all}
-	\label{tab:gps_sharing}
+\begin{table}[t]
+\begin{tabularx}{\columnwidth}{XXXXX}
+\multicolumn{1}{c}{\normalsize{\textbf{Gap}}} &
+\multicolumn{2}{c}{\normalsize{\textbf{GPS to Any}}} &
+\multicolumn{2}{c}{\normalsize{\textbf{Any to Any}}} \\
+\multicolumn{1}{c}{(min)} &
+\multicolumn{1}{l}{Hits} &
+\multicolumn{1}{l}{\%} &
+\multicolumn{1}{l}{Hits} &
+\multicolumn{1}{l}{\%} \\
+\toprule
+5 & \num{4742} & 1.4 & \num{71444} & 10.3 \\
+10 & \num{5486} & 1.6 & \num{79877} & 20.5 \\
+15 & \num{6064} & 1.8 & \num{85091} & 21.9 \\
+20 & \num{6450} & 1.9 & \num{88990} & 22.9 \\
+\midrule
+& \multicolumn{2}{c}{\num{340084} total}
+& \multicolumn{2}{c}{\num{388800} total} \\
+\end{tabularx}
+\caption{Location sharing results.}
+\label{table-locationsharing}
 \end{table}
 
-\begin{table}
-	\centering
-		\begin{tabular}{|c|c|c|c|c|}\hline
-		\textbf{Interval} & \textbf{Shared} & \textbf{Total} & \textbf{\%}\\\hline\hline
-		5 min. & 71444 & 388800 & 18.37\\\hline\hline
-		10 min. & 79887 & 388803 & 20.54\\\hline
-		15. min & 85091 & 388805 & 21.88\\\hline
-		20 min. & 88990 & 388807 & 22.88\\\hline
-		\end{tabular}
-	\caption{Network-all}
-	\label{tab:network_sharing}
-\end{table}
+%
+%\begin{tabular}{|c|c|c|c|c|}\hline
+%\textbf{Interval} & \textbf{Shared} & \textbf{Total} & \textbf{\%}\\\hline\hline
+%5 min. & 4742 & 340084 & 1.39\\\hline\hline
+%10 min. & 5486 & 340084 & 1.61\\\hline
+%15. min & 6064 & 340084 & 1.78\\\hline
+%20 min. & 6450 & 340084 & 1.89\\\hline
+%\end{tabular}
+%\caption{GPS-all}
+%\label{tab:gps_sharing}
+%\end{table}
+%
+%\begin{table}
+%	\centering
+%		\begin{tabular}{|c|c|c|c|c|}\hline
+%		\textbf{Interval} & \textbf{Shared} & \textbf{Total} & \textbf{\%}\\\hline\hline
+%		5 min. & 71444 & 388800 & 18.37\\\hline\hline
+%		10 min. & 79887 & 388803 & 20.54\\\hline
+%		15. min & 85091 & 388805 & 21.88\\\hline
+%		20 min. & 88990 & 388807 & 22.88\\\hline
+%		\end{tabular}
+%	\caption{Network-all}
+%	\label{tab:network_sharing}
+%\end{table}
