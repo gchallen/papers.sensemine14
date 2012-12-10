@@ -329,13 +329,6 @@ class Power(lib.LogFilter):
       component_breakdown['GPS'] += uidpower.get_gps_power()
       component_breakdown['Active CPU'] += uidpower.get_cpu_power()
     
-    total = 0.0
-    for component in self.COMPONENTS:
-      total += component_breakdown[component]
-    
-    for component in self.COMPONENTS:
-      component_breakdown[component] = (component_breakdown[component] * 100.0 / total)
-  
     return component_breakdown
    
 class PowerExtent(object):

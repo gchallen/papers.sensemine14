@@ -22,6 +22,10 @@ p = Power.load(verbose=True)
 s = Statistic.load(verbose=True)
 
 breakdown = p.component_breakdown()
+total = sum(breakdown.values())
+for component in breakdown.keys():
+  breakdown[component] = (breakdown[component] * 100.0) / total
+  
 sorted_keys = sorted(breakdown.keys(), key=lambda k: breakdown[k], reverse=True)
 
 fig = plt.figure()
@@ -37,10 +41,24 @@ for key in sorted_keys:
   ax.bar(0.0, key_total, width=8.0, bottom=overall_bottom, linewidth=linewidth, color=colors[key], label="%s (%.1f%%)" % (key, key_total))
   overall_bottom += key_total
 
-left = 10.0
+device_breakdowns = {}
+device_totals = {}
+
 for device in s.experiment_devices:
+  device_breakdowns[device] = p.component_breakdown(device)
+  device_totals[device] = sum(device_breakdowns[device].values())
+
+sorted_devices = sorted(s.experiment_devices, key=lambda k: device_totals[k], reverse=True)
+total_total = sum(device_breakdowns[sorted_devices[0]].values())
+
+for device in sorted_devices:
+  for component in device_breakdowns[device].keys():
+    device_breakdowns[device][component] = (device_breakdowns[device][component] * 100.0) / total_total
+    
+left = 10.0
+for device in sorted_devices:
   overall_bottom = 0.0
-  breakdown = p.component_breakdown(device)
+  breakdown = device_breakdowns[device]
   for key in sorted_keys:
     key_total = breakdown[key]
     if colors[key] == 'white':
