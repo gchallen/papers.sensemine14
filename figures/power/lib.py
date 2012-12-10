@@ -301,7 +301,43 @@ class Power(lib.LogFilter):
       if extent.min() < threshold:
         return True
     return False
-
+  
+  COMPONENTS = ['Display', 'Sleep', 'Idle CPU', 'Active CPU', 'Idle Data', 'Active Data', 'Phone', 'Idle Wifi', 'GPS', 'Bluetooth']
+  
+  def component_breakdown(self, device=None):
+    component_breakdown = {}
+    for component in self.COMPONENTS:
+      component_breakdown[component] = 0.0
+    
+    for breakdown in self.all_breakdowns:
+      if device != None and breakdown.device != device:
+        continue
+      component_breakdown['Display'] += breakdown.screen_on_power
+      component_breakdown['Sleep'] += breakdown.idle_power
+      component_breakdown['Idle Data'] += breakdown.radio_usage_power
+      component_breakdown['Phone'] += breakdown.phone_on_power
+      component_breakdown['Idle Wifi'] += breakdown.wifi_power
+      component_breakdown['Bluetooth'] += breakdown.bt_power
+    
+    for uidpower in self.all_uidpowers:
+      if device != None and uidpower.device != device:
+        continue
+      if not uidpower.is_sane():
+        continue
+      component_breakdown['Active Data'] += uidpower.get_network_power()
+      component_breakdown['Idle CPU'] += uidpower.get_wakelock_power()
+      component_breakdown['GPS'] += uidpower.get_gps_power()
+      component_breakdown['Active CPU'] += uidpower.get_cpu_power()
+    
+    total = 0.0
+    for component in self.COMPONENTS:
+      total += component_breakdown[component]
+    
+    for component in self.COMPONENTS:
+      component_breakdown[component] = (component_breakdown[component] * 100.0 / total)
+  
+    return component_breakdown
+   
 class PowerExtent(object):
   CHARGED_THRESHOLD = 0.90
   
@@ -452,6 +488,8 @@ class UIDPower(object):
   GPS_CURRENT = 50.0
   WAKELOCK_CURRENT = 44.0
   
+  SANE_THRESHOLD = 100.0
+  
   def __init__(self, logline):
     self.device = logline.device
     self.start = logline.datetime
@@ -470,7 +508,7 @@ class UIDPower(object):
     if breakdown_match == None:
       raise Exception("Unable to create UIDPower")
     
-    self.type = UIDPower.UIDPOWER_TYPE
+    self.type = self.UIDPOWER_TYPE
     self.cpu_time = int(float(breakdown_match.group('cputime')))
     self.cpu_fg_time = int(float(breakdown_match.group('cpufgtime')))
     self.wakelock_time = int(float(breakdown_match.group('wakelocktime')))
@@ -516,11 +554,32 @@ class UIDPower(object):
     return cpu_power
   
   def get_sensor_power(self):
-    sensor_power = 0.0
+    total_power = 0.0
     for sensor_power in self.sensor_powers:
-      sensor_power += sensor_power.get_power()
-    return sensor_power
+      if sensor_power.sensor_type == SensorPower.GPS_TYPE:
+        continue
+      total_power += sensor_power.get_power()
+    return total_power
   
+  
+  def is_sane(self):
+    leftover_power = self.get_leftover_power()
+    
+    if leftover_power > 0.0 or abs(leftover_power) < self.SANE_THRESHOLD:
+      return True
+    else:
+      return False
+    
+  def get_leftover_power(self):
+    return self.power - self.get_gps_power() - self.get_wakelock_power() - self.get_cpu_power() - self.get_sensor_power()
+  
+  def get_network_power(self):
+    network_power = self.get_leftover_power()
+    if network_power < 0.0:
+      return 0.0
+    else:
+      return network_power
+    
   def is_zero(self):
     return all([getattr(self, attribute) == 0.0 for attribute in UIDPower.ATTRIBUTES])
   
@@ -612,6 +671,7 @@ class SensorPower(object):
                    Multiplier:[ ](?P<multiplier>[\d\.\-E]+)""" % (SENSORPOWER_TYPE,), re.VERBOSE)
   
   ATTRIBUTES = ['sensor_time', 'multiplier',]
+  GPS_TYPE = -10000
   
   def __init__(self, logline):
     self.device = logline.device
@@ -663,5 +723,5 @@ class SensorPower(object):
     return self.sensor_time / 1000.0 * self.multiplier
   
   def is_zero(self):
-      return all([getattr(self, attribute) == 0.0 for attribute in self.ATTRIBUTES])
+      return (self.get_power() == 0.0)
   

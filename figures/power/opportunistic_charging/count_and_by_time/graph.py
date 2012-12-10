@@ -26,7 +26,7 @@ opportunistic_devices = [device for device in device_opportunistic.keys() if dev
 opportunistic_devices = sorted(opportunistic_devices, key=lambda k: device_opportunistic[k])
 
 fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
+ax = fig.add_subplot(111)
 
 bottom = len(opportunistic_devices) - 1
 
