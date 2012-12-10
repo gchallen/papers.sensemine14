@@ -50,6 +50,7 @@ class Statistic(lib.LogFilter):
     self.experiment_length_days = None
     self.active_devices = set([])
     self.device_intervals = {}
+    self.all_intervals = []
     self.device_counts = {}
     self.tag_counts = {}
     self.total_count = 0
@@ -101,7 +102,9 @@ class Statistic(lib.LogFilter):
     
     self.process_loop()
     
+    self.online_state.close()
     self.device_intervals = self.online_state.device_intervals
+    self.all_intervals = self.online_state.all_intervals
     
     self.num_experiment_devices = len(self.experiment_devices)
     
@@ -120,40 +123,91 @@ class Statistic(lib.LogFilter):
       days.append(day)
     return days
   
+  def log_coverage(self):
+    log_intervals = 0
+    total_intervals = 0
+    for device in self.devices:
+      for interval in self.device_intervals[device]:
+        log_intervals += len(interval.intervals)
+        total_intervals += interval.total_intervals()
+    return log_intervals, total_intervals
+  
+  def experiment_coverage(self):
+    experiment_intervals = 0
+    total_intervals = 0
+    
+    for device in self.devices:
+      for interval in self.device_intervals[device]:
+        experiment_intervals += len(interval.experiment_intervals)
+        total_intervals += interval.total_intervals()
+    return experiment_intervals, total_intervals
+  
 class OnlineState(object):
   def __init__(self):
     self.devices = set([])
     self.current_intervals = {}
     self.device_intervals = {}
+    self.all_intervals = []
+    self.first_time = None
+    self.last_time = None
     
   def add(self, logline):
+    if self.first_time == None:
+      self.first_time = logline.datetime
+    self.last_time = logline.datetime
+    
     if logline.device not in self.devices:
       self.device_intervals[logline.device] = []
       self.devices.add(logline.device)
     
     if logline.label == 'boot':
+      if self.current_intervals.has_key(logline.device):
+        self.device_intervals[logline.device].append(self.current_intervals[logline.device])
       self.current_intervals[logline.device] = DeviceOnline(logline.device)
       self.current_intervals[logline.device].boot = logline.datetime
+      self.current_intervals[logline.device].saw_boot = True
     elif logline.label == 'shutdown' and self.current_intervals.has_key(logline.device):
       self.current_intervals[logline.device].shutdown = logline.datetime
+      self.current_intervals[logline.device].saw_shutdown = True
       self.device_intervals[logline.device].append(self.current_intervals[logline.device])
       del(self.current_intervals[logline.device])
-    elif ( logline.label == 'in_experiment' or logline.label == 'log_count' ) and self.current_intervals.has_key(logline.device):
-      self.current_intervals[logline.device].add(logline.datetime, (logline.label == 'in_experiment'))
-      
+    elif ( logline.label == 'in_experiment' or logline.label == 'log_count' ):
+      if self.current_intervals.has_key(logline.device):
+        self.current_intervals[logline.device].add(logline.datetime, (logline.label == 'in_experiment'))
+      else:
+        self.current_intervals[logline.device] = DeviceOnline(logline.device)
+        if logline.datetime - self.first_time < DeviceOnline.LOG_INTERVAL:
+          self.current_intervals[logline.device].boot = logline.datetime
+        else:
+          self.current_intervals[logline.device].boot = self.first_time
+          
+  def close(self):
+    for device in self.devices:
+      if self.current_intervals.has_key(device):
+        self.device_intervals[device].append(self.current_intervals[device])
+      for interval in self.device_intervals[device]:
+        self.all_intervals.append(interval)
+    
 class DeviceOnline(object):
   LOG_INTERVAL = datetime.timedelta(seconds=30*60)
   
   def __init__(self, device):
     self.device = device
     self.boot = None
+    self.saw_boot = False
     self.shutdown = None
+    self.saw_shutdown = False
     self.experiment_intervals = set([])
     self.intervals = set([])
     
   def add(self, datetime, experiment):
+    if self.boot == None:
+      self.boot = datetime
+    self.shutdown = datetime
+    
     if datetime < self.boot:
       return
+    
     minutes_since_boot = (datetime - self.boot).days * 24 * 60.0 + (datetime - self.boot).seconds / 60.0
     intervals_since_boot = int((minutes_since_boot) / (DeviceOnline.LOG_INTERVAL.seconds / 60.0))
     
@@ -162,7 +216,7 @@ class DeviceOnline(object):
     self.intervals.add(intervals_since_boot)
   
   def total_intervals(self):
-    return math.ceil(((self.shutdown - self.boot).days * 24 * 60.0 + (self.shutdown - self.boot).seconds / 60.0) / (DeviceOnline.LOG_INTERVAL.seconds / 60.0))
+    return int(math.ceil(((self.shutdown - self.boot).days * 24 * 60.0 + (self.shutdown - self.boot).seconds / 60.0) / (DeviceOnline.LOG_INTERVAL.seconds / 60.0)))
   
   def experiment_coverage(self):
     return len(self.experiment_intervals) / self.total_intervals()

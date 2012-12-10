@@ -56,6 +56,5 @@ for line in lines:
 
 fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
 width, height = 7.0, 7.0 * ((map.height * 1.0) / map.width)
-print width, height
 fig.set_size_inches(width, height)
-fig.savefig('graph.pdf')
+fig.savefig('graph.pdf', dpi=300)

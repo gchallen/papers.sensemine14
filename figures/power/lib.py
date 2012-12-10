@@ -36,7 +36,7 @@ class Power(lib.LogFilter):
     self.filtered_device_extents = {}
     self.charging_extents = []
     self.discharging_extents = []
-    self.processed = False
+    self.last_device_power = {}
     
     self.all_uidpowers = []
     self.all_device_uidpowers = {}
@@ -46,11 +46,17 @@ class Power(lib.LogFilter):
     self.all_device_procpowers = {}
     self.filtered_device_procpowers = {}
     
+    self.all_sensorpowers = []
+    self.all_device_sensorpowers = {}
+    self.filtered_device_sensorpowers = {}
+    
     self.all_breakdowns = []
     self.all_device_breakdowns = {}
     self.filtered_device_breakdowns = {}
     
     self.by_snapshot_id = {}
+    self.unassigned_proc_powers = 0
+    self.unassigned_sensor_powers = 0
     
     super(Power, self).reset()
     
@@ -64,9 +70,10 @@ class Power(lib.LogFilter):
     if logline.label == 'battery_level':
       if not self.all_device_extents.has_key(logline.device):
         self.all_device_extents[logline.device] = []
+        self.last_device_power[logline.device] = None
       p = PowerState(logline)
-      
       if p.plugged:
+        self.last_device_power[logline.device] = p
         if self.device_discharging.has_key(logline.device):
           if self.device_discharging[logline.device].time_length() >= Power.EXTENT_REJECTION_THRESHOLD:
             self.all_device_extents[logline.device].append(self.device_discharging[logline.device])
@@ -98,24 +105,28 @@ class Power(lib.LogFilter):
       if not self.all_device_uidpowers.has_key(logline.device):
         self.all_device_uidpowers[logline.device] = []
         self.filtered_device_uidpowers[logline.device] = []
-      u = UIDPower(logline)
-      self.all_uidpowers.append(u)
-      if u.type == UIDPower.UIDPOWER_TYPE:
+      try:
+        u = UIDPower(logline, self.last_device_power[logline.device])
         self.all_device_uidpowers[logline.device].append(u)
+      except:
+        pass
     elif logline.label == 'procinfo':
       if not self.all_device_procpowers.has_key(logline.device):
         self.all_device_procpowers[logline.device] = []
         self.filtered_device_procpowers[logline.device] = []
-      p = ProcPower(logline)
-      self.all_procpowers.append(p)
-      if p.type == ProcPower.PROCPOWER_TYPE:
-        self.all_device_procpowers[logline.device].append(p)
+      p = ProcPower(logline, self.last_device_power[logline.device])
+      self.all_device_procpowers[logline.device].append(p)
+    elif logline.label == 'sensorinfo':
+      if not self.all_device_sensorpowers.has_key(logline.device):
+        self.all_device_sensorpowers[logline.device] = []
+        self.filtered_device_procpowers[logline.device] = []
+      s = SensorPower(logline, self.last_device_power[logline.device])
+      self.all_device_sensorpowers[logline.device].append(s)
     elif logline.label == 'breakdown':
       if not self.all_device_breakdowns.has_key(logline.device):
         self.all_device_breakdowns[logline.device] = []
         self.filtered_device_breakdowns[logline.device] = []
-      s = PowerSnapshot(logline)
-      self.all_breakdowns.append(s)
+      s = PowerSnapshot(logline, self.last_device_power[logline.device])
       if s.type == PowerSnapshot.POWERSNAPSHOT_TYPE:
         self.all_device_breakdowns[logline.device].append(s)
               
@@ -141,6 +152,7 @@ class Power(lib.LogFilter):
     self.filter_breakdowns()
     self.filter_uidpowers()
     self.filter_procpowers()
+    self.filter_sensorpowers()
     
   def filter_extents(self):
     for device in self.devices:
@@ -191,37 +203,77 @@ class Power(lib.LogFilter):
         if not uidhash.has_key(uidpower.uid):
           uidhash[uidpower.uid] = uidpower
         else:
-          if uidhash[uidpower.uid].start == uidpower:
+          if uidhash[uidpower.uid].start == uidpower.start:
             continue
-          uidhash[uidpower.uid].minus(uidpower)
-          if uidhash[uidpower.uid].is_valid():
-            new_uidpowers.append(uidhash[uidpower.uid])
-            self.by_snapshot_id[device][uidpower.snapshot_id].append(uidhash[uidpower.uid])
+          new_power = uidhash[uidpower.uid].minus(uidpower)
+          if new_power.is_valid() and not new_power.is_zero():
+            self.all_uidpowers.append(new_power)
+            new_uidpowers.append(new_power)
+            self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
           uidhash[uidpower.uid] = uidpower
       self.filtered_device_uidpowers[device] = sorted(new_uidpowers, key=lambda k: k.start)
+    self.all_uidpowers = sorted(self.all_uidpowers, key=lambda k: k.start)
   
   def filter_procpowers(self):
     for device in self.all_device_procpowers.keys():
       new_procpowers = []
       prochash = {}
       for procpower in self.all_device_procpowers[device]:
-        if not prochash.has_key(procpower.process_name):
-          prochash[procpower.process_name] = procpower
+        if not prochash.has_key(procpower.uid):
+          prochash[procpower.uid] = {}
         else:
-          if prochash[procpower.process_name].start == procpower:
-            continue
-          prochash[procpower.process_name].minus(procpower)
-          if prochash[procpower.process_name].is_valid():
-            new_procpowers.append(prochash[procpower.process_name])
-            self.by_snapshot_id[device][procpower.snapshot_id].append(prochash[procpower.process_name])
-            parent_uid = [u for u in self.by_snapshot_id[device][procpower.snapshot_id] \
-                          if isinstance(u, UIDPower) and u.uid == prochash[procpower.process_name].uid]
-            if len(parent_uid) == 1:
-              parent_uid[0].proc_powers.append(prochash[procpower.process_name])
-              
-          prochash[procpower.process_name] = procpower
+          if not prochash[procpower.uid].has_key(procpower.process_name):
+            prochash[procpower.uid][procpower.process_name] = procpower
+          else:
+            if prochash[procpower.uid][procpower.process_name].start == procpower.start:
+              continue
+            new_power = prochash[procpower.uid][procpower.process_name].minus(procpower)
+            if new_power.is_valid() and not new_power.is_zero():
+              self.all_procpowers.append(new_power)
+              new_procpowers.append(new_power)
+              self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+              parent_uid = [u for u in self.by_snapshot_id[device][new_power.snapshot_id] \
+                            if isinstance(u, UIDPower) and u.uid == new_power.uid]
+              if len(parent_uid) == 1:
+                new_power.assigned = True
+                parent_uid[0].proc_powers.append(new_power)
+              else:
+                self.unassigned_proc_powers += 1
+                
+            prochash[procpower.uid][procpower.process_name] = procpower
       self.filtered_device_uidpowers[device] = sorted(new_procpowers, key=lambda k: k.start)
+    self.all_procpowers = sorted(self.all_procpowers, key=lambda k: k.start)
   
+  def filter_sensorpowers(self):
+    for device in self.all_device_sensorpowers.keys():
+      new_sensorpowers = []
+      sensorhash = {}
+      for sensorpower in self.all_device_sensorpowers[device]:
+        if not sensorhash.has_key(sensorpower.uid):
+          sensorhash[sensorpower.uid] = {}
+        else:
+          if not sensorhash[sensorpower.uid].has_key(sensorpower.sensor_type):
+            sensorhash[sensorpower.uid][sensorpower.sensor_type] = sensorpower
+          else:
+            if sensorhash[sensorpower.uid][sensorpower.sensor_type].start == sensorpower.start:
+              continue
+            new_power = sensorhash[sensorpower.uid][sensorpower.sensor_type].minus(sensorpower)
+            if new_power.is_valid() and not new_power.is_zero():
+              self.all_sensorpowers.append(new_power)
+              new_sensorpowers.append(new_power)
+              self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+              parent_uid = [u for u in self.by_snapshot_id[device][new_power.snapshot_id] \
+                            if isinstance(u, UIDPower) and u.uid == new_power.uid]
+              if len(parent_uid) == 1:
+                new_power.assigned = True
+                parent_uid[0].sensor_powers.append(new_power)
+              else:
+                self.unassigned_sensor_powers += 1
+                
+            sensorhash[sensorpower.uid][sensorpower.sensor_type] = sensorpower
+      self.filtered_device_sensorpowers[device] = sorted(new_sensorpowers, key=lambda k: k.start)
+    self.all_sensorpowers = sorted(self.all_sensorpowers, key=lambda k: k.start)
+    
   def filter_breakdowns(self):
     for device in self.all_device_breakdowns.keys():
       if not self.by_snapshot_id.has_key(device):
@@ -238,17 +290,48 @@ class Power(lib.LogFilter):
             continue
           last_breakdown.minus(breakdown)
           if last_breakdown.is_valid():
+            self.all_breakdowns.append(last_breakdown)
             new_breakdowns.append(last_breakdown)
             self.by_snapshot_id[device][breakdown.snapshot_id].append(last_breakdown)
           last_breakdown = breakdown
       self.filtered_device_breakdowns[device] = new_breakdowns
-      
+    self.all_breakdowns = sorted(self.all_breakdowns, key=lambda k: k.start)
+    
   def battery_below_threshold(self, device, threshold):
     for extent in self.filtered_device_extents[device]:
       if extent.min() < threshold:
         return True
     return False
-
+  
+  COMPONENTS = ['Display', 'Sleep', 'Idle CPU', 'Active CPU', 'Idle Data', 'Active Data', 'Phone', 'Idle Wifi', 'GPS', 'Bluetooth']
+  
+  def component_breakdown(self, device=None):
+    component_breakdown = {}
+    for component in self.COMPONENTS:
+      component_breakdown[component] = 0.0
+    
+    for breakdown in self.all_breakdowns:
+      if device != None and breakdown.device != device:
+        continue
+      component_breakdown['Display'] += breakdown.screen_on_power
+      component_breakdown['Sleep'] += breakdown.idle_power
+      component_breakdown['Idle Data'] += breakdown.radio_usage_power
+      component_breakdown['Phone'] += breakdown.phone_on_power
+      component_breakdown['Idle Wifi'] += breakdown.wifi_power
+      component_breakdown['Bluetooth'] += breakdown.bt_power
+    
+    for uidpower in self.all_uidpowers:
+      if device != None and uidpower.device != device:
+        continue
+      if not uidpower.is_sane():
+        continue
+      component_breakdown['Active Data'] += uidpower.get_network_power()
+      component_breakdown['Idle CPU'] += uidpower.get_wakelock_power()
+      component_breakdown['GPS'] += uidpower.get_gps_power()
+      component_breakdown['Active CPU'] += uidpower.get_cpu_power()
+    
+    return component_breakdown
+   
 class PowerExtent(object):
   CHARGED_THRESHOLD = 0.90
   
@@ -314,64 +397,58 @@ class PowerState(object):
     
 if __name__=="__main__":
   Power.load(verbose=True)
-
+    
 class PowerSnapshot(object):
   PATTERN = \
     re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
-                   AverageCostPerByte:[ ](?P<averagecostperbyte>[\d\.\-E]+),[ ]
-                   TimeSince:[ ](?P<timesince>[\d\.\-E]+),[ ]
-                   AppWifiRunning:[ ](?P<appwifirunning>[\d\.\-E]+),[ ]
-                   PhoneOnTimeMs:[ ](?P<phoneontimems>[\d\.\-E]+),[ ]
-                   PhoneOnPower:[ ](?P<phoneonpower>[\d\.\-E]+),[ ]
-                   ScreenOnPower:[ ](?P<screenonpower>[\d\.\-E]+),[ ]
-                   ScreenOnTimeMs:[ ](?P<screenontimems>[\d\.\-E]+),[ ]
-                   RadioUsagePower:[ ](?P<radiousagepower>[\d\.\-E]+),[ ]
-                   WifiRunningTimeMs:[ ](?P<wifirunningtimems>[\d\.\-E]+),[ ]
-                   WifiPower:[ ](?P<wifipower>[\d\.\-E]+),[ ]
-                   BtOnTimeMs:[ ](?P<btontimems>[\d\.\-E]+),[ ]
-                   BtPower:[ ](?P<btpower>[\d\.\-E]+),[ ]
-                   IdleTimeMs:[ ](?P<idletimems>[\d\.\-E]+),[ ]
-                   IdlePower:[ ](?P<idlepower>[\d\.\-E]+)""", re.VERBOSE)
+                   AverageCostPerByte:[ ](?P<average_cost_per_byte>[\d\.\-E]+),[ ]
+                   TimeSince:[ ](?P<time_since>[\d\.\-E]+),[ ]
+                   AppWifiRunning:[ ](?P<app_wifi_running>[\d\.\-E]+),[ ]
+                   PhoneOnTimeMs:[ ](?P<phone_on_time_ms>[\d\.\-E]+),[ ]
+                   PhoneOnPower:[ ](?P<phone_on_power>[\d\.\-E]+),[ ]
+                   ScreenOnPower:[ ](?P<screen_on_power>[\d\.\-E]+),[ ]
+                   ScreenOnTimeMs:[ ](?P<screen_on_time_ms>[\d\.\-E]+),[ ]
+                   RadioUsagePower:[ ](?P<radio_usage_power>[\d\.\-E]+),[ ]
+                   WifiRunningTimeMs:[ ](?P<wifi_running_time_ms>[\d\.\-E]+),[ ]
+                   WifiPower:[ ](?P<wifi_power>[\d\.\-E]+),[ ]
+                   BtOnTimeMs:[ ](?P<bt_on_time_ms>[\d\.\-E]+),[ ]
+                   BtPower:[ ](?P<bt_power>[\d\.\-E]+),[ ]
+                   IdleTimeMs:[ ](?P<idle_time_ms>[\d\.\-E]+),[ ]
+                   IdlePower:[ ](?P<idle_power>[\d\.\-E]+)""", re.VERBOSE)
   
   MAX_INTERVAL = datetime.timedelta(minutes=60)
   POWERSNAPSHOT_TYPE = 'STATS_SINCE_CHARGED'
   
-  ATTRIBUTES = ['app_wifi_running', 'phone_on_time_ms', 'phone_on_power', 'screen_on_time_ms', 'screen_on_power',
+  ATTRIBUTES = ['average_cost_per_byte', 'time_since',
+                'app_wifi_running', 'phone_on_time_ms', 'phone_on_power', 'screen_on_time_ms', 'screen_on_power',
                 'radio_usage_power', 'wifi_running_time_ms', 'wifi_power', 'bt_on_time_ms', 'bt_power',
                 'idle_time_ms', 'idle_power']
   
-  def __init__(self, logline):
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
+    self.type = self.POWERSNAPSHOT_TYPE
     
-    snapshot_match = PowerSnapshot.PATTERN.match(logline.json['PerSnapshotPerTypeInfo'])
-    if snapshot_match == None:
-      print logline.json['PerSnapshotPerTypeInfo']
-
-    self.type = snapshot_match.group('type')
+    snapshot_match = self.PATTERN.match(logline.json['PerSnapshotPerTypeInfo'])
     
-    self.time_since = int(float(snapshot_match.group('timesince')))
-    self.app_wifi_running = float(snapshot_match.group('appwifirunning'))
-    self.phone_on_time_ms = int(float(snapshot_match.group('phoneontimems')))
-    self.phone_on_power = float(snapshot_match.group('phoneonpower'))
-    self.screen_on_time_ms = int(float(snapshot_match.group('screenontimems')))
-    self.screen_on_power = float(snapshot_match.group('screenonpower'))
-    self.radio_usage_power = float(snapshot_match.group('radiousagepower'))
-    self.wifi_running_time_ms = int(float(snapshot_match.group('wifirunningtimems')))
-    self.wifi_power = float(snapshot_match.group('wifipower'))
-    self.bt_on_time_ms = int(float(snapshot_match.group('btontimems')))
-    self.bt_power = float(snapshot_match.group('btpower'))
-    self.idle_time_ms = int(float(snapshot_match.group('idletimems')))
-    self.idle_power = float(snapshot_match.group('idlepower'))
+    for attribute in self.ATTRIBUTES:
+      setattr(self, attribute, float(snapshot_match.group(attribute)))
   
   def minus(self, other):
     self.end = other.start
+    self.end_state = other.start_state
+    
     for attribute in PowerSnapshot.ATTRIBUTES:
       setattr(self, attribute, getattr(other, attribute) - getattr(self, attribute))
   
   def is_valid(self):
+    if self.type != PowerSnapshot.POWERSNAPSHOT_TYPE:
+      return False
+    
     if self.end == None or self.end <= self.start or (self.end - self.start) >= PowerSnapshot.MAX_INTERVAL:
       return False
     
@@ -396,47 +473,63 @@ class UIDPower(object):
   UIDPOWER_TYPE = 'STATS_SINCE_CHARGED'
   UID_PATTERN = re.compile(r"""UID: (?P<uid>\d+), UidName: (?P<name>[^,]+),.*?PerUidPerTypeInfo: \[(?P<breakdown>.*?)\]""")
   BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
+    re.compile(r"""Type:[ ]%s,[ ]
                    CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
                    CpuFgTime:[ ](?P<cpufgtime>[\d\.\-E]+),[ ]
                    WakelockTime:[ ](?P<wakelocktime>[\d\.\-E]+),[ ]
                    GpsTime:[ ](?P<gpstime>[\d\.\-E]+),[ ]
                    Power:[ ](?P<power>[\d\.\-E]+),[ ]
-                   WifiRunningTimeMS:[ ](?P<wifirunningtime>[\d\.\-E]+)""", re.VERBOSE)
+                   WifiRunningTimeMS:[ ](?P<wifirunningtime>[\d\.\-E]+)""" % (UIDPOWER_TYPE,), re.VERBOSE)
   
   ATTRIBUTES = ['cpu_time', 'cpu_fg_time', 'wakelock_time', 'gps_time', 'power',]
   
-  GPS_CURRENT = 20.0
+  GPS_CURRENT = 50.0
   WAKELOCK_CURRENT = 44.0
   
-  def __init__(self, logline):
+  SANE_THRESHOLD = 100.0
+  
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     
     uid_match = UIDPower.UID_PATTERN.match(logline.json['UidInfo'])
     self.uid = int(uid_match.group('uid'))
-    self.name = uid_match.group('name').strip()
+    self.name = uid_match.group('name').strip().split(':')[0]
     self.type = None
     
     self.proc_powers = []
+    self.sensor_powers = []
     
-    for breakdown_match in UIDPower.BREAKDOWN_PATTERN.finditer(uid_match.group('breakdown')):
-      if breakdown_match.group('type') == UIDPower.UIDPOWER_TYPE:
-        self.type = breakdown_match.group('type').strip()
-        self.cpu_time = int(float(breakdown_match.group('cputime')))
-        self.cpu_fg_time = int(float(breakdown_match.group('cpufgtime')))
-        self.wakelock_time = int(float(breakdown_match.group('wakelocktime')))
-        self.gps_time = int(float(breakdown_match.group('gpstime')))
-        self.power = float(breakdown_match.group('power'))
+    breakdown_match = UIDPower.BREAKDOWN_PATTERN.search(uid_match.group('breakdown'))
+    if breakdown_match == None:
+      raise Exception("Unable to create UIDPower")
+    
+    self.type = self.UIDPOWER_TYPE
+    self.cpu_time = int(float(breakdown_match.group('cputime')))
+    self.cpu_fg_time = int(float(breakdown_match.group('cpufgtime')))
+    self.wakelock_time = int(float(breakdown_match.group('wakelocktime')))
+    self.gps_time = int(float(breakdown_match.group('gpstime')))
+    self.power = float(breakdown_match.group('power'))
   
   def minus(self, other):
     self.end = other.start
-    for attribute in UIDPower.ATTRIBUTES:
+    self.end_state = other.start_state
+    self.snapshot_id = other.snapshot_id
+    
+    for attribute in self.ATTRIBUTES:
       setattr(self, attribute, getattr(other, attribute) - getattr(self, attribute))
     
+    return self
+  
   def is_valid(self):
+    
+    if self.type != self.UIDPOWER_TYPE:
+      return False
+    
     if self.end == None or self.end <= self.start or (self.end - self.start) >= UIDPower.MAX_INTERVAL:
       return False
     
@@ -446,17 +539,50 @@ class UIDPower(object):
       
     return True
   
-  def get_gps_power(self, current=None):
-    if current == None:
+  def get_gps_power(self, gps_current=None):
+    if gps_current == None:
       return self.gps_time / 1000.0 * UIDPower.GPS_CURRENT
     else:
-      return self.gps_time / 1000.0 * current
+      return self.gps_time / 1000.0 * gps_current
   
   def get_wakelock_power(self):
     return self.wakelock_time / 1000.0 * UIDPower.WAKELOCK_CURRENT
   
   def get_cpu_power(self):
-    return self.power - self.get_wakelock_power() - self.get_gps_power()
+    cpu_power = 0.0
+    for proc_power in self.proc_powers:
+      cpu_power += proc_power.process_power
+    return cpu_power
+  
+  def get_sensor_power(self):
+    total_power = 0.0
+    for sensor_power in self.sensor_powers:
+      if sensor_power.sensor_type == SensorPower.GPS_TYPE:
+        continue
+      total_power += sensor_power.get_power()
+    return total_power
+  
+  
+  def is_sane(self):
+    leftover_power = self.get_leftover_power()
+    
+    if leftover_power > 0.0 or abs(leftover_power) < self.SANE_THRESHOLD:
+      return True
+    else:
+      return False
+    
+  def get_leftover_power(self):
+    return self.power - self.get_gps_power() - self.get_wakelock_power() - self.get_cpu_power() - self.get_sensor_power()
+  
+  def get_network_power(self):
+    network_power = self.get_leftover_power()
+    if network_power < 0.0:
+      return 0.0
+    else:
+      return network_power
+    
+  def is_zero(self):
+    return all([getattr(self, attribute) == 0.0 for attribute in UIDPower.ATTRIBUTES])
   
   def __str__(self):
     return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in UIDPower.ATTRIBUTES])
@@ -467,7 +593,7 @@ class ProcPower(object):
   PROCPOWER_TYPE = 'STATS_SINCE_CHARGED'
   PROC_PATTERN = re.compile(r"""ProcessName: (?P<processname>[^,]+), PerProcPerTypeInfo: \[(?P<breakdown>.*?)\]""")
   BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
+    re.compile(r"""Type:[ ]%s,[ ]
                    UserTime:[ ](?P<usertime>[\d\.\-E]+),[ ]
                    SystemTime:[ ](?P<systemtime>[\d\.\-E]+),[ ]
                    ForegroundTime:[ ](?P<foregroundtime>[\d\.\-E]+),[ ]
@@ -477,42 +603,52 @@ class ProcPower(object):
                    CpuTimeAtSpeedStep-1:[ ](?P<cputimeatspeedstep1>[\d\.\-E]+),[ ]
                    CpuTimeAtSpeedStep-2:[ ](?P<cputimeatspeedstep2>[\d\.\-E]+),[ ]
                    CpuTimeAtSpeedStep-3:[ ](?P<cputimeatspeedstep3>[\d\.\-E]+),[ ]
-                   CpuTimeAtSpeedStep-4:[ ](?P<cputimeatspeedstep4>[\d\.\-E]+)""", re.VERBOSE)
+                   CpuTimeAtSpeedStep-4:[ ](?P<cputimeatspeedstep4>[\d\.\-E]+)""" % (PROCPOWER_TYPE,), re.VERBOSE)
   
   ATTRIBUTES = ['user_time', 'system_time', 'foreground_time', 'cpu_time', 'process_power', 'cpu_time_at_speedstep_0',
                 'cpu_time_at_speedstep_1', 'cpu_time_at_speedstep_2', 'cpu_time_at_speedstep_3', 'cpu_time_at_speedstep_4',]
   
-  def __init__(self, logline):
+  def __init__(self, logline, state):
     self.device = logline.device
     self.start = logline.datetime
     self.end = None
+    self.start_state = state
+    self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     self.uid = int(logline.json['Uid'])
+    self.assigned = False
     
     uid_match = ProcPower.PROC_PATTERN.match(logline.json['ProcInfo'])
     self.process_name = uid_match.group('processname').strip()
     self.type = None
     
-    for breakdown_match in ProcPower.BREAKDOWN_PATTERN.finditer(uid_match.group('breakdown')):
-      if breakdown_match.group('type') == ProcPower.PROCPOWER_TYPE:
-        self.type = breakdown_match.group('type').strip()
-        self.user_time = int(float(breakdown_match.group('usertime')))
-        self.system_time = int(float(breakdown_match.group('systemtime')))
-        self.foreground_time = int(float(breakdown_match.group('foregroundtime')))
-        self.cpu_time = int(float(breakdown_match.group('cputime')))
-        self.process_power = float(breakdown_match.group('processpower'))
-        self.cpu_time_at_speedstep_0 = int(float(breakdown_match.group('cputimeatspeedstep0')))
-        self.cpu_time_at_speedstep_1 = int(float(breakdown_match.group('cputimeatspeedstep1')))
-        self.cpu_time_at_speedstep_2 = int(float(breakdown_match.group('cputimeatspeedstep2')))
-        self.cpu_time_at_speedstep_3 = int(float(breakdown_match.group('cputimeatspeedstep3')))
-        self.cpu_time_at_speedstep_4 = int(float(breakdown_match.group('cputimeatspeedstep4')))
-  
+    breakdown_match = ProcPower.BREAKDOWN_PATTERN.search(uid_match.group('breakdown'))
+    self.type = ProcPower.PROCPOWER_TYPE
+    self.user_time = int(float(breakdown_match.group('usertime')))
+    self.system_time = int(float(breakdown_match.group('systemtime')))
+    self.foreground_time = int(float(breakdown_match.group('foregroundtime')))
+    self.cpu_time = int(float(breakdown_match.group('cputime')))
+    self.process_power = float(breakdown_match.group('processpower')) / 1000.0
+    self.cpu_time_at_speedstep_0 = int(float(breakdown_match.group('cputimeatspeedstep0')))
+    self.cpu_time_at_speedstep_1 = int(float(breakdown_match.group('cputimeatspeedstep1')))
+    self.cpu_time_at_speedstep_2 = int(float(breakdown_match.group('cputimeatspeedstep2')))
+    self.cpu_time_at_speedstep_3 = int(float(breakdown_match.group('cputimeatspeedstep3')))
+    self.cpu_time_at_speedstep_4 = int(float(breakdown_match.group('cputimeatspeedstep4')))
+    
   def minus(self, other):
     self.end = other.start
+    self.end_state = other.start_state
+    self.snapshot_id = other.snapshot_id
+    
     for attribute in ProcPower.ATTRIBUTES:
       setattr(self, attribute, getattr(other, attribute) - getattr(self, attribute))
     
+    return self
+  
   def is_valid(self):
+    if self.type != ProcPower.PROCPOWER_TYPE:
+      return False
+    
     if self.end == None or self.end <= self.start or (self.end - self.start) >= ProcPower.MAX_INTERVAL:
       return False
     
@@ -522,5 +658,77 @@ class ProcPower(object):
       
     return True
   
+  def is_zero(self):
+    return all([getattr(self, attribute) == 0.0 for attribute in self.ATTRIBUTES])
+  
   def __str__(self):
-    return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in ProcPower.ATTRIBUTES])
+    return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.process_name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in ProcPower.ATTRIBUTES])
+  
+class SensorPower(object):
+  MAX_INTERVAL = datetime.timedelta(minutes=60)
+  
+  SENSORPOWER_TYPE = 'STATS_SINCE_CHARGED'
+  SENSOR_PATTERN = re.compile(r"""SensorName: (?P<sensorname>[^,]+), SensorType: (?P<sensortype>[\d\-]+), PerSensorPerTypeInfo: \[(?P<breakdown>.*?)\]""")
+  BREAKDOWN_PATTERN = \
+    re.compile(r"""Type:[ ]%s,[ ]
+                   SensorTime:[ ](?P<sensortime>[\d\.\-E]+),[ ]
+                   Multiplier:[ ](?P<multiplier>[\d\.\-E]+)""" % (SENSORPOWER_TYPE,), re.VERBOSE)
+  
+  ATTRIBUTES = ['sensor_time', 'multiplier',]
+  GPS_TYPE = -10000
+  
+  def __init__(self, logline, state):
+    self.device = logline.device
+    self.start = logline.datetime
+    self.end = None
+    self.start_state = state
+    self.end_state = None
+    self.snapshot_id = int(logline.json['SnapshotId'])
+    self.uid = int(logline.json['Uid'])
+    self.assigned = False
+    
+    sensor_match = SensorPower.SENSOR_PATTERN.match(logline.json['SensorInfo'])
+    if sensor_match == None:
+      print logline.json['SensorInfo']
+           
+    self.sensor_name = sensor_match.group('sensorname').strip()
+    self.sensor_type = int(sensor_match.group('sensortype'))
+    
+    self.type = None
+    
+    breakdown_match = SensorPower.BREAKDOWN_PATTERN.search(sensor_match.group('breakdown'))
+    self.type = SensorPower.SENSORPOWER_TYPE
+    
+    self.sensor_time = int(float(breakdown_match.group('sensortime')))
+    self.multiplier = float(breakdown_match.group('multiplier'))
+  
+  def minus(self, other):
+    self.end = other.start
+    self.end_state = other.start_state
+    self.snapshot_id = other.snapshot_id
+    
+    for attribute in ['sensor_time']:
+      setattr(self, attribute, getattr(other, attribute) - getattr(self, attribute))
+    
+    return self
+  
+  def is_valid(self):
+    
+    if self.type != self.SENSORPOWER_TYPE:
+      return False
+    
+    if self.end == None or self.end <= self.start or (self.end - self.start) >= self.MAX_INTERVAL:
+      return False
+    
+    for attribute in self.ATTRIBUTES:
+      if getattr(self, attribute) < 0.0:
+        return False
+      
+    return True
+
+  def get_power(self):
+    return self.sensor_time / 1000.0 * self.multiplier
+  
+  def is_zero(self):
+      return (self.get_power() == 0.0)
+  
