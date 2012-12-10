@@ -27,11 +27,10 @@ happened. For example, when battery is low, Android broadcasts
 
 A \PhoneLab{} user can subscribe to system-defined broadcast intents to monitor
 the activities of a phone. Android has an extensive list of broadcast intents
-that an application can subscribe to such as application installation and
-uninstallation events, 3G and WiFi signal strength change events, call placed
-and answered events, etc. Our own logging tool described in
-Section~\ref{sec-experiment}, we subscribe to some of these broadcast intents
-and record them.
+that an application can subscribe to such as application install and uninstall
+events, 3G and WiFi signal strength change events, call placed and answered
+events, etc. Our own logging tool described in Section~\ref{sec-experiment}, we
+subscribe to some of these broadcast intents and record them.
 
 {\bf Periodic Tasks:} The second technique for monitoring the behavior of a
 phone is to run a periodic task that collects necessary information and logs it.
@@ -57,12 +56,12 @@ access battery statistics as we describe in Section~\ref{sec-experiment}.
 
 Since logging and data collection is a common activity for most experiments, we
 simplify this process by providing a mechanism that \PhoneLab{} users can use.
-Our mechaniam leverages the standard Android logging API
+Our mechanism leverages the standard Android logging API
 (\texttt{android.util.Log}) for logging, collects everything that gets logged
 with the API, and uploads the logs to our back-end server.
 
 Collecting logs using the standard API has several benefits. First, any Android
-developer is familar with the logging API because it is frequently used for
+developer is familiar with the logging API because it is frequently used for
 debugging purposes. Second, its log format---({\it tag}, {\it
 message})---simplifies the process of identifying log-to-experiment mappings; a
 \PhoneLab{} user only needs to provide a list of log tags that the user is
