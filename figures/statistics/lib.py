@@ -13,7 +13,7 @@ def label_line(logline):
     return 'boot'
   elif logline.log_tag == 'ActivityManager' and logline.log_message.startswith("START {act=android.intent.action.ACTION_REQUEST_SHUTDOWN"):
     return 'shutdown'
-  if logline.log_tag == 'ActivityManager':
+  if logline.log_tag == 'ActivityManager' or logline.log_tag == 'PhoneLabSystemAnalysis-Snapshot':
     return 'log_count'
   return 'all'
 
@@ -123,20 +123,31 @@ class Statistic(lib.LogFilter):
       days.append(day)
     return days
   
-  def log_coverage(self):
+  def log_coverage(self, active=True):
     log_intervals = 0
     total_intervals = 0
-    for device in self.devices:
+    
+    if active:
+      devices = self.experiment_devices
+    else:
+      devices = self.devices
+      
+    for device in devices:
       for interval in self.device_intervals[device]:
         log_intervals += len(interval.intervals)
         total_intervals += interval.total_intervals()
     return log_intervals, total_intervals
   
-  def experiment_coverage(self):
+  def experiment_coverage(self, active=True):
     experiment_intervals = 0
     total_intervals = 0
     
-    for device in self.devices:
+    if active:
+      devices = self.experiment_devices
+    else:
+      devices = self.devices
+      
+    for device in devices:
       for interval in self.device_intervals[device]:
         experiment_intervals += len(interval.experiment_intervals)
         total_intervals += interval.total_intervals()
@@ -148,6 +159,7 @@ class OnlineState(object):
     self.current_intervals = {}
     self.device_intervals = {}
     self.all_intervals = []
+    self.booted_devices = {}
     self.first_time = None
     self.last_time = None
     
@@ -159,13 +171,15 @@ class OnlineState(object):
     if logline.device not in self.devices:
       self.device_intervals[logline.device] = []
       self.devices.add(logline.device)
-    
+      self.booted_devices[logline.device] = False
+      
     if logline.label == 'boot':
       if self.current_intervals.has_key(logline.device):
         self.device_intervals[logline.device].append(self.current_intervals[logline.device])
       self.current_intervals[logline.device] = DeviceOnline(logline.device)
       self.current_intervals[logline.device].boot = logline.datetime
       self.current_intervals[logline.device].saw_boot = True
+      self.booted_devices[logline.device] = True
     elif logline.label == 'shutdown' and self.current_intervals.has_key(logline.device):
       self.current_intervals[logline.device].shutdown = logline.datetime
       self.current_intervals[logline.device].saw_shutdown = True
@@ -176,11 +190,13 @@ class OnlineState(object):
         self.current_intervals[logline.device].add(logline.datetime, (logline.label == 'in_experiment'))
       else:
         self.current_intervals[logline.device] = DeviceOnline(logline.device)
-        if logline.datetime - self.first_time < DeviceOnline.LOG_INTERVAL:
-          self.current_intervals[logline.device].boot = logline.datetime
-        else:
-          self.current_intervals[logline.device].boot = self.first_time
-          
+        if not self.booted_devices[logline.device]:
+          if logline.datetime - self.first_time < DeviceOnline.LOG_INTERVAL:
+            self.current_intervals[logline.device].boot = logline.datetime
+          else:
+            self.current_intervals[logline.device].boot = self.first_time
+        self.booted_devices[logline.device] = True
+        
   def close(self):
     for device in self.devices:
       if self.current_intervals.has_key(device):
@@ -222,7 +238,7 @@ class DeviceOnline(object):
     return len(self.experiment_intervals) / self.total_intervals()
   
   def log_coverage(self):
-    return len(self.intervals) / self.total_intervals()
+    return 1.0 * len(self.intervals) / self.total_intervals()
     
 if __name__=="__main__":
   Statistic.load(verbose=True)
