@@ -45,12 +45,10 @@ infrastructure.
 
 Table~\ref{table-logtags} lists the top 20 tags from the over 700~million log
 messages in our database. As the table demonstrates, many core Android
-services---such as \texttt{ActivityManager}, \texttt{dalvik},
-\texttt{ConnectivityService}, \texttt{LocationManagerService}---already dump
-useful data to the system log. Our usage experiment also uses several of
-these tags to uncover information that would normally be accessible, such as
-the screen state transitions. Table~\ref{table-experimenttags} has more
-details.
+services already dump data, much of it useful, to the system log. Our usage
+experiment also uses several of these tags to uncover information that would
+normally be accessible, such as the screen state transitions.
+Table~\ref{table-experimenttags} has more details.
 
 To make log snooping more feasible and useful we are exploring the option of
 improving logging coverage within the Android platform. Our experience with
