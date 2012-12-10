@@ -10,15 +10,16 @@
 
 We have conducted a measurement study to demonstrate the power of \PhoneLab{};
 we have developed a logging tool, deployed it on 88 participant phones, and
-collected data for 21 days. As mentioned in Section~\ref{sec:comparison}, 
-a measurement study is an ideal candidate to demonstrate the power of
-\PhoneLab{} because it requires a combination of many features of \PhoneLab{},
-e.g., scale, realism, timeliness, and participant control. In a sense, a
-measurement study ``stress tests'' the power of \PhoneLab{}.
+collected data for 21 days. \XXXnote{stevko: revise the numbers}
+As mentioned in Section~\ref{sec:comparison}, a measurement study is an ideal
+candidate to demonstrate the power of \PhoneLab{} because it requires a
+combination of many features of \PhoneLab{}, e.g., scale, realism, timeliness,
+and participant control. In a sense, a measurement study ``stress tests'' the
+power of \PhoneLab{}.
 
 We first give a look into how an experiment can be performed on \PhoneLab{} by
 describing the expected life cycle of an experiment.
-Figure~\ref{fig:experiment-life-cycle} overviews an expected life cycle of an
+Figure~\ref{fig:experiment-life-cycle} overviews the expected life cycle of an
 experiment. We then report how our own experiment proceeded for each step of the
 life cycle.
 
@@ -136,17 +137,14 @@ as they become available. This mainly involves event-related information such as
 screen unlock/lock times, WiFi scan results, call placed/received times, power
 connected/disconnected times, etc.
 
-Most of the information we collect is available through the standard Android
-APIs or by subscribing to system {\it intents}, which are message objects that
-can be sent or received---the Android platform defines system intents for
-certain events such as a call-placed event. The only exception is the
-information related to battery since there is no API or intent that provides the
-information. Due to this reason, we use Java reflection to introspect the
+Most of the information we collect is available either through the standard
+Android APIs or by subscribing to system intents. The only exception is
+the information related to battery since there is no API or intent that provides
+the information. Due to this reason, we use Java reflection to introspect the
 %internal battery APIs (e.g., \texttt{com.android.internal.os.BatteryStatsImpl}
 %and others). Android's Settings app uses these internal APIs to display the
-internal battery APIs. Android's Settings app uses these internal APIs to
-display the battery information. PowerTutor~\cite{zhang:codes:2010} takes a
-similar approach to analyze battery usage.
+internal battery APIs. PowerTutor~\cite{zhang:codes:2010} takes a similar
+approach to analyze battery usage.
 
 {\bf IRB Approval:} The turnaround time for our IRB approval
 was quick. We had two revisions due to our misunderstanding of the instructions;
@@ -156,8 +154,8 @@ however, the turnaround time for each revision was about a week.
 November 14, 2012 and announced the availability of the tool to our
 participants via a mass email. Within a day, 82 participants installed the
 tool. Within the first 3 days, 5 days and 7 days, the number grew to 108,
-115, and 120, accordingly. As of December 6, 131 participants have installed the
-tool. \XXXnote{stevko: say something about why we only use 88 devices?}
+115, and 120, respectively. As of December 6, 131 participants have installed
+the tool. \XXXnote{stevko: say something about why we only use 88 devices?}
 
 We have only sent out the email announcement once. We speculate that it is the
 reason why our tool have not reached all participants. However, the fact that

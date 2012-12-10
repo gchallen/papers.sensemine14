@@ -1,2 +1,80 @@
 \section{Android Instrumentation}
 \label{sec-logging}
+
+This section takes a deeper look at how a \PhoneLab{} experiment can examine the
+state of a phone, monitor the behavior, and log it. We first discuss the
+techniques for monitoring the behavior of a phone. We then discuss Android's
+logging mechanism that we leverage for data collection.
+
+\subsection{Monitoring Techniques}
+
+A \PhoneLab{} user can primarily use three techniques to monitor the behavior of
+a phone---subscribing to Android's {\it intents}, periodic logging, and Java
+reflection. We describe each technique in detail below.
+
+{\bf Intents:} The first technique is subscribing to Android's intents and
+logging when they are delivered. An intent is a messaging object that Android
+uses for inter-process communication. It can be either pre-defined by the system
+or custom-defined by a developer.
+
+There are two types of intents---unicast intents and broadcast intents. A
+unicast intent sends an operation to an application. For example, when an
+application is started, Android sends \texttt{android.intent.action.MAIN} intent
+to the application to signal that the application should execute the main entry
+point. On the other hand, a broadcast intent announces that an event has
+happened. For example, when battery is low, Android broadcasts
+\texttt{android.intent.action.BATTERY\_LOW} intent.
+
+A \PhoneLab{} user can subscribe to system-defined broadcast intents to monitor
+the activities of a phone. Android has an extensive list of broadcast intents
+that an application can subscribe to such as application installation and
+uninstallation events, 3G and WiFi signal strength change events, call placed
+and answered events, etc. Our own logging tool described in
+Section~\ref{sec-experiment}, we subscribe to some of these broadcast intents
+and record them.
+
+{\bf Periodic Tasks:} The second technique for monitoring the behavior of a
+phone is to run a periodic task that collects necessary information and logs it.
+Android provides an API (\texttt{android.app.AlarmManager}) that periodically
+broadcasts registered intents. An application can create a custom intent,
+register it with the system using this API, and collect necessary information
+whenever the intent gets delivered. Our logging tool also uses this technique to
+periodically collect usage information such as CPU utilization, network traffic
+sent and received, battery consumption, etc.
+
+{\bf Java Reflection:} The third monitoring technique is to use Java reflection
+to access hidden APIs of Android. Typically, this is not a recommended practice
+because hidden APIs can change any time and break the application that uses
+them. However, if used carefully, it can be a useful tool to collect information
+not available otherwise. Battery statistics is a good example because there is
+no public Android API that gives access to the information. However, this
+information is still available through hidden APIs that Android's Settings
+application uses to display battery statistics. Using Java reflection, any
+application can access these APIs. In fact, our logging tool uses this method to
+access battery statistics as we describe in Section~\ref{sec-experiment}.
+
+\subsection{Logging}
+
+Since logging and data collection is a common activity for most experiments, we
+simplify this process by providing a mechanism that \PhoneLab{} users can use.
+Our mechaniam leverages the standard Android logging API
+(\texttt{android.util.Log}) for logging, collects everything that gets logged
+with the API, and uploads the logs to our back-end server.
+
+Collecting logs using the standard API has several benefits. First, any Android
+developer is familar with the logging API because it is frequently used for
+debugging purposes. Second, its log format---({\it tag}, {\it
+message})---simplifies the process of identifying log-to-experiment mappings; a
+\PhoneLab{} user only needs to provide a list of log tags that the user is
+interested in and we can provide all the logs that match those tags. Third, the
+logs are a rich source of information that provides extra visibility into how a
+phone behaves because many system components and applications log various kinds
+of information using the API.
+
+For example, \texttt{ConnectivityService} is a system service that manages
+mobile and WiFi connectivity and logs connection status; \texttt{SurfaceFlinger}
+is a graphics engine abstraction on Android and logs screen unlock and lock
+events; \texttt{ActivityManager} is another system service that logs the screen
+state; GPS hardware status is logged by \texttt{LocationManagerService}. By
+examining these logs together with the logs produced by experiments, \PhoneLab{}
+users can gain extra visibility into the state of each phone.
