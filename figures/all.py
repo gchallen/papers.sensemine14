@@ -29,6 +29,12 @@ except Exception, e:
   print >>sys.stderr, "Power processing caused an exception: %s" % (e,)
 
 try:
+  n = Networking.load(verbose=True)
+  n.store()
+except Exception, e:
+  print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)
+
+try:
   t = Telephony.load(verbose=True)
   t.store()
 except Exception, e:
@@ -45,9 +51,3 @@ try:
   a.store()
 except Exception, e:
   print >>sys.stderr, "Application processing caused an exception: %s" % (e,)
-
-try:
-  n = Networking.load(verbose=True)
-  n.store()
-except Exception, e:
-  print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)

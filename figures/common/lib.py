@@ -80,12 +80,12 @@ class LogFilter(object):
   
   @classmethod
   def get_data_files(cls):
-    return sorted([os.path.join(cls.get_data_directory(), f) for f in dircache.listdir(cls.get_data_directory()) if os.path.splitext(f)[1] == '.dat'],
-            key=lambda k: int(os.path.splitext(os.path.basename(k))[0]))
+    return sorted([os.path.join(cls.get_data_directory(), f) for f in dircache.listdir(cls.get_data_directory()) if f.endswith('.dat.gz')],
+                  key=lambda k: int(os.path.basename(k)[:-len('.dat.gz')]))
     
   @classmethod
   def log_file_to_data_file(cls, path):
-    return os.path.join(cls.get_data_directory(), os.path.basename(path)[:-len('.out.gz')] + '.dat')
+    return os.path.join(cls.get_data_directory(), os.path.basename(path)[:-len('.out.gz')] + '.dat.gz')
     
   def __init__(self, tags, duplicates=False, verbose=False):
     
@@ -234,7 +234,7 @@ def do_filter(log_file, data_file, pattern, label_line, verbose, duplicates, nam
     if not duplicates and verbose:
       print >>sys.stderr, "%s: %d duplicates, %d labeled." % (name, duplicate_count, count)
       
-    data_f = open(data_file, 'wb')
+    data_f = gzip.open(data_file, 'wb')
     cPickle.dump(lines, data_f, cPickle.HIGHEST_PROTOCOL)
     data_f.close()
     del(data_f)

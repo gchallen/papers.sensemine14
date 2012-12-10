@@ -769,3 +769,5 @@ class SensorPower(object):
   def is_zero(self):
       return (self.get_power() == 0.0)
   
+if __name__=="__main__":
+  Power.load()
