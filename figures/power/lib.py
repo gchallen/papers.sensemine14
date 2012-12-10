@@ -331,7 +331,35 @@ class Power(lib.LogFilter):
       component_breakdown['Active CPU'] += uidpower.get_cpu_power()
     
     return component_breakdown
-   
+  
+  def total(self, devices=None):
+    total = 0.0
+    for breakdown in self.all_breakdowns:
+      if devices != None and breakdown.device not in devices:
+        continue
+      total += breakdown.screen_on_power + breakdown.idle_power + breakdown.radio_usage_power + \
+               breakdown.phone_on_power + breakdown.wifi_power + breakdown.bt_power
+    
+    for uidpower in self.all_uidpowers:
+      if devices != None and uidpower.device not in devices:
+        continue
+      if not uidpower.is_sane():
+        continue
+      total += uidpower.get_network_power() + uidpower.get_wakelock_power() + uidpower.get_gps_power() + uidpower.get_cpu_power()
+    return total
+  
+  def package_total(self, package, devices=None):
+    total = 0.0
+    for uidpower in self.all_uidpowers:
+      if uidpower.name != package:
+        continue
+      if devices != None and uidpower.device not in devices:
+        continue
+      if not uidpower.is_sane():
+        continue
+      total += uidpower.get_network_power() + uidpower.get_wakelock_power() + uidpower.get_gps_power() + uidpower.get_cpu_power()
+    return total
+  
 class PowerExtent(object):
   CHARGED_THRESHOLD = 0.90
   

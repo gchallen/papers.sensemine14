@@ -77,6 +77,8 @@ class Statistic(lib.LogFilter):
     p = Power.load(verbose=self.verbose)
     battery_active_devices = set([])
     for device in self.experiment_devices:
+      if p.total(devices=[device]) == 0.0:
+        continue
       if p.battery_below_threshold(device, self.BATTERY_USAGE_THRESHOLD):
         battery_active_devices.add(device)
     
