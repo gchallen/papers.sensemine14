@@ -26,15 +26,15 @@ Our experiment records usage information in two ways. The first way is to
 take a snapshot every 15 minutes. This snapshot is intended to capture the
 overall state of the phone periodically. The information we capture includes
 the amount of battery consumed, the amount of data sent and received over 3G
-or WiFi, storage use, and other salient features. We have chosen the
+or Wifi, storage use, and other salient features. We have chosen the
 15-minute interval in order to reduce the battery consumption of our
 experiment. Whenever we can, we also log broadcasts intents that we receive
-representing per-event information such screen lock transitions, WiFi scan
+representing per-event information such screen lock transitions, Wifi scan
 results, call status, and power state changes.
 
 Most of the information we collect is available either through the standard
-Android APIs or by subscribing to system intents. The only exception is the
-information related to battery since there is no API or intent that provides
+Android interfaces or by subscribing to system intents. The only exception is the
+information related to battery since there is no interface or intent that provides
 the information. Due to this reason, we use Java reflection to introspect the
 internal battery APIs. PowerTutor~\cite{zhang:codes:2010} takes a similar
 approach to analyze battery usage.
