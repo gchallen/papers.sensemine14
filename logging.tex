@@ -65,14 +65,15 @@ experimenters will not have to incorporate common code for logging standard
 Android information into their experimental applications. Instead, they will
 simply request the appropriate tag be added to their log archive.
 
-{\bf Java Reflection:} The third monitoring technique is to use Java reflection
-to access hidden APIs of Android. Typically, this is not a recommended practice
-because hidden APIs can change any time and break the application that uses
-them. However, if used carefully, it can be a useful tool to collect information
-not available otherwise. Battery statistics is a good example because there is
-no public Android API that gives access to the information. However, this
-information is still available through hidden APIs that Android's Settings
-application uses to display battery statistics. Using Java reflection, any
-application can access these APIs. In fact, our logging tool uses this method to
-access battery statistics as we describe in Section~\ref{sec-experiment}.
+{\bf Java Reflection:} The third monitoring technique is to use Java
+reflection to access hidden APIs of Android. Typically, this is not a
+recommended practice because hidden APIs can change any time and break the
+application that uses them. However, if used carefully, it can be a useful
+tool to collect information not available otherwise. Battery statistics is a
+good example because there is no public Android API that gives access to the
+information. However, this information is still available through hidden APIs
+that Android's Settings application uses to display battery statistics. Using
+Java reflection, any application can access these APIs. In fact, our
+experiment uses this method to access battery statistics as we describe in
+Section~\ref{sec-experiment}.
 
