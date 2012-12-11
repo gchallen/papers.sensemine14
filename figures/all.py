@@ -23,22 +23,16 @@ if args.clean:
   sys.exit(0)
 
 try:
-  a = Application.load(verbose=True)
-  a.store()
-except Exception, e:
-  print >>sys.stderr, "Application processing caused an exception: %s" % (e,)
-  
-try:
   p = Power.load(verbose=True)
   p.store()
 except Exception, e:
   print >>sys.stderr, "Power processing caused an exception: %s" % (e,)
 
 try:
-  s = Statistic.load(verbose=True)
-  s.store()
+  n = Networking.load(verbose=True)
+  n.store()
 except Exception, e:
-  print >>sys.stderr, "Statistic processing caused an exception: %s" % (e,)
+  print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)
 
 try:
   t = Telephony.load(verbose=True)
@@ -47,7 +41,13 @@ except Exception, e:
   print >>sys.stderr, "Telephony processing caused an exception: %s" % (e,)
 
 try:
-  n = Networking.load(verbose=True)
-  n.store()
+  s = Statistic.load(verbose=True)
+  s.store()
 except Exception, e:
-  print >>sys.stderr, "Networking processing caused an exception: %s" % (e,)
+  print >>sys.stderr, "Statistic processing caused an exception: %s" % (e,)
+
+try:
+  a = Application.load(verbose=True)
+  a.store()
+except Exception, e:
+  print >>sys.stderr, "Application processing caused an exception: %s" % (e,)

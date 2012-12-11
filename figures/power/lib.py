@@ -114,19 +114,28 @@ class Power(lib.LogFilter):
       if not self.all_device_procpowers.has_key(logline.device):
         self.all_device_procpowers[logline.device] = []
         self.filtered_device_procpowers[logline.device] = []
-      p = ProcPower(logline, self.last_device_power[logline.device])
+      if self.last_device_power.has_key(logline.device):
+        p = ProcPower(logline, self.last_device_power[logline.device])
+      else:
+        p = ProcPower(logline, None)
       self.all_device_procpowers[logline.device].append(p)
     elif logline.label == 'sensorinfo':
       if not self.all_device_sensorpowers.has_key(logline.device):
         self.all_device_sensorpowers[logline.device] = []
         self.filtered_device_procpowers[logline.device] = []
-      s = SensorPower(logline, self.last_device_power[logline.device])
+      if self.last_device_power.has_key(logline.device):
+        s = SensorPower(logline, self.last_device_power[logline.device])
+      else:
+        s = SensorPower(logline, None)
       self.all_device_sensorpowers[logline.device].append(s)
     elif logline.label == 'breakdown':
       if not self.all_device_breakdowns.has_key(logline.device):
         self.all_device_breakdowns[logline.device] = []
         self.filtered_device_breakdowns[logline.device] = []
-      s = PowerSnapshot(logline, self.last_device_power[logline.device])
+      if self.last_device_power.has_key(logline.device):
+        s = PowerSnapshot(logline, self.last_device_power[logline.device])
+      else:
+        s = PowerSnapshot(logline, None)
       if s.type == PowerSnapshot.POWERSNAPSHOT_TYPE:
         self.all_device_breakdowns[logline.device].append(s)
               
@@ -775,3 +784,5 @@ class SensorPower(object):
     return self.end_state != None and not self.end_state.plugged and self.end_state.battery_level < threshold and \
            self.start_state != None and not self.start_state.plugged and self.start_state.battery_level < threshold
   
+if __name__=="__main__":
+  Power.load()

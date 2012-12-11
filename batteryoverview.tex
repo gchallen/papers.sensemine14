@@ -1,7 +1,7 @@
 \section{Usage Examples}
 \label{sec-usage}
 
-This section presents six \PhoneLab{} usage examples. Each vignette begins by
+This section presents five \PhoneLab{} usage examples. Each vignette begins by
 highlighting an interesting or important aspect of the usage data we have
 collected. Our goal, however, is not to conduct an exhaustive analysis.
 Instead, each example continues by discussing how the presented results would
@@ -12,42 +12,44 @@ guide the design of future \PhoneLab{} experiments.
 
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{./figures/power/breakdown/graph.pdf}
-\caption{Power usage by component. \textnormal{The large bar at left shows an
+\caption{\textbf{Power usage by component.} The large bar at left shows an
 aggregated breakdown for the entire testbed. The participant bars are scaled
-to match the participant with the most energy usage.}}
+against the participant with the most energy usage.}
 \label{figure-batteryoverview}
 \end{figure*}
 
 Smartphones are constrained by power, and a large amount of research on
 smartphone systems is motivated by energy
-conservation~\cite{FIXME,FIXME,FIXME}. While power is a definite concern,
-evaluating the potential impact of energy saving approaches requires an
-accurate breakdown of where energy is used by real phones. Only then can we
-be sure we are addressing actual energy bottlenecks and use Amdahl's law to
-put relative energy savings into context.
+conservation~\cite{shye:micro:2009,banerjee:ubicomp:2007,ace-mobisys12}. While
+power is a definite concern, evaluating the potential impact of energy saving
+approaches requires an accurate breakdown of where energy is used by real
+phones. Only then can we be sure we are addressing actual energy bottlenecks and
+use Amdahl's law to put relative energy savings into context.
 
 \subsubsection{Energy Breakdown}
 
-A component-by-component breakdown for the entire testbed and per-participant
-is shown in Figure~\ref{figure-batteryoverview}. Our results are similar to
-those reported by other studies, and indicate that mobile data, the screen,
-and CPU usage are the main sources of smartphone power consumption. The
-per-participant bars also show a great deal of variation, with differences in
-both the amount and the breakdown of energy consumed by each participant.
+A single-day component-by-component breakdown for the entire testbed and
+per-participant is shown in Figure~\ref{figure-batteryoverview}. Our results
+are similar to those reported by other studies, and indicate that mobile
+data, the screen, and CPU usage are the main sources of smartphone power
+consumption. The per-participant bars also show a great deal of variation,
+with differences in both the amount and the breakdown of energy consumed by
+each participant.
 
 One supposedly power-hungry component that has less of an impact than we had
 expected is the GPS. This is particularly surprising given the large amount
 of location-monitoring work motivated by GPS power consumption. One of
 several factors may be at work. First, the Android platform estimates the GPS
 chipset current consumption at 50~mA. This number is used by the standard
-``Fuel Guage'' battery monitor and by our calculations. However, it is lower
-than the data sheet for the part~\cite{FIXME} and may represent a best-case
-average. However, increasing the GPS current by a factor of four does not
-significant increase its contribution: from \XXXnote{GWA} to \XXXnote{GWA}.
+``Fuel Gauge'' battery monitor and by our calculations. However, it is lower
+than the data sheet for the Broadcom 4751 GPS receiver~\cite{bcm4751} and may
+represent a best-case average. However, even if the GPS current consumption
+is off by as much as a factor of five, it still does not represent a
+sigificant contribution.
 
-Other hypothesis are that Android network location is providing location with
-sufficient accuracy for many applications, eliminating the need for GPS. Or,
-participants and applications may simply be conscious of GPS power
+Another hypothesis are that Android network location is providing location
+with sufficient accuracy for many applications, eliminating the need for GPS.
+Or, participants and applications may simply be conscious of GPS power
 consumption and taking active steps to control it.
 
 \subsubsection{Future Experiments}
