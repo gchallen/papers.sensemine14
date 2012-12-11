@@ -7,8 +7,8 @@
 \multicolumn{1}{c}{\normalsize{\textbf{\%}}} & 
 \multicolumn{1}{c}{\normalsize{\textbf{Description}}} \\
 \toprule
-\texttt{PhoneLabSystemAnalysis-Snapshot} & \num{4507143} & 71.8 & Snapshots battery breakdown across components and applications. Polled every 15 minutes. \\
-\texttt{ActivityManager} & \num{1078872} & 17.2 & Records when applications are started. \\
+\texttt{PhoneLabSystemAnalysis-Snapshot} & \num{4507143} & 71.8 & Collects battery breakdown across components and applications. Polled every 15 minutes. \\
+\texttt{ActivityManager} & \num{1078872} & 17.2 & Logs application management actions. \\
 \texttt{PhoneLabSystemAnalysis-Telephony} & \num{240882} & 3.8 & Records phone call state and radio signal strength. \\
 \texttt{PhoneLabSystemAnalysis-BatteryChange} & \num{212929} & 3.4 & Logs every change to the battery level. \\
 \texttt{PhoneLabSystemAnalysis-Wifi} & \num{144163} & 2.3 & Logs connection state, scan information and signal strength. \\
@@ -16,10 +16,14 @@
 \texttt{PhoneLabSystemAnalysis-Location} & \num{26588} & 0.4 & Passively logs all location updates. \\
 \texttt{PhoneLabSystemAnalysis-Misc} & \num{20960} & 0.3 & Logs when the screen turns on and off. \\
 \texttt{SmsReceiverService} & \num{2686} & 0.0 & Used to count text messages sent and received. \\
-\texttt{PhoneLabSystemAnalysis-Packages} & \num{112} & 0.0 & Records when applications and installed and removed. \\
+\texttt{PhoneLabSystemAnalysis-Packages} & \num{112} & 0.0 & Records when
+applications are installed and removed. \\
 \end{tabularx}
 }
-\caption{Log tag statistics for a representative day during our experiment. \textnormal{\num{6279813} log tags
-were collected from 91 active participants. In the interest of space, not all tags logged are included.}}
+
+\caption{\textbf{Log tag statistics for a representative day during our
+experiment.} \num{6279813} total log tags were collected.}
+
+\label{table-experimenttags}
 \end{threeparttable}
 \end{table*}

@@ -2,23 +2,13 @@
 \label{sec-testbed}
 
 \PhoneLab{} was designed to fill a gap in existing smartphone experimentation
-capabilities. As mentioned earlier, current experimental approaches are forced
-to trade off
-
-\begin{itemize}[nosep]
-\vspace*{0.08in}
-\item power: permitting the modification of any smartphone software component,
-\item scale: facilitating deployment on many devices,
-\item and realism: collecting results from a representative set of smartphone users.
-\vspace*{0.08in}
-\end{itemize}
-
-\PhoneLab{} achieves power by utilizing Android open-source devices and a
-self-signed build which allows us to update any software components; scale by
-amortizing recruitment overhead, management burden and incentive costs across
-multiple experiments; and realism by recruiting a diverse set of participants
-and limiting experimental intrusiveness. We describe the architecture
-\PhoneLab{} in more detail below.
+capabilities. As mentioned earlier, current experimental approaches are
+forced to trade off, power, scale and realism. \PhoneLab{} achieves power by
+utilizing Android open-source devices and a self-signed build which allows us
+to update any software components; scale by amortizing recruitment overhead,
+management burden and incentive costs across multiple experiments; and
+realism by recruiting a diverse set of participants and limiting experimental
+intrusiveness. We describe the architecture \PhoneLab{} in more detail below.
 
 \subsection{Overview}
 
@@ -40,7 +30,7 @@ to participate in any particular experiment. They may uninstall experiments
 that they deem too intrusive or that negatively affect their device. Some
 experiments may run in the foreground like typical applications and require
 the participant interact with them. Others may run quietly in the background
-collecting useful information or taking measurements.
+collecting useful information. 
 
 \PhoneLab{} users must provide human subjects review documentation, a list of
 log tags to capture (which we describe later in this section), and their
@@ -102,7 +92,7 @@ experimentation and data collection easier.
 \textbf{Display} & 4" 480~x~800 touch screen.\\
 \textbf{Networking} & 1x/3G/4G (WiMax) cellular data, 802.11 b/g/n WiFi,
 Bluetooth, NFC, and USB.\\
-\textbf{Sensors} & GPS, accelerometer, gyroscope, proximity and compass.\\
+\textbf{Sensors} & GPS, accelerometer, gyroscope, proximity, magnetometer and light sensor.\\
 \bottomrule
 \end{tabularx}
 
