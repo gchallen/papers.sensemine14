@@ -50,12 +50,23 @@ for d in n.devices:
 
 print >>sys.stderr, count, all_count
 
+legends = False
+
 map.m.imshow(map.background, origin='upper')
 for line in lines:
-  map.m.plot(*zip(*line), color='black')
-  map.m.plot(*line[0], color='red', marker='o')
-  map.m.plot(*line[1], color='blue', marker='x')
+  if not legends:
+    first = 'Travel'
+    second = '3G'
+    third = 'Wifi'
+    legends = True
+  else:
+    first = second = third = '__none__'
 
+  map.m.plot(*zip(*line), color='black', label=first)
+  map.m.plot(*line[0], color='red', marker='o', label=second)
+  map.m.plot(*line[1], color='blue', marker='x', label=third)
+
+fig.gca().legend()
 fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
 width, height = 7.0, 7.0 * ((map.height * 1.0) / map.width)
 fig.set_size_inches(width, height)

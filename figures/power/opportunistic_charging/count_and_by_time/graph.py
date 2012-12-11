@@ -56,7 +56,7 @@ for device in opportunistic_devices:
       end = end_time
     bar_start = (start - start_time).seconds / 60.0 / 60.0
     bar_width = (end - start).seconds / 60.0 / 60.0
-    if extent.is_opportunistic():
+    if extent.is_opportunistic() and end != end_time:
       if extent.needed:
         legend = 'Opportunistic Needed'
         if not legend_done[legend]:
@@ -96,7 +96,7 @@ for device in opportunistic_devices:
     ax.plot(*zip(*points), color='black', label=legend)
   bottom -= 1
 
-ax.axis(ymin=0, ymax=(len(opportunistic_devices) + 1), xmax=24.0)
+ax.axis(ymin=0, ymax=(len(opportunistic_devices) + 7), xmax=24.0)
 ax.set_yticks([])
 ax.set_ylabel("Participants")
 ax.set_xlabel("Time (hours after midnight)")

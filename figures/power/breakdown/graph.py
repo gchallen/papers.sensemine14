@@ -43,17 +43,26 @@ for key in sorted_keys:
 
 device_breakdowns = {}
 device_totals = {}
+device_times = {}
 
-for device in s.experiment_devices:
+devices = set(s.experiment_devices)
+removing_devices = set([])
+
+for device in devices:
   device_breakdowns[device] = p.component_breakdown(device)
+  device_times[device] = p.total_time(device)
+  if device_times[device] == 0.0:
+    removing_devices.add(device)
+    continue
   device_totals[device] = sum(device_breakdowns[device].values())
+devices -= removing_devices
 
-sorted_devices = sorted(s.experiment_devices, key=lambda k: device_totals[k], reverse=True)
+sorted_devices = sorted(devices, key=lambda k: device_totals[k], reverse=True)
 total_total = sum(device_breakdowns[sorted_devices[0]].values())
 
 for device in sorted_devices:
   for component in device_breakdowns[device].keys():
-    device_breakdowns[device][component] = (device_breakdowns[device][component] * 100.0) / total_total
+    device_breakdowns[device][component] = (device_breakdowns[device][component] * 100.0) / device_totals[device]
     
 left = 10.0
 for device in sorted_devices:
@@ -69,10 +78,10 @@ for device in sorted_devices:
     overall_bottom += key_total
   left += 1.0
 
-ax.axis(ymin=0.0, ymax=100.0, xmin=0.0, xmax=len(s.experiment_devices) + 10.0)
+ax.axis(ymin=0.0, ymax=100.0, xmin=0.0, xmax=len(devices) + 10.0)
 
 ax.set_xticks([4,])
-ax.set_xticklabels(["Entire Testbed"])
+ax.set_xticklabels(["Testbed"])
 ax.set_yticks(ax.get_yticks()[:-1])
 ax.set_ylabel('%% of Total')
 ax.legend(loc=1, prop={'size': 9})

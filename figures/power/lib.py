@@ -323,7 +323,15 @@ class Power(lib.LogFilter):
     return False
   
   COMPONENTS = ['Display', 'Sleep', 'Idle CPU', 'Active CPU', 'Idle Data', 'Active Data', 'Phone', 'Idle Wifi', 'GPS', 'Bluetooth']
-  
+ 
+  def total_time(self, device=None):
+    total = 0.0
+    for breakdown in self.all_breakdowns:
+      if device != None and breakdown.device != device:
+        continue
+      total += (breakdown.end - breakdown.start).seconds
+    return total
+
   def component_breakdown(self, device=None):
     component_breakdown = {}
     for component in self.COMPONENTS:
