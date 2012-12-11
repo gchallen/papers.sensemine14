@@ -8,7 +8,7 @@ from power.lib import * #@UnusedWildImport
 from statistics.lib import * #@UnusedWildImport
 
 colors = {'Display': 'coral',
-          'Sleep': 'white',
+          'Sleep': 'black',
           'Idle CPU': 'lightgrey',
           'Active CPU': 'darkgrey',
           'Idle Data': 'lightgreen',
