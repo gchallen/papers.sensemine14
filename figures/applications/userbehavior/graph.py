@@ -6,6 +6,21 @@ from collections import defaultdict
 from common import lib
 
 
+
+
+
+appnames = {}
+
+f = open('appnames.txt','r')
+for line in f:
+    key = line.split('=')[0].strip()
+    val = line.split('=')[1].strip()
+    appnames[key] = val
+f.close()
+
+
+
+
 SANE_SESSION_LENGTH = 3600
 
 #Application.remove()
@@ -63,17 +78,11 @@ for session in applications.screen_states:
             ke = unique[x] + ' ' + unique[y]
             devicecostarts[device][ke] += 1
 
-f = open('output.tex','w')
+f = open('table.tex','w')
 
 header = '''
-\\documentclass{article}
-\\usepackage{booktabs}
-\\usepackage{graphicx}
-\\newcommand{\\head}[1]{\\textnormal{\\textbf{#1}}}
-\\begin{document}
 \\begin{table}
 \\centering
-\\scalebox{0.5} {
 \\begin{tabular}{lllc}
 \\toprule[1.5pt]
 \\multicolumn{1}{l}{Device} & \\multicolumn{1}{l}{First App} & \\multicolumn{1}{l}{Second App} & \\multicolumn{1}{c}{Percent}\\\\
@@ -83,10 +92,9 @@ f.write(header)
 
 c = '''\\bottomrule[1.5pt]
 \\end{tabular}
-}
-\\caption{Starts of Second app when First app was started}
+\\caption{Table shows the percentage starts of Second app when First app was already started on a user device.}
 \\end{table}
-\\end{document}'''
+'''
 
 tmplist = []
 anothertmp ={}
@@ -95,14 +103,14 @@ for device in devicecostarts:
     anothertmp[device] = z
 
     for w in devicecostarts[device]:
-        if devicecostarts[device][w] < 11:
+        if devicecostarts[device][w] < 21:
             continue
         if w == 'com.android.contacts com.android.phone':
             continue
 
         prob = float(devicecostarts[device][w])/deviceappstartcounts[device][w.split()[0]]
         anothertmp[device][w]= prob
-        if prob > 0.19:
+        if prob > 0.49:
             print device, '\t', w , '\t' , prob , '\t', devicecostarts[device][w]
             tmplist.append((device,w,prob))
             
@@ -110,8 +118,8 @@ for device, w , prob in sorted(tmplist, key=lambda entry: entry[2], reverse=True
     f.write(device[0:6])
     f.write(' & ')
     app1 = None
-    if applications.popular_app_names.has_key(w.split()[0]):
-        app1 = applications.popular_app_names[w.split()[0]]
+    if appnames.has_key(w.split()[0]):
+        app1 = appnames[w.split()[0]]
     else:
         app1 = w.split()[0]
 
@@ -119,8 +127,8 @@ for device, w , prob in sorted(tmplist, key=lambda entry: entry[2], reverse=True
     f.write(' & ')
 
     app2 = None
-    if applications.popular_app_names.has_key(w.split()[1]):
-        app2 = applications.popular_app_names[w.split()[1]]
+    if appnames.has_key(w.split()[1]):
+        app2 = appnames[w.split()[1]]
     else:
         app2 = w.split()[1]
 
@@ -131,47 +139,3 @@ for device, w , prob in sorted(tmplist, key=lambda entry: entry[2], reverse=True
 
 f.write(c)
 f.close()
-
-
-
-
-'''
-g = pydot.Dot()
-seen_applications = {}
-
-THRESHOLD = 0.0
-
-COUNT_THRESHOLD = 10
-
-applist = applications.popular_installs[0:int(len(applications.popular_installs)*0.3)]
-
-for app_pair in anothertmp.keys():
-    first_app = app_pair.split()[0]
-    second_app = app_pair.split()[1]
-
-#    if first_app not in applications.system_applications and first_app not in applist:
-#        continue
-    
-#    if second_app not in applications.system_applications and second_app not in applist:
-#        continue
-
-    if not seen_applications.has_key(applications.popular_app_names[first_app]):
-        seen_applications[applications.popular_app_names[first_app]] = pydot.Node(applications.popular_app_names[first_app])
-    if not seen_applications.has_key(applications.popular_app_names[second_app]):
-        seen_applications[applications.popular_app_names[second_app]] = pydot.Node(applications.popular_app_names[second_app])
-
-    costarted_count = tmp[app_pair]
-
-    #if costarted_count <= COUNT_THRESHOLD:
-     #   continue
-
-
-
-    started_app_probability = anothertmp[app_pair]
-    #second_app_probability = float(costarted_count)/appstartcount[second_app]
-    if started_app_probability >= THRESHOLD:
-        g.add_edge(pydot.Edge(seen_applications[applications.popular_app_names[first_app]], seen_applications[applications.popular_app_names[second_app]], weight=costarted_count, label='%.2f' % (started_app_probability,)))
-    #if second_app_probability >= THRESHOLD:
-    #    g.add_edge(pydot.Edge(seen_applications[second_app], seen_applications[first_app], weight=costarted_count, label='%.2f' % (second_app_probability,)))
-
-'''
