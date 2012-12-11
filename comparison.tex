@@ -3,7 +3,7 @@
 & {\normalsize{\textbf{Scale}}} &
 {\normalsize{\textbf{Realism}}} &
 {\normalsize{\textbf{Locality}}} &
-{\normalsize{\textbf{Timeliness}}} &
+{\normalsize{\textbf{Relevance}}} &
 {\normalsize{\textbf{Power}}} \\
 \toprule
 
@@ -32,29 +32,33 @@ provides all necessary features.}
 \label{tab:comparison}
 \end{table*}
 
-\section{Other Experimental Approaches}
+\section{Smartphone Experimentation}
 \label{sec-comparison}
 
-\PhoneLab{} provides features necessary for smartphone research---power,
-scale, realism, locality, and timeliness. We define these features as:
+\PhoneLab{} provides the features necessary for smartphone research---power,
+scale, realism, locality, and relevance:
 
-\begin{itemize}[nosep]
+\begin{itemize}[nosep,leftmargin=*]
+\vspace*{0.08in}
 \item {\bf Scale:} \PhoneLab{} will grow to 700 participants, already
-recruited to participate in smartphone experiments.
+recruited to participate in experiments.
 \item {\bf Power:} \PhoneLab{} allows application-level experiments as well
 as platform-level, i.e., Android kernel, middleware, libraries, and Dalvik
 virtual machine.
 \item {\bf Realism:} Participants use the phones as their primary device.
 \item {\bf Locality:} Most participants live in Buffalo near SUNY campuses,
 enabling research requiring device-to-device interaction.
-\item {\bf Timeliness:} \PhoneLab{} allows researchers to quit relying on
-out-of-date datasets. Instead, new data can be collected and customized to
-the experiment being performed.
+\item {\bf Relevance:} \PhoneLab{} allows researchers to quit relying on
+out-of-date datasets. Instead, new data can be collected in the most
+appropriate way for any particular experiment.
+\vspace*{0.08in}
 \end{itemize}
 
 We believe that \PhoneLab{} is the only smartphone testbed providing all of
 these features together. Table~\ref{tab:comparison} summarizes \PhoneLab{}'s
 features compared to other approaches, which we discuss individually below.
+
+\subsection{LiveLabs}
 
 LiveLabs~\cite{livelabs} is the most similar testbed to \PhoneLab{}. While it
 provides many desirable features, it lacks the ability to perform platform
@@ -68,6 +72,8 @@ and consumer analytics, rather than smartphone systems experimentation.
 However, given that the testbed is still being built, its features may
 change.
 
+\subsection{One-off Studies}
+
 The standard evaluation methodology when using real devices is to recruit a
 small number of volunteers composed of fellow researchers and acquaintances.
 Clearly the scale that can be achieved this way is limited, but this approach
@@ -77,6 +83,8 @@ to be willing to use a new phone as their primary device. In comparison,
 \PhoneLab{} amortizes the recruitment and maintenance costs across multiple
 experiments, and provides repeated access to the same participants so that
 finding can be verified and competing approaches compared.
+
+\subsection{Application Marketplaces}
 
 A few research projects~\cite{huang:mobisys:2010, zhang:codes:2010} have
 demonstrated that it is possible to reach large numbers of users by using
@@ -88,22 +96,21 @@ numbers of co-located participants. In addition, these stores only
 distributed applications and cannot be used for experimentation with core
 system components.
 
-{\bf Large-Scale Traces:} A particularly challenging kind of research evaluation
-is the one that requires large-scale measurement data. Smartphone usage studies
-and battery characteristics studies are some of the examples that belong to this
-category. This is because large-scale measurement requires a combination of many
-features such as scale, realism, timeliness, and participant control. This is
-precisely the reason why we use our own data collection and analysis as a
-showcase to demonstrate the power of \PhoneLab{} in this paper.
+\subsection{Large Traces}
 
-In order to conduct large-scale measurement studies, researchers have
-resorted to arduous methods such as obtaining and analyzing service
-providers' network-level data sets~\cite{xu:imc:2011, trestian:imc:2009,
-trestian:ton:2012}, incentivizing a large number of participants
-themselves~\cite{falaki:mobisys:2010}, recruiting volunteers through a long
-period of publicizing the project~\cite{shye:micro:2009}, etc. Although it is
-possible to obtain large-scale traces using these methods, they are nearly
-impossible to repeat. As a result, the traces age rapidly and quickly become
-obsolete. Our experiment case study described in Section~\ref{sec-experiment}
+Research evaluations that require large-scale measurement data can be
+challenging, as large-scale measurement requires a combination of scale,
+realism, and relevance. In order to conduct large-scale measurement studies,
+researchers have resorted to arduous methods such as obtaining and analyzing
+service providers' network-level data sets~\cite{xu:imc:2011,
+trestian:imc:2009, trestian:ton:2012}, incentivizing a large number of
+participants themselves~\cite{falaki:mobisys:2010}, or recruiting volunteers
+through a long period of publicizing the project~\cite{shye:micro:2009}.
+Although it is possible to obtain large-scale traces using these methods, the
+experiments are not repeatable and the traces quickly become obsolete.
+
+Our experiment case study described in Section~\ref{sec-experiment}
 demonstrates how \PhoneLab{} greatly simplifies trace collection, while
-providing access to participants and allowing experiments to be repeated.
+providing access to participants and allowing experiments to be repeated. The
+difficult of large-scale trace collection is precisely why we use our own
+data collection and analysis to demonstrate the power of \PhoneLab{}.
