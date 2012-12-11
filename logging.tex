@@ -19,14 +19,14 @@ local experiment development to \PhoneLab{} distribution.
 
 \subsection{Intent Monitoring}
 
-Interprocess communication on Android occurs via \textit{intents}, which are
+Inter-process communication on Android occurs via \textit{intents}, which are
 Android message objects. Because the Android platform uses broadcast intents
 to distribute useful information to applications, they provide ideal logging
 hooks. An experimental application can subscribe to intents that it is
 interested in, and log information when they arrive.
 
 Broadcast intents are sent when applications are installed or uninstalled,
-the radio of Wifi signal strength changes, the phone rings and is answered,
+the radio of WiFi signal strength changes, the phone rings and is answered,
 and the battery level changes. Our usage experiment described in
 Section~\ref{sec-experiment} subscribes to many of these useful intents to
 and uses them to monitor device behavior.
