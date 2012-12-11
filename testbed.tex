@@ -194,13 +194,13 @@ software embedded in the Android platform image. This heartbeat service
 uploads periodic reports including information about device location, battery
 levels, and the installation status of other core \PhoneLab{} software
 components. This information is only used for testbed
-management--particularly for locating lost phones---and will never be
+management---particularly for locating lost phones---and will never be
 released to researchers.
 
 The heartbeat service is also responsible for starting the primary
 \PhoneLab{} configuration and data collection harness when the phone boots,
 which allows us to bypass an Android security feature that normally prevents
-services from running in the background unless started by an foreground
+services from running in the background unless started by a foreground
 application. In order to remain unobtrusive, our experimental harness does
 not have a foreground component and thus would not normally be able to be
 started.
