@@ -78,13 +78,13 @@ for device in sorted_devices:
     overall_bottom += key_total
   left += 1.0
 
-ax.axis(ymin=0.0, ymax=100.0, xmin=0.0, xmax=len(devices) + 10.0)
+ax.axis(ymin=0.0, ymax=100.0, xmin=0.0, xmax=len(devices) + 50.0)
 
 ax.set_xticks([4,])
 ax.set_xticklabels(["Testbed"])
-ax.set_yticks(ax.get_yticks()[:-1])
+ax.set_yticks(ax.get_yticks()[1:])
 ax.set_ylabel('%% of Total')
-ax.legend(loc=1, prop={'size': 9})
+ax.legend(loc=7, prop={'size': 9})
 fig.subplots_adjust(left=0.04, right=0.99, top=0.99, bottom=0.08)
 fig.set_size_inches(7.0, 3.5)
 fig.savefig('graph.pdf', dpi=300)
