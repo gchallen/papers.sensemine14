@@ -187,14 +187,14 @@ In the end, we believe that we were successful in recruiting potential long-term
 participants. Table~\ref{table-demographics} describes the demographic breakdown
 that we achieved. We have handed out our phones to 5 masters and 1 senior
 students because they are involved in research projects related to \PhoneLab{};
-the majority consists of potential long-term participants. Roughly half of our
-participants are first- and second-year undergraduates, a quarter PhD students,
-and a fifth faculty, staff and other professionals. However, males greatly
-outnumber females, and the young outnumber the middle-aged and older, both
-unrepresentative features we will try and rectify in year two. For management
-reasons we limited participation to people with a SUNY Buffalo affiliation,
-except in a few select cases which include a local reporter, a technology
-writer, and an international rock star.
+the rest mostly consists of potential long-term participants. Roughly half of
+our participants are first- and second-year undergraduates, a quarter PhD
+students, and a fifth faculty, staff and other professionals. However, males
+greatly outnumber females, and the young outnumber the middle-aged and older,
+both unrepresentative features we will try and rectify in year two. For
+management reasons we limited participation to people with a SUNY Buffalo
+affiliation, except in a few select cases which include a local reporter, a
+technology writer, and an international rock star.
 
 \subsection{Testbed Software}
 
@@ -203,13 +203,13 @@ software embedded in the Android platform image. This heartbeat service
 uploads periodic reports including information about device location, battery
 levels, and the installation status of other core \PhoneLab{} software
 components. This information is only used for testbed
-management--particularly for locating lost phones---and will never be
+management---particularly for locating lost phones---and will never be
 released to researchers.
 
 The heartbeat service is also responsible for starting the primary
 \PhoneLab{} configuration and data collection harness when the phone boots,
 which allows us to bypass an Android security feature that normally prevents
-services from running in the background unless started by an foreground
+services from running in the background unless started by a foreground
 application. In order to remain unobtrusive, our experimental harness does
 not have a foreground component and thus would not normally be able to be
 started.
