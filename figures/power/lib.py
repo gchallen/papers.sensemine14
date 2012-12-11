@@ -72,8 +72,8 @@ class Power(lib.LogFilter):
         self.all_device_extents[logline.device] = []
         self.last_device_power[logline.device] = None
       p = PowerState(logline)
+      self.last_device_power[logline.device] = p
       if p.plugged:
-        self.last_device_power[logline.device] = p
         if self.device_discharging.has_key(logline.device):
           if self.device_discharging[logline.device].time_length() >= Power.EXTENT_REJECTION_THRESHOLD:
             self.all_device_extents[logline.device].append(self.device_discharging[logline.device])
@@ -492,6 +492,10 @@ class PowerSnapshot(object):
     
     return self.phone_on_power + self.screen_on_power + self.radio_usage_power + self.wifi_power + self.bt_power + self.idle_power
   
+  def under_threshold(self, threshold):
+    return self.end_state != None and not self.end_state.plugged and self.end_state.battery_level < threshold and \
+           self.start_state != None and not self.start_state.plugged and self.start_state.battery_level < threshold
+           
   def __str__(self):
     return "%.20s : %s -> %s : " % (self.device, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in PowerSnapshot.ATTRIBUTES])
       
@@ -590,7 +594,6 @@ class UIDPower(object):
       total_power += sensor_power.get_power()
     return total_power
   
-  
   def is_sane(self):
     leftover_power = self.get_leftover_power()
     
@@ -611,6 +614,10 @@ class UIDPower(object):
     
   def is_zero(self):
     return all([getattr(self, attribute) == 0.0 for attribute in UIDPower.ATTRIBUTES])
+  
+  def under_threshold(self, threshold):
+    return self.end_state != None and not self.end_state.plugged and self.end_state.battery_level < threshold and \
+           self.start_state != None and not self.start_state.plugged and self.start_state.battery_level < threshold
   
   def __str__(self):
     return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in UIDPower.ATTRIBUTES])
@@ -689,6 +696,10 @@ class ProcPower(object):
   def is_zero(self):
     return all([getattr(self, attribute) == 0.0 for attribute in self.ATTRIBUTES])
   
+  def under_threshold(self, threshold):
+    return self.end_state != None and not self.end_state.plugged and self.end_state.battery_level < threshold and \
+           self.start_state != None and not self.start_state.plugged and self.start_state.battery_level < threshold
+           
   def __str__(self):
     return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.process_name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in ProcPower.ATTRIBUTES])
   
@@ -759,4 +770,8 @@ class SensorPower(object):
   
   def is_zero(self):
       return (self.get_power() == 0.0)
+    
+  def under_threshold(self, threshold):
+    return self.end_state != None and not self.end_state.plugged and self.end_state.battery_level < threshold and \
+           self.start_state != None and not self.start_state.plugged and self.start_state.battery_level < threshold
   
