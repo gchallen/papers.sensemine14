@@ -111,12 +111,12 @@ class Application(lib.LogFilter):
     self.device_activities = {}
     self.device_screen_states = {}
     
-    self.tmp_active_devices = []
-    f = open('out','r')
+    self.tmp_experiment_devices = []
+    f = open('expdevices','r')
     for line in f:
-        self.tmp_active_devices.append(line.strip())
+        self.tmp_experiment_devices.append(line.strip())
 
-    
+    f.close()
     super(Application, self).reset()
   
   def summary(self):
@@ -127,7 +127,7 @@ class Application(lib.LogFilter):
                                                                                 len(self.screen_states))
       
   def process_line(self, logline):
-    if logline.device not in self.s.experiment_devices:
+    if logline.device not in self.tmp_experiment_devices:
       return
 
     if logline.label == 'installed_user_app':
@@ -161,7 +161,7 @@ class Application(lib.LogFilter):
 
 
   def process(self):
-    self.s = Statistic.load()
+    #self.s = Statistic.load()
 
     self.process_loop()
               
