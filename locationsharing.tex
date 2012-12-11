@@ -26,8 +26,8 @@ to reduce GPS usage through coordinate sharing.}
 
 Location tracking has been the focus of many recent mobile systems research
 efforts~\cite{kim:sensys:2010, paek:mobisys:2010, kjaergaard:mobisys:2011}.
-Given \PhoneLab{}'s density and stable set of participants, it provides an ideal
-proving ground for new location techniques.
+Given \PhoneLab{}'s density it provides an ideal proving ground for new
+location techniques.
 
 One promising idea is to reduce GPS usage through local coordinate sharing.
 Before taking a reading, a smartphone will use a local communication protocol
@@ -56,15 +56,14 @@ sharing has merit.
 To answer this question we process the data from our usage experiment. In
 order for GPS coordinate sharing to take place, several conditions must be
 true. First, the two phones must be nearby in time and space. We use the
-location updates logged by our experiment to determine this.
-
-Note that we assume that the participant remained at the place where they
-acquired the location information for the time necessary to participate in
-sharing. While this assumption clearly does not hold in any case, mobility
-would not necessarily bias our result in either direction. For every false
-positive, a participant that did not remain where they obtained the last
-location fix, there may be a corresponding false negative: a participant that
-moved and ended up nearby another participant without our knowledge.
+location updates logged by our experiment to determine this. Note that we
+assume that the participant remained at the place where they acquired the
+location information for the time necessary to participate in sharing. While
+this assumption clearly does not hold in any case, mobility would not
+necessarily bias our result in either direction. For every false positive, a
+participant that did not remain where they obtained the last location fix,
+there may be a corresponding false negative: a participant that moved and
+ended up nearby another participant without our knowledge.
 
 The second requirement is that the first phone acquire a location with
 sufficient accuracy to satisfy the second device. We use the accuracy
@@ -73,11 +72,10 @@ estimation provided by the Android location manager to determine this.
 Table~\ref{table-locationsharing} summarizes our negative result: we find few
 opportunities for GPS sharing on our testbed. The table is interpreted as
 follows: of the \num{3400084} total GPS updates performed during the three
-week study, only \num{4742} could have been satisfied with a less that five
+week study, only \num{4742} could have been satisfied with a less than five
 minute old coordinate from a nearby device of equal accuracy.
 Figure~\ref{fig-locationsharing} shows the location of coordinate sharing
-opportunities on campus. Many cluster around areas where students travel,
-which is what we would expect.
+opportunities on campus. Many cluster around areas where students travel.
 
 Obviously the effectiveness of collaborative protocols increases as more
 phones participate in them, meaning that this result may be interpreted as
@@ -101,11 +99,11 @@ location approaches are experienced as equivalent or better by \PhoneLab{}
 participants.
 
 In addition with the rise of new phone-to-phone communication protocols such
-as Wifi Direct~\cite{wifi-direct}\footnote{Despite no official support for Wifi
-Direct on the Nexus S by the AOSP, we were able to enable this feature and
-will distribute it on future platform images. The next generation of
+as Wifi Direct~\cite{wifi-direct}\footnote{Despite no official support for
+Wifi Direct on the Nexus S by the AOSP, we were able to enable this feature
+and will distribute it on future platform images. The next generation of
 \PhoneLab{} phones should have official AOSP support for this useful
 feature.}, we expect \PhoneLab{} to host new research that harnesses the
 power of device interaction. We are working on establishing low-overhead
 methods for discovering and counting nearby \PhoneLab{} participants in order
-to do contact studies and explore participant social networks.
+to explore participant social networks.

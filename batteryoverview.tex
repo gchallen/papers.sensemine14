@@ -1,3 +1,4 @@
+\clearpage
 \section{Usage Examples}
 \label{sec-usage}
 
@@ -20,11 +21,11 @@ against the participant with the most energy usage.}
 
 Smartphones are constrained by power, and a large amount of research on
 smartphone systems is motivated by energy
-conservation~\cite{shye:micro:2009,banerjee:ubicomp:2007,ace-mobisys12}. While
-power is a definite concern, evaluating the potential impact of energy saving
-approaches requires an accurate breakdown of where energy is used by real
-phones. Only then can we be sure we are addressing actual energy bottlenecks and
-use Amdahl's law to put relative energy savings into context.
+conservation~\cite{shye:micro:2009,banerjee:ubicomp:2007,ace-mobisys12}.
+While power is a definite concern, evaluating the potential impact of energy
+saving approaches requires an accurate breakdown of where energy is used by
+real phones. Only then can we be sure we are addressing actual energy
+bottlenecks and put relative energy savings into context.
 
 \subsubsection{Energy Breakdown}
 
@@ -43,14 +44,12 @@ several factors may be at work. First, the Android platform estimates the GPS
 chipset current consumption at 50~mA. This number is used by the standard
 ``Fuel Gauge'' battery monitor and by our calculations. However, it is lower
 than the data sheet for the Broadcom 4751 GPS receiver~\cite{bcm4751} and may
-represent a best-case average. Still, even if the GPS current consumption is off
-by as much as a factor of five, it does not represent a significant
-contribution.
-
-Other hypotheses are that Android network location is providing location
-with sufficient accuracy for many applications, eliminating the need for GPS.
-Or, participants and applications may simply be conscious of GPS power
-consumption and taking active steps to control it.
+represent a best-case average. Still, even if the GPS current consumption is
+off by as much as a factor of five, it does not represent a significant
+contribution. Other hypotheses are that Android network location is providing
+location with sufficient accuracy for many applications, eliminating the need
+for GPS, or participants and applications may simply be conscious of GPS
+power consumption and taking steps to control it.
 
 \subsubsection{Future Experiments}
 
