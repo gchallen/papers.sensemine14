@@ -3,11 +3,11 @@
 
 
 Android's logging mechanism provides a surprisingly powerful view of the
-internals of platform operation. In addition, despite instructions
-encouraging application developers to disable logging before release, many
-developers either forget or ignore this advice. We have seen logs generated
-on \PhoneLab{} with \num{7556} different log tags, indicating that
-information about application behavior is also available.
+internals of platform operation. Despite instructions that state to disable
+logging before release, many developers either forget or ignore this advice.
+We have seen logs generated on \PhoneLab{} with \num{7556} different log
+tags, indicating that information about application behavior is also
+available.
 
 Here we present several useful Android logging techniques suitable for use on
 \PhoneLab{}. While we do plan on extending our data collection interface to
@@ -16,7 +16,6 @@ interface will prove a popular way to recover data. Particularly because
 support for Android logging in Eclipse provides a seamless transition from
 local experiment development to \PhoneLab{} distribution.
 
-\vfill\eject
 \subsection{Intent Monitoring}
 
 Inter-process communication on Android occurs via \textit{intents}, which are

@@ -1,8 +1,6 @@
 \section{Experiment Case Study}
 \label{sec-experiment}
 
-\input{./figures/statistics/tag_table/table.tex}
-
 As a case study in \PhoneLab{} usage, we have developed a measurement
 student, deployed it on 115 phones and collected data for 21 days. While less
 exciting than the potential experiments we discuss later, we felt that a
@@ -20,7 +18,7 @@ usage. Table~\ref{table-experimenttags} describes each log tag used by our
 experiment and what data it is used to collect. Notice that we use a mixture
 of active log generation and passive log snooping.
 
-\subsubsection{Logging Tool}
+\subsection{Logging Tool}
 
 Our experiment records usage information in two ways. The first way is to
 take a snapshot every 15 minutes. This snapshot is intended to capture the
@@ -39,7 +37,7 @@ the information. Due to this reason, we use Java reflection to introspect the
 internal battery APIs. PowerTutor~\cite{zhang:codes:2010} takes a similar
 approach to analyze battery usage.
 
-\subsubsection{Approval, Distribution and Deployment}
+\subsection{Approval, Distribution and Deployment}
 
 The turnaround time for our IRB approval was quick. We had two revisions due
 to our misunderstanding of the instructions, but the turnaround time for each
