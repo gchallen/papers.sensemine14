@@ -218,7 +218,11 @@ class Power(lib.LogFilter):
           if new_power.is_valid() and not new_power.is_zero():
             self.all_uidpowers.append(new_power)
             new_uidpowers.append(new_power)
-            self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+            if self.by_snapshot_id[device].has_key(new_power.snapshot_id):
+              self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+            else:
+              self.by_snapshot_id[device][new_power.snapshot_id] = [new_power]
+
           uidhash[uidpower.uid] = uidpower
       self.filtered_device_uidpowers[device] = sorted(new_uidpowers, key=lambda k: k.start)
     self.all_uidpowers = sorted(self.all_uidpowers, key=lambda k: k.start)
@@ -240,7 +244,10 @@ class Power(lib.LogFilter):
             if new_power.is_valid() and not new_power.is_zero():
               self.all_procpowers.append(new_power)
               new_procpowers.append(new_power)
-              self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+              if self.by_snapshot_id[device].has_key(new_power.snapshot_id):
+                self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+              else:
+                self.by_snapshot_id[device][new_power.snapshot_id] = [new_power]
               parent_uid = [u for u in self.by_snapshot_id[device][new_power.snapshot_id] \
                             if isinstance(u, UIDPower) and u.uid == new_power.uid]
               if len(parent_uid) == 1:
@@ -270,7 +277,10 @@ class Power(lib.LogFilter):
             if new_power.is_valid() and not new_power.is_zero():
               self.all_sensorpowers.append(new_power)
               new_sensorpowers.append(new_power)
-              self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+              if self.by_snapshot_id[device].has_key(new_power.snapshot_id):
+                self.by_snapshot_id[device][new_power.snapshot_id].append(new_power)
+              else:
+                self.by_snapshot_id[device][new_power.snapshot_id] = [new_power]
               parent_uid = [u for u in self.by_snapshot_id[device][new_power.snapshot_id] \
                             if isinstance(u, UIDPower) and u.uid == new_power.uid]
               if len(parent_uid) == 1:
@@ -434,24 +444,25 @@ class PowerState(object):
     
 if __name__=="__main__":
   Power.load(verbose=True)
+  
+SNAPSHOT_PATTERN = \
+  re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
+                 AverageCostPerByte:[ ](?P<average_cost_per_byte>[\d\.\-E]+),[ ]
+                 TimeSince:[ ](?P<time_since>[\d\.\-E]+),[ ]
+                 AppWifiRunning:[ ](?P<app_wifi_running>[\d\.\-E]+),[ ]
+                 PhoneOnTimeMs:[ ](?P<phone_on_time_ms>[\d\.\-E]+),[ ]
+                 PhoneOnPower:[ ](?P<phone_on_power>[\d\.\-E]+),[ ]
+                 ScreenOnPower:[ ](?P<screen_on_power>[\d\.\-E]+),[ ]
+                 ScreenOnTimeMs:[ ](?P<screen_on_time_ms>[\d\.\-E]+),[ ]
+                 RadioUsagePower:[ ](?P<radio_usage_power>[\d\.\-E]+),[ ]
+                 WifiRunningTimeMs:[ ](?P<wifi_running_time_ms>[\d\.\-E]+),[ ]
+                 WifiPower:[ ](?P<wifi_power>[\d\.\-E]+),[ ]
+                 BtOnTimeMs:[ ](?P<bt_on_time_ms>[\d\.\-E]+),[ ]
+                 BtPower:[ ](?P<bt_power>[\d\.\-E]+),[ ]
+                 IdleTimeMs:[ ](?P<idle_time_ms>[\d\.\-E]+),[ ]
+                 IdlePower:[ ](?P<idle_power>[\d\.\-E]+)""", re.VERBOSE)
     
 class PowerSnapshot(object):
-  PATTERN = \
-    re.compile(r"""Type:[ ](?P<type>[^,]+),[ ]
-                   AverageCostPerByte:[ ](?P<average_cost_per_byte>[\d\.\-E]+),[ ]
-                   TimeSince:[ ](?P<time_since>[\d\.\-E]+),[ ]
-                   AppWifiRunning:[ ](?P<app_wifi_running>[\d\.\-E]+),[ ]
-                   PhoneOnTimeMs:[ ](?P<phone_on_time_ms>[\d\.\-E]+),[ ]
-                   PhoneOnPower:[ ](?P<phone_on_power>[\d\.\-E]+),[ ]
-                   ScreenOnPower:[ ](?P<screen_on_power>[\d\.\-E]+),[ ]
-                   ScreenOnTimeMs:[ ](?P<screen_on_time_ms>[\d\.\-E]+),[ ]
-                   RadioUsagePower:[ ](?P<radio_usage_power>[\d\.\-E]+),[ ]
-                   WifiRunningTimeMs:[ ](?P<wifi_running_time_ms>[\d\.\-E]+),[ ]
-                   WifiPower:[ ](?P<wifi_power>[\d\.\-E]+),[ ]
-                   BtOnTimeMs:[ ](?P<bt_on_time_ms>[\d\.\-E]+),[ ]
-                   BtPower:[ ](?P<bt_power>[\d\.\-E]+),[ ]
-                   IdleTimeMs:[ ](?P<idle_time_ms>[\d\.\-E]+),[ ]
-                   IdlePower:[ ](?P<idle_power>[\d\.\-E]+)""", re.VERBOSE)
   
   MAX_INTERVAL = datetime.timedelta(minutes=60)
   POWERSNAPSHOT_TYPE = 'STATS_SINCE_CHARGED'
@@ -470,7 +481,7 @@ class PowerSnapshot(object):
     self.snapshot_id = int(logline.json['SnapshotId'])
     self.type = self.POWERSNAPSHOT_TYPE
     
-    snapshot_match = self.PATTERN.match(logline.json['PerSnapshotPerTypeInfo'])
+    snapshot_match = SNAPSHOT_PATTERN.match(logline.json['PerSnapshotPerTypeInfo'])
     
     for attribute in self.ATTRIBUTES:
       setattr(self, attribute, float(snapshot_match.group(attribute)))
@@ -503,20 +514,20 @@ class PowerSnapshot(object):
   
   def __str__(self):
     return "%.20s : %s -> %s : " % (self.device, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in PowerSnapshot.ATTRIBUTES])
-      
+
+UIDPOWER_TYPE = 'STATS_SINCE_CHARGED'
+UID_PATTERN = re.compile(r"""UID: (?P<uid>\d+), UidName: (?P<name>[^,]+),.*?PerUidPerTypeInfo: \[(?P<breakdown>.*?)\]""")
+UID_BREAKDOWN_PATTERN = \
+  re.compile(r"""Type:[ ]%s,[ ]
+                 CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
+                 CpuFgTime:[ ](?P<cpufgtime>[\d\.\-E]+),[ ]
+                 WakelockTime:[ ](?P<wakelocktime>[\d\.\-E]+),[ ]
+                 GpsTime:[ ](?P<gpstime>[\d\.\-E]+),[ ]
+                 Power:[ ](?P<power>[\d\.\-E]+),[ ]
+                 WifiRunningTimeMS:[ ](?P<wifirunningtime>[\d\.\-E]+)""" % (UIDPOWER_TYPE,), re.VERBOSE)
+  
 class UIDPower(object):
   MAX_INTERVAL = datetime.timedelta(minutes=60)
-  
-  UIDPOWER_TYPE = 'STATS_SINCE_CHARGED'
-  UID_PATTERN = re.compile(r"""UID: (?P<uid>\d+), UidName: (?P<name>[^,]+),.*?PerUidPerTypeInfo: \[(?P<breakdown>.*?)\]""")
-  BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:[ ]%s,[ ]
-                   CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
-                   CpuFgTime:[ ](?P<cpufgtime>[\d\.\-E]+),[ ]
-                   WakelockTime:[ ](?P<wakelocktime>[\d\.\-E]+),[ ]
-                   GpsTime:[ ](?P<gpstime>[\d\.\-E]+),[ ]
-                   Power:[ ](?P<power>[\d\.\-E]+),[ ]
-                   WifiRunningTimeMS:[ ](?P<wifirunningtime>[\d\.\-E]+)""" % (UIDPOWER_TYPE,), re.VERBOSE)
   
   ATTRIBUTES = ['cpu_time', 'cpu_fg_time', 'wakelock_time', 'gps_time', 'power',]
   
@@ -533,7 +544,7 @@ class UIDPower(object):
     self.end_state = None
     self.snapshot_id = int(logline.json['SnapshotId'])
     
-    uid_match = UIDPower.UID_PATTERN.match(logline.json['UidInfo'])
+    uid_match = UID_PATTERN.match(logline.json['UidInfo'])
     self.uid = int(uid_match.group('uid'))
     self.name = uid_match.group('name').strip().split(':')[0]
     self.type = None
@@ -541,11 +552,11 @@ class UIDPower(object):
     self.proc_powers = []
     self.sensor_powers = []
     
-    breakdown_match = UIDPower.BREAKDOWN_PATTERN.search(uid_match.group('breakdown'))
+    breakdown_match = UID_BREAKDOWN_PATTERN.search(uid_match.group('breakdown'))
     if breakdown_match == None:
       raise Exception("Unable to create UIDPower")
     
-    self.type = self.UIDPOWER_TYPE
+    self.type = UIDPOWER_TYPE
     self.cpu_time = int(float(breakdown_match.group('cputime')))
     self.cpu_fg_time = int(float(breakdown_match.group('cpufgtime')))
     self.wakelock_time = int(float(breakdown_match.group('wakelocktime')))
@@ -564,7 +575,7 @@ class UIDPower(object):
   
   def is_valid(self):
     
-    if self.type != self.UIDPOWER_TYPE:
+    if self.type != UIDPOWER_TYPE:
       return False
     
     if self.end == None or self.end <= self.start or (self.end - self.start) >= UIDPower.MAX_INTERVAL:
@@ -624,23 +635,23 @@ class UIDPower(object):
   def __str__(self):
     return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in UIDPower.ATTRIBUTES])
   
+PROCPOWER_TYPE = 'STATS_SINCE_CHARGED'
+PROC_PATTERN = re.compile(r"""ProcessName: (?P<processname>[^,]+), PerProcPerTypeInfo: \[(?P<breakdown>.*?)\]""")
+PROC_BREAKDOWN_PATTERN = \
+  re.compile(r"""Type:[ ]%s,[ ]
+                 UserTime:[ ](?P<usertime>[\d\.\-E]+),[ ]
+                 SystemTime:[ ](?P<systemtime>[\d\.\-E]+),[ ]
+                 ForegroundTime:[ ](?P<foregroundtime>[\d\.\-E]+),[ ]
+                 CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
+                 ProcessPower:[ ](?P<processpower>[\d\.\-E]+),[ ]
+                 CpuTimeAtSpeedStep-0:[ ](?P<cputimeatspeedstep0>[\d\.\-E]+),[ ]
+                 CpuTimeAtSpeedStep-1:[ ](?P<cputimeatspeedstep1>[\d\.\-E]+),[ ]
+                 CpuTimeAtSpeedStep-2:[ ](?P<cputimeatspeedstep2>[\d\.\-E]+),[ ]
+                 CpuTimeAtSpeedStep-3:[ ](?P<cputimeatspeedstep3>[\d\.\-E]+),[ ]
+                 CpuTimeAtSpeedStep-4:[ ](?P<cputimeatspeedstep4>[\d\.\-E]+)""" % (PROCPOWER_TYPE,), re.VERBOSE)
+  
 class ProcPower(object):
   MAX_INTERVAL = datetime.timedelta(minutes=60)
-  
-  PROCPOWER_TYPE = 'STATS_SINCE_CHARGED'
-  PROC_PATTERN = re.compile(r"""ProcessName: (?P<processname>[^,]+), PerProcPerTypeInfo: \[(?P<breakdown>.*?)\]""")
-  BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:[ ]%s,[ ]
-                   UserTime:[ ](?P<usertime>[\d\.\-E]+),[ ]
-                   SystemTime:[ ](?P<systemtime>[\d\.\-E]+),[ ]
-                   ForegroundTime:[ ](?P<foregroundtime>[\d\.\-E]+),[ ]
-                   CpuTime:[ ](?P<cputime>[\d\.\-E]+),[ ]
-                   ProcessPower:[ ](?P<processpower>[\d\.\-E]+),[ ]
-                   CpuTimeAtSpeedStep-0:[ ](?P<cputimeatspeedstep0>[\d\.\-E]+),[ ]
-                   CpuTimeAtSpeedStep-1:[ ](?P<cputimeatspeedstep1>[\d\.\-E]+),[ ]
-                   CpuTimeAtSpeedStep-2:[ ](?P<cputimeatspeedstep2>[\d\.\-E]+),[ ]
-                   CpuTimeAtSpeedStep-3:[ ](?P<cputimeatspeedstep3>[\d\.\-E]+),[ ]
-                   CpuTimeAtSpeedStep-4:[ ](?P<cputimeatspeedstep4>[\d\.\-E]+)""" % (PROCPOWER_TYPE,), re.VERBOSE)
   
   ATTRIBUTES = ['user_time', 'system_time', 'foreground_time', 'cpu_time', 'process_power', 'cpu_time_at_speedstep_0',
                 'cpu_time_at_speedstep_1', 'cpu_time_at_speedstep_2', 'cpu_time_at_speedstep_3', 'cpu_time_at_speedstep_4',]
@@ -655,12 +666,12 @@ class ProcPower(object):
     self.uid = int(logline.json['Uid'])
     self.assigned = False
     
-    uid_match = ProcPower.PROC_PATTERN.match(logline.json['ProcInfo'])
+    uid_match = PROC_PATTERN.match(logline.json['ProcInfo'])
     self.process_name = uid_match.group('processname').strip()
     self.type = None
     
-    breakdown_match = ProcPower.BREAKDOWN_PATTERN.search(uid_match.group('breakdown'))
-    self.type = ProcPower.PROCPOWER_TYPE
+    breakdown_match = PROC_BREAKDOWN_PATTERN.search(uid_match.group('breakdown'))
+    self.type = PROCPOWER_TYPE
     self.user_time = int(float(breakdown_match.group('usertime')))
     self.system_time = int(float(breakdown_match.group('systemtime')))
     self.foreground_time = int(float(breakdown_match.group('foregroundtime')))
@@ -683,7 +694,7 @@ class ProcPower(object):
     return self
   
   def is_valid(self):
-    if self.type != ProcPower.PROCPOWER_TYPE:
+    if self.type != PROCPOWER_TYPE:
       return False
     
     if self.end == None or self.end <= self.start or (self.end - self.start) >= ProcPower.MAX_INTERVAL:
@@ -701,15 +712,15 @@ class ProcPower(object):
   def __str__(self):
     return "%.20s : %s (%d),  %s -> %s : " % (self.device, self.process_name, self.uid, self.start, self.end,) + ",".join(["%s: %s" % (attribute, getattr(self, attribute),) for attribute in ProcPower.ATTRIBUTES])
   
+SENSORPOWER_TYPE = 'STATS_SINCE_CHARGED'
+SENSOR_PATTERN = re.compile(r"""SensorName: (?P<sensorname>[^,]+), SensorType: (?P<sensortype>[\d\-]+), PerSensorPerTypeInfo: \[(?P<breakdown>.*?)\]""")
+SENSOR_BREAKDOWN_PATTERN = \
+  re.compile(r"""Type:[ ]%s,[ ]
+                 SensorTime:[ ](?P<sensortime>[\d\.\-E]+),[ ]
+                 Multiplier:[ ](?P<multiplier>[\d\.\-E]+)""" % (SENSORPOWER_TYPE,), re.VERBOSE)
+
 class SensorPower(object):
   MAX_INTERVAL = datetime.timedelta(minutes=60)
-  
-  SENSORPOWER_TYPE = 'STATS_SINCE_CHARGED'
-  SENSOR_PATTERN = re.compile(r"""SensorName: (?P<sensorname>[^,]+), SensorType: (?P<sensortype>[\d\-]+), PerSensorPerTypeInfo: \[(?P<breakdown>.*?)\]""")
-  BREAKDOWN_PATTERN = \
-    re.compile(r"""Type:[ ]%s,[ ]
-                   SensorTime:[ ](?P<sensortime>[\d\.\-E]+),[ ]
-                   Multiplier:[ ](?P<multiplier>[\d\.\-E]+)""" % (SENSORPOWER_TYPE,), re.VERBOSE)
   
   ATTRIBUTES = ['sensor_time', 'multiplier',]
   GPS_TYPE = -10000
@@ -724,7 +735,7 @@ class SensorPower(object):
     self.uid = int(logline.json['Uid'])
     self.assigned = False
     
-    sensor_match = SensorPower.SENSOR_PATTERN.match(logline.json['SensorInfo'])
+    sensor_match = SENSOR_PATTERN.match(logline.json['SensorInfo'])
     if sensor_match == None:
       print logline.json['SensorInfo']
            
@@ -733,8 +744,8 @@ class SensorPower(object):
     
     self.type = None
     
-    breakdown_match = SensorPower.BREAKDOWN_PATTERN.search(sensor_match.group('breakdown'))
-    self.type = SensorPower.SENSORPOWER_TYPE
+    breakdown_match = SENSOR_BREAKDOWN_PATTERN.search(sensor_match.group('breakdown'))
+    self.type = SENSORPOWER_TYPE
     
     self.sensor_time = int(float(breakdown_match.group('sensortime')))
     self.multiplier = float(breakdown_match.group('multiplier'))
@@ -751,7 +762,7 @@ class SensorPower(object):
   
   def is_valid(self):
     
-    if self.type != self.SENSORPOWER_TYPE:
+    if self.type != SENSORPOWER_TYPE:
       return False
     
     if self.end == None or self.end <= self.start or (self.end - self.start) >= self.MAX_INTERVAL:
