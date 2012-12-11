@@ -25,6 +25,7 @@ $\blacksquare$ & $\blacksquare$ & & & \\
 
 Large Traces &
 $\blacksquare$ & $\blacksquare$ & $\blacksquare$ & & \\
+\bottomrule
 
 \end{tabularx}
 \caption{\textbf{Smartphone experimentation comparison.} Only \PhoneLab{}
@@ -32,7 +33,7 @@ provides all necessary features.}
 \label{tab:comparison}
 \end{table*}
 
-\section{Other Experimental Approaches}
+\section{Other Approaches for Experimentation}
 \label{sec-comparison}
 
 \PhoneLab{} provides features necessary for smartphone research---power,
@@ -47,7 +48,7 @@ virtual machine.
 \item {\bf Realism:} Participants use the phones as their primary device.
 \item {\bf Locality:} Most participants live in Buffalo near SUNY campuses,
 enabling research requiring device-to-device interaction.
-\item {\bf Timeliness:} \PhoneLab{} allows researchers to quit relying on
+\item {\bf Timeliness:} \PhoneLab{} allows researchers to stop relying on
 out-of-date datasets. Instead, new data can be collected and customized to
 the experiment being performed.
 \end{itemize}
@@ -76,25 +77,25 @@ produce a representative sample, and users in a short-term study are unlikely
 to be willing to use a new phone as their primary device. In comparison,
 \PhoneLab{} amortizes the recruitment and maintenance costs across multiple
 experiments, and provides repeated access to the same participants so that
-finding can be verified and competing approaches compared.
+findings can be verified and competing approaches compared.
 
 A few research tools~\cite{huang:mobisys:2010, zhang:codes:2010} have
 demonstrated that it is possible to reach large numbers of users by deploying
-the tools on online application stores such as the Google Play Store or Apple
-App Store. Assuming participants can be incentivized to participate in
-experiments, this methodology still lacks power and locality. It is unlikely
-that applications distributed via online marketplaces will be downloaded and
-used by large numbers of co-located participants. In addition, these stores
-only distributed applications and cannot be used for experimentation with
-core system components.
+the tools on online marketplaces such as the Google Play Store or Apple App
+Store. Assuming participants can be incentivized to participate in experiments,
+this methodology still lacks power and locality. It is unlikely that
+applications distributed via online marketplaces will be downloaded and used by
+large numbers of co-located participants. In addition, these online marketplaces
+only distribute applications; this prevents researchers from conducting platform
+experimentation with core system components.
 
-{\bf Large-Scale Traces:} A particularly challenging kind of research evaluation
-is the one that requires large-scale measurement data. Smartphone usage studies
-and battery characteristics studies are some of the examples that belong to this
-category. This is because large-scale measurement requires a combination of many
-features such as scale, realism, timeliness, and participant control. This is
-precisely the reason why we use our own data collection and analysis as a
-showcase to demonstrate the power of \PhoneLab{} in this paper.
+A particularly challenging kind of research evaluation is the one that requires
+large-scale measurement data. Smartphone usage studies and battery
+characteristics studies are some of the examples that belong to this category.
+This is because large-scale measurement requires a combination of many features
+such as scale, realism, and timeliness. This is precisely the reason why we use
+our own data collection and analysis as a showcase to demonstrate the power of
+\PhoneLab{} in this paper.
 
 In order to conduct large-scale measurement studies, researchers have
 resorted to arduous methods such as obtaining and analyzing service
