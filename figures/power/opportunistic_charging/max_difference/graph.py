@@ -15,7 +15,7 @@ distribution_time_bins = {}
 
 interval_seconds = 600
 
-start_day = s.experiment_days()[1]
+start_day = s.experiment_days()[0]
 end_day = start_day + datetime.timedelta(hours=24)
 
 max_bin_count = ((end_day - start_day).days * 24 * 60 * 60 + (end_day - start_day).seconds)  / interval_seconds

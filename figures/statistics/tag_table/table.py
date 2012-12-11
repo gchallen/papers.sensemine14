@@ -44,7 +44,7 @@ for tag in sorted_tags:
   
 print >>f, r"""\end{tabularx}
 }
-\caption{Log tag statistics for our experiment. \textnormal{\num{%d} log tags
-were collected over %d days from %d users. In the interest of space, not all tags logged are included.}}
+\caption{Log tag statistics for a representative day during our experiment. \textnormal{\num{%d} log tags
+were collected from %d active participants. In the interest of space, not all tags logged are included.}}
 \end{threeparttable}
-\end{table*}""" % (total, int(s.experiment_length_days), len(s.active_devices))
+\end{table*}""" % (total, len(s.active_devices))
