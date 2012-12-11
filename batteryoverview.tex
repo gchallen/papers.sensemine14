@@ -29,12 +29,12 @@ use Amdahl's law to put relative energy savings into context.
 \subsubsection{Energy Breakdown}
 
 A single-day component-by-component breakdown for the entire testbed and
-per-participant is shown in Figure~\ref{figure-batteryoverview}. Our results
-are similar to those reported by other studies, and indicate that mobile
-data, the screen, and CPU usage are the main sources of smartphone power
-consumption. The per-participant bars also show a great deal of variation,
-with differences in both the amount and the breakdown of energy consumed by
-each participant.
+per-participant is shown in Figure~\ref{figure-batteryoverview}. Our results are
+similar to those reported by other studies, and indicate that mobile data
+(labeled as ``Idle data'' and ``Active data'' depending on the state), the
+screen, and CPU usage are the main sources of smartphone power consumption. The
+per-participant bars also show a great deal of variation, with differences in
+both the amount and the breakdown of energy consumed by each participant.
 
 One supposedly power-hungry component that has less of an impact than we had
 expected is the GPS. This is particularly surprising given the large amount
@@ -43,11 +43,11 @@ several factors may be at work. First, the Android platform estimates the GPS
 chipset current consumption at 50~mA. This number is used by the standard
 ``Fuel Gauge'' battery monitor and by our calculations. However, it is lower
 than the data sheet for the Broadcom 4751 GPS receiver~\cite{bcm4751} and may
-represent a best-case average. However, even if the GPS current consumption
-is off by as much as a factor of five, it still does not represent a
-significant contribution.
+represent a best-case average. Still, even if the GPS current consumption is off
+by as much as a factor of five, it does not represent a significant
+contribution.
 
-Another hypothesis are that Android network location is providing location
+Other hypotheses are that Android network location is providing location
 with sufficient accuracy for many applications, eliminating the need for GPS.
 Or, participants and applications may simply be conscious of GPS power
 consumption and taking active steps to control it.
