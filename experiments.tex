@@ -9,7 +9,7 @@ against the participant with the most energy usage.}
 \end{figure*}
 
 \section{Example Experiments}
-\label{sec-usage}
+\label{sec-experiments}
 
 We have conducted a usage measurement study with 115 participants over 21 days
 \XXXnote{stevko: revisit the number and/or the description}.
@@ -17,10 +17,12 @@ For this purpose, we have developed a measurement application that collects all
 salient features of smartphone usage: networking, mobility, power consumption,
 and application usage.
 
-This section presents some of the early results of this study, mainly focusing
-on the battery and charging behaviors of our participants.
+This section presents some of the early results of this study. We present the
+battery and charging behavior first then the network transition behavior
+between 3G and WiFi next.
 
 \subsection{Energy Breakdown}
+\label{subsec-energybreakdown}
 
 \begin{figure}[t]
 \centering
@@ -106,30 +108,30 @@ graph plots the top and bottom quartiles as well as the median. A significant
 spread is present on the testbed throughout the day.}
 \label{fig-opportunisticspread}
 \end{figure*}
-%
-%\subsection{Mobile Network Transitions}
-%\label{subsec-networktransitions}
-%
-%Mobile devices like smartphones move through a complex network environment.
-%Providing the illusion of seamless connectivity requires negotiating hand-offs
-%both between Wifi access points and between Wifi and 3G radios. We were
-%interested in observing hand-offs between 3G (provided by Sprint, \PhoneLab{}'s
-%operational partner) and Wifi and found many in the dataset collected by our
-%usage experiment. Since the Android \texttt{ConnectivityService} frequently
-%switches network interfaces for exploration purposes, we have defined a
-%transition as two one-minute or longer sessions on different interfaces
-%separated by less than one minute. We further limit ourselves to cases where we
-%received a location update during the transition.
-%
-%\begin{figure*}[th!]
-%\centering
-%\includegraphics[width=0.8\textwidth]{./figures/power/opportunistic_charging/max_difference/graph.pdf}
-%\caption{\textbf{3G to Wifi transition locations.} The map indicates that
-%there are several common areas where network hand-offs occur.}
-%\label{figure-networktransitions}
-%\end{figure*}
-%
-%Figure~\ref{figure-networktransitions} plots the location of transitions that
-%occurred on or near SUNY North Campus. We notice many clusters in expected
-%locations: near the entrance and exits of buildings where participants are
-%likely to be moving from campus Wifi to 3G.
+
+\subsection{Mobile Network Transitions}
+\label{subsec-networktransitions}
+
+Mobile devices like smartphones move through a complex network environment.
+Providing the illusion of seamless connectivity requires negotiating hand-offs
+both between Wifi access points and between Wifi and 3G radios. We were
+interested in observing hand-offs between 3G (provided by Sprint, \PhoneLab{}'s
+operational partner) and Wifi and found many in the dataset collected by our
+usage experiment. Since the Android \texttt{ConnectivityService} frequently
+switches network interfaces for exploration purposes, we have defined a
+transition as two one-minute or longer sessions on different interfaces
+separated by less than one minute. We further limit ourselves to cases where we
+received a location update during the transition.
+
+\begin{figure*}[th!]
+\centering
+\includegraphics[width=0.8\textwidth]{./figures/networking/transition_locations/graph.pdf}
+\caption{\textbf{3G to Wifi transition locations.} The map indicates that
+there are several common areas where network hand-offs occur.}
+\label{figure-networktransitions}
+\end{figure*}
+
+Figure~\ref{figure-networktransitions} plots the location of transitions that
+occurred on or near SUNY North Campus. We notice many clusters in expected
+locations: near the entrance and exits of buildings where participants are
+likely to be moving from campus Wifi to 3G.
