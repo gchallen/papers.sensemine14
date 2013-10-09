@@ -1,36 +1,30 @@
 \section{The PhoneLab Testbed}
 \label{sec-testbed}
 
-\PhoneLab{} was designed to fill a gap in existing smartphone experimentation
-capabilities. As mentioned earlier, current experimental approaches are
-forced to trade off, power, scale and realism. \PhoneLab{} achieves power by
-utilizing Android open-source devices and a self-signed build which allows us
-to update any software components; scale by amortizing recruitment overhead,
-management burden and incentive costs across multiple experiments; and
-realism by recruiting a diverse set of participants and limiting experimental
-intrusiveness. We describe the architecture \PhoneLab{} in more detail below.
-
-\subsection{Overview}
-
-\PhoneLab{} currently consists of 191 participants\footnote{We refer to
-people carrying \PhoneLab{} phones and participating in experiments as
+\PhoneLab{} began operating in 2012 with 191~participants\footnote{We refer
+to people carrying \PhoneLab{} phones and participating in experiments as
 \PhoneLab{} \textit{participants}, to differentiate them from researchers
-running \PhoneLab{} experiments which we call \textit{users}.} using Sprint
-Nexus~S~4G smartphones~\cite{nexuss4g} running Android 4.1.1, Jelly
-Bean~\cite{jellybean}. Participants receive discounted voice, data, and
-messaging, and are instructed to use their \PhoneLab{} phone as their primary
-device.
+running \PhoneLab{} experiments which we call \textit{users}.} using
+Nexus~S~4G smartphones~\cite{nexuss4g} running Android
+4.1.1~\cite{jellybean}. The first year of operating was a beta test allowing
+us to develop the software and expertise necessary to manage a large testbed.
+No external experiments were solicited, but several internal experiments were
+performed including a usage characterization study that produced the results
+described in Section~\ref{sec-experiments}. In 2013, \PhoneLab{} grew to
+288~participants using Samsung Galaxy~Nexus devices~\cite{nexuss4g} running
+Android 4.2.2. Participants receive discounted voice, data, and messaging
+from Sprint in exchange for their participation, and are required to use
+their \PhoneLab{} phone as their primary device.
 
 \PhoneLab{} experiments are either distributed through the Play Store or as
 platform over-the-air (OTA) updates. Participants are notified of new
 experiments and choose whether to participate after reviewing what
 information will be collected about them. \PhoneLab{} participants are
 \textit{required} to participate in experimentation but \textit{not required}
-to participate in any particular experiment. They may remove experiments
-that they deem too intrusive or that negatively affect their device. Some
-experiments may run in the foreground like typical applications and require
-the participant interact with them. Others may run quietly in the background
-collecting useful information. 
+to participate in any particular experiment. They may remove experiments that
+they deem too intrusive or that negatively affect their device. Some
+experiments may run in the foreground and interact with users like typical
+applications, while others may gather data silently in the background.
 
 \PhoneLab{} users must provide human subjects review documentation, a list of
 log tags to capture (which we describe later in this section), and their
@@ -44,46 +38,45 @@ participating devices.
 
 \subsection{Platform and Device}
 
-\PhoneLab{} phones run the popular Google Android open-source smartphone
-platform (AOSP). Using an open-source platform for \PhoneLab{} was an obvious
-choice for obvious and less-obvious reasons.
-
-The obvious reason is that the AOSP allows \PhoneLab{} users to experiment
-with any software component, meeting our goal of providing a powerful
-testbed. Modifications to Android services that provide location, access
-networks, and manage power can be benchmarked alongside unmodified devices.
-Of course, power also creates problems: faulty experiments can render phones
-inoperable and threaten participation. As a result, experimentation at the
-platform level will require additional pre-deployment testing and interaction
-with the \PhoneLab{} team when compared with experiments that only distribute
-novel applications or collect data at the application level.
+\PhoneLab{} phones run the popular Google Android Open-source Smartphone
+Platform (AOSP). Using an open-source platform for \PhoneLab{} was an obvious
+choice for obvious and less-obvious reasons. The obvious reason is that the
+AOSP allows \PhoneLab{} users to experiment with any software component,
+meeting our goal of providing a powerful testbed. Modifications to Android
+services that provide location, access networks, and manage power can be
+benchmarked alongside unmodified devices. Of course, power also creates
+problems: faulty experiments can render phones inoperable and threaten
+participation. As a result, experimentation at the platform level will
+require additional pre-deployment testing and interaction with the
+\PhoneLab{} team when compared with experiments that only distribute novel
+applications or collect data at the application level. We plan to begin
+supporting external platform experimentation in 2014.
 
 We have also found that using an open-source platform has other, less obvious
 benefits. First, the availability of the Android source makes \PhoneLab{}
 instrumentation easier even when collecting data from the application level
 because it gives a visibility into hidden APIs. For example, our usage
 characterization experiment, described in Section~\ref{sec-experiments}, uses
-Java reflection to access hidden battery usage APIs.
-
-Second, the AOSP allows us to sign the platform image used by our
-participants. When the same key is used to sign a software package, that
-application may run as the system user with root privileges. Using this
-feature allows us to distribute and update core \PhoneLab{} experimental
-management software via the Play Store while retaining the privileges necessary
-to collect logs and perform platform updates.
+Java reflection to access hidden battery usage APIs. Second, using the AOSP
+allows us to sign the platform image used by our participants. When the same
+key is used to sign a software package, that application may run as the
+system user with root privileges. Using this feature allows us to distribute
+and update core \PhoneLab{} experimental management software via the Play
+Store while retaining the privileges necessary to collect logs and perform
+platform updates.
 
 Finally, we expect that our base \PhoneLab{} platform image will evolve to
 meet the needs of the research community. While we have found that Android
 already logs a wealth of information about platform operation, there are
 places where more information could be exposed or logged in a more
 experiment-friendly way. Controlling the platform provides the opportunity to
-supplement existing interfaces or add additional logging to make
-experimentation and data collection easier.
+supplement existing interfaces or add additional logging to facilitate
+experimentation.
 
-We have distributed Nexus S 4G smartphones to our first group of
-participants. The Nexus S 4G was first released by Sprint in May, 2011, and
-was one of the official AOSP development phones at the time \PhoneLab{}
-development began. Its features are summarized in Table~\ref{table-nexuss4g}.
+We distributed Samsung Nexus~S~4G smartphones to our first year of
+participants and Samsung Galaxy~Nexus smartphones to our second year. Both
+were official AOSP development phones and are well-supported, although we had
+to obtain proprietary drivers directly from Sprint for the Galaxy~Nexus.
 While we expect to receive yearly phone upgrades and will distribute a more
 up-to-date device to our second group of participants, we anticipate that the
 prohibitive cost of the newest flagship smartphones will prevent us from ever
@@ -219,26 +212,6 @@ can uninstall it. If we notice patterns of experimental removal, we will flag
 the experiment and notify the researcher.
 
 \input{./figures/logging/table.tex}
-
-\subsection{Bootstrapping and Management}
-
-We began advertising \PhoneLab{} on campus via posters, flyers, Facebook, and
-mass emails in late July, 2012. As mentioned previously, \PhoneLab{} phone
-distribution began on August 24, 2012. Most phones were distributed between
-August 24, 2012 and August 31, 2012. Our initial plan was to distribute 200
-phones during that period, but we ran into an unexpected shortage of
-supplies for Nexus S 4G. Due to this reason, the last device was handed out on
-October 29, 2012.
-
-We delayed the release of our experimental harness for two months until
-November 8, 2012. This was done for several reasons. First, we wanted to
-complete the distribution of phones. Second, we wanted to complete development
-and testing of the harness and backend infrastructure. Third, we wanted to
-receive training in human subjects experimentation and prepare the materials for
-our first experiment. Finally, the delay allowed our participants to develop
-normal usage patterns before experimentation began. For this last reason, we may
-repeat a shorter version of this delay with subsequent new groups of \PhoneLab{}
-participants.
 
 \input{./figures/statistics/tag_table/table.tex}
 
