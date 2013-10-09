@@ -1,67 +1,75 @@
 \section{Introduction}
 \label{sec-introduction}
 
-Smartphones have become the most popular computing platform. Google reports
-1.3~M Android device activations per day in September,
-2013~\cite{google-Sep2012-activations}, while IDC projects that 224~M smartphone
-units will ship worldwide in 2013 Q4, a 40\% increase over 2012
-Q4~\cite{idc-smartphone-growth}. Taken as a whole, the growing network of
-smartphone devices represents the largest, most pervasive distributed system in
-history.
+Smartphones have quickly become the most popular computing platform. Google
+announced in September, 2013, that it had activated over 1~billion Android
+devices in only six years, with 500~million in the last year
+alone~\cite{google-total-activations}. The International Data Corporation
+(IDC) projects that 224~M smartphone units will ship worldwide in 2013 Q4, a
+40\% increase over 2012 Q4~\cite{idc-smartphone-growth}. Taken as a whole,
+the growing network of smartphone devices represents the largest and most
+pervasive distributed system ever built.
 
-Meanwhile, the scale of smartphone experimentation is not keeping pace. A small
-survey of MobiSys'12, MobiSys'13, and SenSys'13 papers reveals that often times
-when smartphone evaluations use real devices, they use small numbers of
+Unfortunately, the scale of smartphone experimentation is not keeping pace. A
+small survey of MobiSys'12, MobiSys'13, and SenSys'13 papers reveals that
+frequently smartphone evaluations on real devices use small numbers of
 phones---for example, 2, 3, or 7~\cite{nowar-mobisys12, wang:mobisys:2013,
-hao:sensys:2013}. Many other experiments use simulations driven by small, old,
-or synthesized data sets~\cite{falcon-mobisys12, ace-mobisys12,
+hao:sensys:2013}. Many other experiments use simulations driven by small,
+old, or synthesized data sets~\cite{falcon-mobisys12, ace-mobisys12,
 humanmobility-mobisys12}. In either case, large-scale results from real users
-would be more compelling. While multiple factors---including recruitment, human
-subjects compliance, and data collection---make large-scale smartphone
+would be more compelling. While multiple factors---including recruitment,
+human subjects compliance, and data collection---make large-scale smartphone
 experimentation challenging, harnessing the growth of smartphones requires
 evaluating new ideas at scale.
 
-In this paper, we present \PhoneLab{}, a large programmable smartphone testbed
-that enables smartphone research at scales currently impractical. \PhoneLab{}
-provides access to a large and stable set of participants incentivized to
-participate in smartphone experimentation; \PhoneLab{} is continually growing
-with 191~participants in 2012, and 288~participants in 2013. With this scale,
-\PhoneLab{} increases the density and interaction rate between participants,
-facilitating the evaluation of phone-to-phone protocols and crowd-sourcing
-algorithms.
+\newpage
 
-\PhoneLab{} provides the features necessary for smartphone research---power,
-scale, realism, locality, and relevance:
+In this paper, we present \PhoneLab{}, a large public smartphone testbed
+hosted by the University at Buffalo that enable research at scales currently
+impractical. \PhoneLab{} provides the features necessary for smartphone
+research---power, scale, realism, locality, relevance, and repeatability:
 
 \begin{itemize}
-\item {\bf Scale:} \PhoneLab{} currently has 288 participants, already recruited
-to participate in experiments.
-\item {\bf Power:} \PhoneLab{} allows application-level experiments as well
-as platform-level, i.e., Android kernel, middleware, libraries, and Dalvik
-virtual machine.
-\item {\bf Realism:} Participants use the phones as their primary device.
-\item {\bf Locality:} Most participants live in Buffalo near SUNY campuses,
-enabling research requiring device-to-device interaction.
-\item {\bf Relevance:} \PhoneLab{} allows researchers to stop relying on
+
+\item \textbf{Scale:} \PhoneLab{} currently has 288 participants already
+incentivized to join experiments and will grow even larger in 2014. Unlike
+applications distributed on the Play Store, \PhoneLab{} experiments do not
+need to provide immediate user benefit or even interact with users to attract
+participants, facilitating important research unlikely to prove popular on
+application marketplaces.
+
+\item \textbf{Power:} By utilizing the Android open-source smartphone
+platform, \PhoneLab{} allows application-level interactive experiments,
+non-interactive data collection, and experimental changes to the Linux
+kernel; Android middleware and libraries; and Dalvik virtual machine. Passive
+experimentation is difficult to perform without platform support, and
+platform experiments are impossible to distribute on application
+marketplaces.
+
+\item \textbf{Realism:} Participants use the phones as their primary device.
+
+\item \textbf{Locality:} Most participants live in Buffalo near SUNY campuses,
+enabling research on crowdsourcing algorithms or requiring device-to-device
+interaction.
+
+\item \textbf{Relevance:} \PhoneLab{} allows researchers to stop relying on
 out-of-date datasets. Instead, new data can be collected in the most
 appropriate way for the experiment.
-\vspace{0.05in}
+
+\item \textbf{Repeatability:} \PhoneLab{} requires researchers to publish
+their data sets after a standard embargo period of one year, allowing other
+researchers to reexamine and reuse their results.
+
 \end{itemize}
 
-By utilizing the Android open-source smartphone platform, \PhoneLab{} enables
-research above and below the platform interface. Researchers can distribute
-new interactive applications or non-interactive data loggers, but can also
-change core Android platform components, allowing \PhoneLab{} to host systems
-experiments impossible to distribute through the Play Store.
-
-We first describe \PhoneLab{} in Section~\ref{sec-testbed}, its current design,
-implementation, and the data collection mechanism. We then demonstrate in
-Section~\ref{sec-experiments} that \PhoneLab{} is powerful and usable by giving
-three example data analysis results. For this purpose, we have conducted a usage
-measurement experiment run by 115 \PhoneLab{} participants for 21
-days~\XXXnote{GWA: FIXME.}. Rather than attempting a comprehensive analysis of
-the dataset, we use it to highlight the power of \PhoneLab{} and breadth of
-research it supports. We present three results on:
+We first describe \PhoneLab{} in Section~\ref{sec-testbed}, its current
+design, implementation, and the data collection mechanism. We then
+demonstrate in Section~\ref{sec-experiments} that \PhoneLab{} is powerful and
+usable by giving three example data analysis results. For this purpose, we
+have conducted a usage measurement experiment run by 115 \PhoneLab{}
+participants for six months. Rather than attempting a comprehensive analysis
+of the dataset, we use it to highlight the power of \PhoneLab{} and breadth
+of research it supports by presenting three results on:
 
 \begin{itemize}
 \item overall energy breakdown (Section~\ref{subsec-energybreakdown}),
