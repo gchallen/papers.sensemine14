@@ -129,68 +129,57 @@ first-year participants were primarily young men, our second-year
 participants are a good mix of ages and genders, making results more
 representative.
 
-
 \subsection{Testbed Software}
 
-\PhoneLab{} devices are deployed with a small piece of testbed management
-software embedded in the Android platform image. This heartbeat service
-uploads periodic reports including information about device location, battery
-levels, and the installation status of other core \PhoneLab{} components.
-This information is only used for testbed management and will never be
+\PhoneLab{} smartphones are distributed with a small piece of testbed
+management software integrated into the Android platform. This heartbeat
+service uploads periodic reports including information about device location,
+battery levels, and the installation status of other required \PhoneLab{}
+software. This information is only used for testbed management and never
 released to researchers.
 
-The heartbeat service is also responsible for starting the primary
-\PhoneLab{} configuration and data collection software when the phone boots,
-which allows us to bypass an Android security feature that normally prevents
-services from running in the background unless started by a foreground
-application. In order to remain unobtrusive, our experimental management
-software does not have a foreground component and thus would not normally be
-able to start.
-
-Experimental configuration, log collection, data upload and platform updates
-are performed by the \PhoneLab{} experimental harness, which is installed and
-updated through the Google Play Store. By signing it to match the platform
-build key it runs with root privileges, necessary to collect logs from all
-applications and perform platform updates. Periodically, the experimental
-harness retrieves an XML configuration from a central \PhoneLab{} server. The
-configuration specifies what background experiments to start or stop, what
-data to collect, which server the phone should upload data to and the policy
-for when to perform uploads. The \PhoneLab{} harness also uploads status
-information to the server during the configuration exchange, including what
-versions of various harness components are installed, what experiments are
-running and how much data is waiting to be uploaded.
+On boot, the heartbeat service starts the \PhoneLab{} Conductor, the primary
+\PhoneLab{} configuration and data collection tool. Experimental
+configuration, log collection, data upload and platform updates are performed
+by the Conductor, which is installed and updated through the Google Play
+Store. By signing it to match the platform build key it runs with root
+privileges, necessary to collect logs from all applications, perform platform
+updates, and start experiments that lack a foreground activity. Periodically,
+the Conductor retrieves an XML configuration the \PhoneLab{} server. The
+configuration specifies what background experiments to start or stop, which
+log tags to collect, and the upload policy and endpoints. The Conductor also
+uploads status information to the server during the configuration exchange,
+including version numbers of \PhoneLab{} software, what experiments are
+currently running and how much data is queued for upload.
 
 \PhoneLab{} logging and data collection must be unintrusive. If it is not,
-either our participants will leave or their usage patterns will be affected.
-We believe that we have achieved this goal. First, measured battery usage of
-\PhoneLab{} is low. A conservative overhead estimate that includes all of the
+either our participants will quit, or their usage patterns will be affected.
+We believe that we have achieved this goal. Measured battery usage of
+\PhoneLab{} software is low. A conservative estimate that includes all of the
 applications that run as the shared system user comes to a per-participant
-average of 2.4\%. This should be considered a strict maximum. Our policy of
-only uploading while the device is plugged and charging eliminates the
-overhead of the most power-hungry task.
-
-Second, we have received no major complaints about our the final version of
-our \PhoneLab{} experimental harness after we instructed participants to
-install it. Given that participants we allowed to use their phone without our
-software for several months, we believe that any significant changes in phone
-behavior caused by our experimental harness would have been noticed.
+average of 2.4\%. Given that this estimate includes many non-\PhoneLab{}
+applications that also run as the system user, it should be considered a
+strict maximum. Our default policy of only uploading while the device is
+charging reduces the overhead of the most power-hungry task. In addition, we
+have received no complaints about our tools, even from participants that
+initially used their phones without them.
 
 \subsection{Safety and Privacy}
 
-\PhoneLab{} is different from many other computer systems testbeds, such as
-Emulab~\cite{white:osdi:2002, emulab}, PlanetLab~\cite{peterson:ccr:2003,
+There is an important difference between \PhoneLab{} and other testbeds, such
+as Emulab~\cite{white:osdi:2002, emulab}, PlanetLab~\cite{peterson:ccr:2003,
 planetlab}, MoteLab~\cite{werner-allen:ipsn:2005}, or
 OpenCirrus~\cite{avetisyan:computer:2010, opencirrus}: our experiments
 involve real people. There are two core requirements regarding our
 participants. First, they should use their phone as they normally would,
 which motivated the design of unintrusive testbed management software.
-Second, and more importantly, they must feel safe and in control while part
-of \PhoneLab{}.
+Second, and more importantly, they must feel safe while participating in
+\PhoneLab{} experiments.
 
-To accomplish this, when possible, we leverage several existing safety
-mechanisms. First, we require an Institutional Review Board (IRB) to review
+To accomplish this, we leverage several existing safety mechanisms when
+possible. First, we require an Institutional Review Board (IRB) to review
 each \PhoneLab{} experiment for human subjects compliance. IRB approval or an
-official waiver is required before any \PhoneLab{} any experiment can begin.
+official exemption is required before any \PhoneLab{} any experiment can begin.
 
 Second, we distribute experimental applications to a group of developers
 prior to broader release, allowing us to identify any significant problems
