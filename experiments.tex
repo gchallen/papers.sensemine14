@@ -1,36 +1,18 @@
-
-\begin{figure*}[th!]
-\centering
-\includegraphics[width=0.7\textwidth]{./figures/power/breakdown/graph.pdf}
-\caption{\textbf{Power usage by component.} The large bar at left shows an
-aggregated breakdown for all participants. The participant bars are scaled
-against the participant with the most energy usage.}
-\label{figure-batteryoverview}
-\end{figure*}
-
 \section{Example Experiments}
 \label{sec-experiments}
 
-We have conducted a usage measurement study with 115 participants over 21 days
-\XXXnote{stevko: revisit the number and/or the description}.
-For this purpose, we have developed a measurement application that collects all
-salient features of smartphone usage: networking, mobility, power consumption,
-and application usage.
-
-This section presents some of the early results of this study. We present the
-battery and charging behavior first then the network transition behavior
-between 3G and WiFi next.
+During our first beta test year we performed a usage measurement study. 115
+participants joined the study which eventually ran for over six months. For
+this purpose, we have developed a measurement application that collects
+multiple salient features of smartphone usage: networking, mobility, power
+consumption, and application usage. This section presents some selected
+results of this study. We present the battery and charging behavior first
+then the network transition behavior between 3G and WiFi next. Our goal is to
+demonstrate the types of experiments that can be performed on \PhoneLab{} and
+the insights they can achieve.
 
 \subsection{Energy Breakdown}
 \label{subsec-energybreakdown}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.6\columnwidth]{./figures/power/opportunistic_charging/count_and_by_time/graph.pdf}
-\caption{\textbf{Patterns of opportunistic charging.} Many users perform
-opportunistic charging multiple times during the day.}
-\label{fig-opportunistic-patterns}
-\end{figure}
 
 A single-day component-by-component breakdown is shown in
 Figure~\ref{figure-batteryoverview}. Our results are similar to those reported
@@ -54,6 +36,30 @@ contribution. Other hypotheses are that Android network location is providing
 location with sufficient accuracy for many applications, eliminating the need
 for GPS, or participants and applications may simply be conscious of GPS
 power consumption and taking steps to control it.
+
+\begin{figure}[th!]
+
+\centering
+\includegraphics[width=\columnwidth]{./figures/power/opportunistic_charging/max_difference/graph.pdf}
+
+\caption{\textbf{Charge difference between participants during one day.} The
+graph plots the top and bottom quartiles as well as the median. At any given
+time, a significant spread is present.}
+
+\label{fig-opportunistic-spread}
+
+\vspace*{0.2in}
+
+\centering
+\includegraphics[width=0.7\columnwidth]{./figures/power/opportunistic_charging/count_and_by_time/graph.pdf}
+
+\caption{\textbf{Patterns of opportunistic charging.} Many users perform
+opportunistic charging multiple times each day.}
+
+\label{fig-opportunistic-patterns}
+
+\end{figure}
+
 
 \subsection{Opportunistic Charging}
 \label{subsec-opportunistic}
@@ -97,38 +103,36 @@ different phones. Figure~\ref{fig-opportunisticspread} displays the top,
 bottom, and middle (median) quartiles for a single day on \PhoneLab{}. Only
 phones that are discharging are shown, which explains the sharp increase
 between 6~and~10AM as participants end nightly charging cycles.  As the graph
-indicates, there is a high chance that two smartphones that meet have very
+indicates, it is likely that when two smartphones meet they have very
 different battery levels.
-
-\begin{figure*}[th!]
-\centering
-\includegraphics[width=0.8\textwidth]{./figures/power/opportunistic_charging/max_difference/graph.pdf}
-\caption{\textbf{Charge difference between participants during one day.} The
-graph plots the top and bottom quartiles as well as the median. A significant
-spread is present on the testbed throughout the day.}
-\label{fig-opportunisticspread}
-\end{figure*}
 
 \subsection{Mobile Network Transitions}
 \label{subsec-networktransitions}
 
-Mobile devices like smartphones move through a complex network environment.
-Providing the illusion of seamless connectivity requires negotiating hand-offs
-both between Wifi access points and between Wifi and 3G radios. We were
-interested in observing hand-offs between 3G (provided by Sprint, \PhoneLab{}'s
-operational partner) and Wifi and found many in the dataset collected by our
-usage experiment. Since the Android \texttt{ConnectivityService} frequently
+Mobile smartphones move through a complex network environment. Providing the
+illusion of seamless connectivity requires negotiating hand-offs both between
+Wifi access points and between Wifi and 3G radios. We were interested in
+observing hand-offs between 3G (provided by Sprint, \PhoneLab{}'s operational
+partner) and Wifi and found many in the dataset collected by our usage
+experiment. Since the Android \texttt{ConnectivityService} frequently
 switches network interfaces for exploration purposes, we have defined a
 transition as two one-minute or longer sessions on different interfaces
-separated by less than one minute. We further limit ourselves to cases where we
-received a location update during the transition.
+separated by less than one minute. We further limit ourselves to cases where
+we received a location update during the transition. Data for the first
+21~days of the usage experiment is shown.
 
-\begin{figure*}[th!]
+\begin{figure*}[t]
+
 \centering
-\includegraphics[width=0.8\textwidth]{./figures/networking/transition_locations/graph.pdf}
+\includegraphics[width=0.9\textwidth]{./figures/networking/transition_locations/graph.pdf}
+
 \caption{\textbf{3G to Wifi transition locations.} The map indicates that
 there are several common areas where network hand-offs occur.}
+
 \label{figure-networktransitions}
+
+\vspace*{-0.15in}
+
 \end{figure*}
 
 Figure~\ref{figure-networktransitions} plots the location of transitions that

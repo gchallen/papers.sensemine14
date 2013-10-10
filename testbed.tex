@@ -168,17 +168,29 @@ charging reduces the overhead of the most power-hungry task. In addition, we
 have received no complaints about our tools, even from participants that
 initially used their phones without them.
 
+\begin{figure*}[t]
+
+\centering
+\includegraphics[width=0.8\textwidth]{./figures/power/breakdown/graph.pdf}
+
+\caption{\textbf{Power usage by component.} The large bar at left shows an
+aggregated breakdown for all participants. The participant bars are scaled
+against the participant with the most energy usage.}
+
+\label{figure-batteryoverview}
+\end{figure*}
+
 \subsection{Safety and Privacy}
 
 There is an important difference between \PhoneLab{} and other testbeds, such
-as Emulab~\cite{white:osdi:2002, emulab}, PlanetLab~\cite{peterson:ccr:2003,
-planetlab}, MoteLab~\cite{werner-allen:ipsn:2005}, or
-OpenCirrus~\cite{avetisyan:computer:2010, opencirrus}: our experiments
-involve real people. There are two core requirements regarding our
-participants. First, they should use their phone as they normally would,
-which motivated the design of unintrusive testbed management software.
-Second, and more importantly, they must feel safe while participating in
-\PhoneLab{} experiments.
+as Emulab~\cite{white:osdi:2002}, PlanetLab~\cite{peterson:ccr:2003},
+MoteLab~\cite{werner-allen:ipsn:2005}, or
+OpenCirrus~\cite{avetisyan:computer:2010}: our experiments involve real
+people. There are two core requirements regarding our participants. First,
+they should use their phone as they normally would, which motivated the
+design of unintrusive testbed management software. Second, and more
+importantly, they must feel safe while participating in \PhoneLab{}
+experiments.
 
 To accomplish this, we leverage several existing safety mechanisms when
 possible. First, we require an Institutional Review Board (IRB) to review
@@ -203,13 +215,11 @@ the experiment and notify the researcher.
 \subsection{Experimental Procedures}
 
 To conclude, we review \PhoneLab{} experimentation from a researcher's
-perspective.
-
-First, develop your application locally. Any information logged through the
-standard Android logging library can be recorded. In addition, the platform may
-already be logging useful information for you. Keep track of all the log tags
-you want \PhoneLab{} to capture. Approach your local IRB and receive
-experimental approval and upload your application to the Play Store.
+perspective. First, develop your application locally. Any information logged
+through the standard Android logging library can be recorded. In addition,
+the platform may already be logging useful information for you. Keep track of
+all the log tags you want \PhoneLab{} to capture. Approach your local IRB and
+receive experimental approval and upload your application to the Play Store.
 
 Second, upload your list of log tags, IRB letter, and link to your
 application on the Play Store through the \PhoneLab{} website. We will

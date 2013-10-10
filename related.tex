@@ -1,47 +1,27 @@
 \section{Related Work}
 \label{sec:related}
 
-Testbeds in other domains have chosen their design points
-to meet domain-specific needs. For example, PlanetLab~\cite{peterson:ccr:2003,
-planetlab} operates more than 1,000 machines world-wide in order to enable
-large-scale, realistic Internet research. Emulab~\cite{white:osdi:2002, emulab}
-provides emulated network environments to enable controlled, repeatable network
-experiments. MoteLab~\cite{werner-allen:ipsn:2005} targets realistic sensor
-network experiments by deploying a sensor network testbed in a building at
-Harvard. ORBIT~\cite{raychaudhuri:tridentcom:2005} takes a two-tier approach
-allowing emulated experiments as well as real deployments, targeting
-reproducibility and realism at the same time.
-OpenCirrus~\cite{avetisyan:computer:2010, opencirrus} and VICCI~\cite{vicci} are
-geographically distributed clusters, designed to support cloud computing
-research. \PhoneLab{}, on the other hand, aims to provide a large-scale,
-realistic platform for smartphone experimentation, resulting in a number of
-different design points as described in this paper.
+Most similar to \PhoneLab{} are the NetSense~\cite{netsense-hotplanet}
+project at Notre Dame and the LiveLabs~\cite{FIXME-livelabs} testbed at
+Singapore Management University. NetSense has many similarities to
+\PhoneLab{}: it distributed instrumented smartphones to several hundred
+incoming freshman undergraduate students. In contrast to \PhoneLab{},
+however, NetSense was built to support a single study---on how use of digital
+technologies impacts friendship formation---and never designed or operated as
+a public testbed. LiveLabs is a city-scale research testbed designed to allow
+companies to run large-scale consumer trials and experiment with novel
+services. It aims to recruit thousands of participants, potentially providing
+scale exceeding that of \PhoneLab{}, but is also not public.
 
-%{\bf Measurement Tools:} Researchers have developed special-purpose
-%measurement tools for smartphone usage measurement. These tools are designed to
-%measure certain metrics such as power consumption~\cite{zhang:codes:2010,
-%pathak:eurosys:2012} or 3G performance~\cite{huang:mobisys:2010}. Though we have
-%developed a measurement tool for our analysis as well, our focus for this paper
-%is not the tool design, but the power of \PhoneLab{}.
-%
-%{\bf Smartphone Measurement Studies:}
-%Though the primary purpose of our analysis is to demonstrate the power of
-%\PhoneLab{}, our findings complement what previous studies have reported. Falaki
-%et al.~\cite{falaki:mobisys:2010} are among the first ones to study smartphone
-%usage. Their central finding is that in many of the metrics they studied, there
-%was significant diversity without a clear pattern; the metrics include the mean
-%interaction length, the mean number of applications used, the mean amount of
-%traffic, etc. Xu et al.~\cite{xu:imc:2011} use a network-level trace to analyze
-%smartphone application usage. The key findings are that smartphone users use
-%many regional applications such as local news apps; certain applications are
-%installed together; and mobility patterns affect the types of applications
-%used. Trestian et al.~\cite{trestian:imc:2009} study users of a 3G network and
-%report a similar finding: people's movement and locations correlate with
-%applications they use. They also report that there is a correlation between
-%content upload and location in another study~\cite{trestian:ton:2012}. Shye et
-%al.~\cite{shye:micro:2009} studies how power consumption is distributed over
-%different hardware components. Kim et al.~\cite{kim:fast:2012} focus on
-%correlation between storage and application performance and find multiple
-%factors that affect application performance. Many studies have also looked at
-%Wifi and 3G network characteristics using
-%smartphones~\cite{keralapura:mobicom:2010, maier:pam:2010, gember:pam:2011}.
+Testbeds in other domains have chosen their design points to meet
+domain-specific needs. PlanetLab~\cite{peterson:ccr:2003} operates more than
+1,000 machines world-wide in order to enable large-scale, realistic Internet
+research. Emulab~\cite{white:osdi:2002} provides emulated network
+environments to enable controlled, repeatable network experiments.
+MoteLab~\cite{werner-allen:ipsn:2005} targets realistic sensor network
+experiments by deploying a sensor network testbed in a building at Harvard.
+ORBIT~\cite{raychaudhuri:tridentcom:2005} takes a two-tier approach allowing
+emulated experiments as well as real deployments, targeting reproducibility
+and realism at the same time. OpenCirrus~\cite{avetisyan:computer:2010} and
+VICCI~\cite{vicci} are geographically distributed clusters, designed to
+support cloud computing research.
