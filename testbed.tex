@@ -144,15 +144,16 @@ On boot, the heartbeat service starts the \PhoneLab{} Conductor, the primary
 \PhoneLab{} configuration and data collection tool. Experimental
 configuration, log collection, data upload and platform updates are performed
 by the Conductor, which is installed and updated through the Google Play
-Store. By signing it to match the platform build key it runs with root
-privileges, necessary to collect logs from all applications, perform platform
-updates, and start experiments that lack a foreground activity. Periodically,
-the Conductor retrieves an XML configuration from the \PhoneLab{} server. The
-configuration specifies what background experiments to start or stop, which
-log tags to collect, and the upload policy and endpoints. The Conductor also
-uploads status information to the server during the configuration exchange,
-including version numbers of \PhoneLab{} software, what experiments are
-currently running and how much data is queued for upload.
+Store. We sign it with the platform build key, which allows it to run with
+the root privileges necessary to collect logs from all applications, perform
+platform updates, and start experiments that lack a foreground activity.
+Periodically, the Conductor retrieves an XML configuration from the
+\PhoneLab{} server. The configuration specifies what background experiments
+to start or stop, which log tags to collect, and the upload policy and
+endpoints. The Conductor also uploads status information to the server during
+the configuration exchange, including version numbers of \PhoneLab{}
+software, what experiments are currently running and how much data is queued
+for upload.
 
 \PhoneLab{} logging and data collection must be unintrusive. If it is not,
 either our participants will quit, or their usage patterns will be affected.
