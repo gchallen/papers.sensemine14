@@ -6,17 +6,17 @@
 \PhoneLab{} began operating in 2012 with 191~participants\footnote{We refer
 to people carrying \PhoneLab{} phones and participating in experiments as
 \PhoneLab{} \textit{participants}, to differentiate them from researchers
-running \PhoneLab{} experiments which we call \textit{users}.} using
-Nexus~S~4G smartphones~\cite{nexuss4g} running Android
-4.1.1~\cite{jellybean}. The first year of operating was a beta test allowing
-us to develop the software and expertise necessary to manage a large testbed.
-No external experiments were solicited, but several internal experiments were
-performed including a usage characterization study that produced the results
-described in Section~\ref{sec-experiments}. In 2013, \PhoneLab{} grew to
-288~participants using Samsung Galaxy~Nexus devices~\cite{nexuss4g} running
-Android 4.2.2. Participants receive discounted voice, data, and messaging
-from Sprint in exchange for their participation, and are required to use
-their \PhoneLab{} phone as their primary device.
+running \PhoneLab{} experiments who we call \textit{users}.} using Nexus~S~4G
+smartphones~\cite{nexuss4g} running Android 4.1.1~\cite{jellybean}. The first
+year of operating was a beta test allowing us to develop the software and
+expertise necessary to manage a large testbed. No external experiments were
+solicited, but several internal experiments were performed including a usage
+characterization study that produced the results described in
+Section~\ref{sec-experiments}. In 2013, \PhoneLab{} grew to 288~participants
+using Samsung Galaxy~Nexus devices~\cite{nexuss4g} running Android 4.2.2.
+Participants receive discounted voice, data, and messaging from Sprint in
+exchange for their participation, and are required to use their \PhoneLab{}
+phone as their primary device.
 
 \PhoneLab{} experiments are either distributed through the Play Store or as
 platform over-the-air (OTA) updates. Participants are notified of new
@@ -47,7 +47,7 @@ Platform (AOSP). Using an open-source platform for \PhoneLab{} was an obvious
 choice for obvious and less-obvious reasons. The obvious reason is that the
 AOSP allows \PhoneLab{} users to experiment with any software component,
 meeting our goal of providing a powerful testbed. Modifications to Android
-services that provide location, access networks, and manage power can be
+services that provide location, access networks, and manage energy can be
 benchmarked alongside unmodified devices. Of course, power also creates
 problems: faulty experiments can render phones inoperable and threaten
 participation. As a result, experimentation at the platform level will
@@ -56,7 +56,7 @@ require additional pre-deployment testing and interaction with the
 applications or collect data at the application level. We plan to begin
 supporting external platform experimentation in 2014.
 
-We have also found that using an open-source platform has other, less obvious
+We have also found that using an open-source platform has less obvious
 benefits. First, the availability of the Android source makes \PhoneLab{}
 instrumentation easier even when collecting data from the application level
 because it gives a visibility into hidden APIs. For example, our usage
@@ -81,10 +81,9 @@ We distributed Samsung Nexus~S~4G smartphones to our first year of
 participants and Samsung Galaxy~Nexus smartphones to our second year. Both
 were official AOSP development phones and are well-supported, although we had
 to obtain proprietary drivers directly from Sprint for the Galaxy~Nexus.
-While we expect to receive yearly phone upgrades and will distribute a more
-up-to-date device to our second group of participants, we anticipate that the
-prohibitive cost of the newest flagship smartphones will prevent us from ever
-deploying them on \PhoneLab{}.
+While we expect to receive yearly phone upgrades and distribute more
+up-to-date devices each year, we anticipate that the prohibitive cost of the
+newest smartphone models will prevent us from deploying them on \PhoneLab{}.
 
 \input{./figures/statistics/tag_table/table.tex}
 
@@ -148,7 +147,7 @@ by the Conductor, which is installed and updated through the Google Play
 Store. By signing it to match the platform build key it runs with root
 privileges, necessary to collect logs from all applications, perform platform
 updates, and start experiments that lack a foreground activity. Periodically,
-the Conductor retrieves an XML configuration the \PhoneLab{} server. The
+the Conductor retrieves an XML configuration from the \PhoneLab{} server. The
 configuration specifies what background experiments to start or stop, which
 log tags to collect, and the upload policy and endpoints. The Conductor also
 uploads status information to the server during the configuration exchange,
@@ -170,11 +169,13 @@ initially used their phones without them.
 \begin{figure*}[t]
 
 \centering
-\includegraphics[width=0.8\textwidth]{./figures/power/breakdown/graph.pdf}
+\includegraphics[width=0.75\textwidth]{./figures/power/breakdown/graph.pdf}
 
 \caption{\textbf{Power usage by component.} The large bar at left shows an
 aggregated breakdown for all participants. The participant bars are scaled
 against the participant with the most energy usage.}
+
+\vspace*{-0.1in}
 
 \label{figure-batteryoverview}
 \end{figure*}
@@ -194,7 +195,7 @@ experiments.
 To accomplish this, we leverage several existing safety mechanisms when
 possible. First, we require an Institutional Review Board (IRB) to review
 each \PhoneLab{} experiment for human subjects compliance. IRB approval or an
-official exemption is required before any \PhoneLab{} any experiment can begin.
+official exemption is required before any \PhoneLab{} experiment can begin.
 
 Second, we distribute experimental applications to a group of developers
 prior to broader release, allowing us to identify any significant problems
@@ -206,8 +207,8 @@ Finally, we utilize Android's existing safety and privacy mechanisms.
 Participants are presented with the typical Android privacy dialog during
 experiment installation. Rather than building an alternate distribution
 channel or privacy mechanism, we felt it was sufficient and probably better
-to use a process participants are familiar with. After installation, if a
-participant discovers that an experiment malfunctions or wastes power, they
+to use a process that participants are familiar with. After installation, if
+a participant discovers that an experiment malfunctions or wastes power, they
 can uninstall it. If we notice patterns of experimental removal, we will flag
 the experiment and notify the researcher.
 
