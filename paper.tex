@@ -1,7 +1,5 @@
 \input{./include/start.tex}
 
-% !NOBIBTEX!
-
 \begin{document}
 \date{}
 
@@ -15,8 +13,9 @@ Anandatirtha Nandugudi, Anudipa Maiti, Taeyeon Ki, Fatih Bulut\\
 Murat Demirbas, Tevfik Kosar, Chunming Qiao, Steven Y. Ko and Geoffrey Challen\\[0.06in]
 \affaddr{Department of Computer Science and Engineering}\\
 \affaddr{University at Buffalo}\\[0.06in]
-\email{team@phone-lab.org}\\
-\email{\url{http://www.phone-lab.org}}
+\email{
+\href{http://www.phone-lab.org}{\Large \texttt{www.phone-lab.org}} \hspace*{0.7in}
+\href{email:team@phone-lab.org}{team@phone-lab.org}}
 }
 
 \maketitle
@@ -35,9 +34,10 @@ Murat Demirbas, Tevfik Kosar, Chunming Qiao, Steven Y. Ko and Geoffrey Challen\\
 \input{related.tex}
 \input{conclusions.tex}
 
-{\small
-\input{references.tex}
+\balance
+{\footnotesize
+\bibliographystyle{abbrv}
+\bibliography{references}
 }
-\balancecolumns
 
 \end{document}
