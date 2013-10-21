@@ -1,6 +1,6 @@
 START = xxxnote
 END = missing
-CLASS = $(PYTEX)/cls/sig-alternate-10pt.cls
+CLASS = $(PYTEX)/cls/acm_proc_article-sp.cls
 
 all: paper ABSTRACT
 
