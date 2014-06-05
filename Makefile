@@ -1,4 +1,4 @@
-START = xxxnote
+START = blue xxxnote nodraft
 END = missing
 CLASS = $(PYTEX)/cls/sig-strict.cls
 

@@ -2,6 +2,11 @@
 \usepackage{amssymb,amsfonts,amsmath}
 \usepackage{url,graphicx,multirow,hyperref,color,calc,ulem,threeparttable,tabularx,tabulary,booktabs,enumitem,subcaption,balance}
 \usepackage[group-separator={,}]{siunitx}
+\usepackage[absolute]{textpos}
+
+\setlength{\TPHorizModule}{1in}
+\setlength{\TPVertModule}{1in}
+\textblockorigin{0.75in}{0.5in}
 
 \hypersetup{
   bookmarks=true,
@@ -15,14 +20,15 @@
   pdfnewwindow=true,
   colorlinks=false,
   pdfdisplaydoctitle=true,
-  pdfborder={0 0 0}
+  pdfborder={0 0 0},
+  pdfinfo={
+    Title={PhoneLab: A Large Programmable Smartphone Testbed},
+    Author={Anandatirtha Nandugudi, Anudipa Maiti, Taeyeon Ki, Fatih Bulut,
+    Murat Demirbas, Tevfik Kosar, Chunming Qiao, Steven Y. Ko and Geoffrey
+    Challen},
+  }
 }
 \usepackage[all]{hypcap}
-
-\pdfinfo{
-   /Author ()
-   /Title  ()
-}
 
 \makeatletter
 \renewcommand*{\@fnsymbol}[1]{\ensuremath{\ifcase#1\or ^{\dagger}\or \ddagger\or
@@ -32,5 +38,7 @@
 \newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
 
 \input{.xxxnote}
+\input{.draft}
+\input{.blue}
 \input{common.tex}
 \setlist{nolistsep}
