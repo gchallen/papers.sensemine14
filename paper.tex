@@ -1,6 +1,18 @@
 \input{./include/start.tex}
 
+\def\theconference{SENSEMINE'13}
+\def\thetitle{\textsc{\LARGE PhoneLab}: A Large Programmable Smartphone Testbed}
+
+
 \begin{document}
+
+\ifdefined\isblue
+\begin{textblock}{1}(6.1,-0.5)
+\noindent\href{http://blue.cse.buffalo.edu}{\includegraphics[width=0.6in]{./figures/logos/blue.jpg}}
+\end{textblock}
+\else
+\fi
+
 \conferenceinfo{SENSEMINE'13,} {November 14 2013, Roma, Italy.}
 \CopyrightYear{2013}
 \crdata{978-1-4503-2430-4/13/11}
@@ -31,6 +43,15 @@ Murat Demirbas, Tevfik Kosar, Chunming Qiao, Steven Y. Ko and Geoffrey Challen\\
 \affaddr{University at Buffalo}\\[0.05in]
 \email{\href{email:team@phone-lab.org}{team@phone-lab.org}}\\[0.02in]
 \email{\href{http://www.phone-lab.org}{\Large \texttt{www.phone-lab.org}}}
+}
+
+\hypersetup{
+  pdfinfo={
+    Title={\thetitle},
+    Author={Anandatirtha Nandugudi, Anudipa Maiti, Taeyeon Ki, Fatih Bulut,
+      Murat Demirbas, Tevfik Kosar, Chunming Qiao, Steven Y. Ko and Geoffrey
+    Challen}
+  },
 }
 
 \maketitle

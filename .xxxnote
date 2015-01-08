@@ -1,1 +1,1 @@
-\newcommand{\XXXnote}[1]{\textcolor{red}{\bfseries XXX: #1}}
+\newcommand{\XXXnote}[1]{}
